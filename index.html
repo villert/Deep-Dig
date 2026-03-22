@@ -789,9 +789,7 @@
   <div class="modal" style="max-width:380px;text-align:left;">
     <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;margin-bottom:8px;">// SETTINGS</div>
     <h2 style="font-size:18px;margin-bottom:20px;color:var(--gold-light);letter-spacing:2px;">MINE CONTROL</h2>
-
     <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
-
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div>
           <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Screen Shake</div>
@@ -799,7 +797,6 @@
         </div>
         <button id="shake-toggle" onclick="toggleShake()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
       </div>
-
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
         <div>
           <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Ability Effects</div>
@@ -807,51 +804,24 @@
         </div>
         <button id="fx-toggle" onclick="toggleFX()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
       </div>
-
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Sound Effects</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Clicks, purchases and ability sounds.</div>
+        </div>
+        <button id="sound-toggle" onclick="toggleSound()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
+      </div>
     </div>
-
     <div style="border-top:1px solid var(--panel-border);padding-top:16px;margin-bottom:16px;">
       <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--danger);margin-bottom:8px;">DANGER ZONE</div>
       <p style="font-size:11px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;">Permanently deletes all progress. All ore, shards, upgrades, managers, and achievements will be lost. There is no undo.</p>
       <button onclick="hardReset()" style="width:100%;padding:10px;background:#1e0808;border:1px solid #803020;border-radius:4px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:var(--danger);cursor:pointer;">WIPE ALL PROGRESS</button>
     </div>
-
     <button class="modal-btn" onclick="closeSettings()">CLOSE</button>
   </div>
 </div>
 
 <!-- ABILITY FLASH OVERLAY -->
-<div id="ability-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:9989;opacity:0;transition:opacity 0.15s;"></div>
-
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settings-modal">
-  <div class="modal" style="max-width:380px;text-align:left;">
-    <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;margin-bottom:8px;">// SETTINGS</div>
-    <h2 style="font-size:18px;margin-bottom:20px;color:var(--gold-light);letter-spacing:2px;">MINE CONTROL</h2>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
-        <div>
-          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Screen Shake</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Shake on clicks and purchases.</div>
-        </div>
-        <button id="shake-toggle" onclick="toggleShake()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
-        <div>
-          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Ability Effects</div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Screen flash when using abilities.</div>
-        </div>
-        <button id="fx-toggle" onclick="toggleFX()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
-      </div>
-    </div>
-    <div style="border-top:1px solid var(--panel-border);padding-top:16px;margin-bottom:16px;">
-      <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--danger);margin-bottom:8px;">DANGER ZONE</div>
-      <p style="font-size:11px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;">Permanently deletes all progress. All ore, shards, upgrades, managers, and achievements will be lost. There is no undo.</p>
-      <button onclick="hardReset()" style="width:100%;padding:10px;background:#1e0808;border:1px solid #803020;border-radius:4px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:var(--danger);cursor:pointer;">WIPE ALL PROGRESS</button>
-    </div>
-    <button class="modal-btn" onclick="closeSettings()">CLOSE</button>
-  </div>
-</div>
 <div id="ability-overlay" style="position:fixed;inset:0;pointer-events:none;z-index:9989;opacity:0;"></div>
 
 <!-- OFFLINE MODAL -->
@@ -1020,6 +990,11 @@ let G = {
   abilitiesUnlocked: {},
   abilityCooldowns: {},
   abilityEnds: {},
+  settings: {
+    shake: true,
+    fx: true,
+    sound: true,
+  },
 };
 
 
@@ -1451,7 +1426,8 @@ function clickMine(e) {
   G.lifetimeOre += gain;
   showFloatingNum(e.clientX, e.clientY, '+' + fmt(gain));
   burstParticles(e.clientX, e.clientY, 5, '#f5c842');
-  if (gain > 100) screenShake(2);
+  if (G.settings && G.settings.sound) playSound('click');
+  if (G.settings && G.settings.shake && gain > 100) screenShake(2);
 }
 
 function showFloatingNum(x, y, text) {
@@ -1675,6 +1651,57 @@ function isManagerEnabled(id) {
   return G.managersEnabled[id] !== false;
 }
 
+function applySettingsUI() {
+  if (!G.settings) G.settings = { shake: true, fx: true, sound: true };
+  const shakeBtn = document.getElementById('shake-toggle');
+  const fxBtn = document.getElementById('fx-toggle');
+  const soundBtn = document.getElementById('sound-toggle');
+  if (shakeBtn) {
+    shakeBtn.textContent = G.settings.shake ? 'ON' : 'OFF';
+    shakeBtn.style.borderColor = G.settings.shake ? '#7ecfb0' : '#554e44';
+  }
+  if (fxBtn) {
+    fxBtn.textContent = G.settings.fx ? 'ON' : 'OFF';
+    fxBtn.style.borderColor = G.settings.fx ? '#7ecfb0' : '#554e44';
+  }
+  if (soundBtn) {
+    soundBtn.textContent = G.settings.sound ? 'ON' : 'OFF';
+    soundBtn.style.borderColor = G.settings.sound ? '#7ecfb0' : '#554e44';
+  }
+}
+
+function openSettings() {
+  const modal = document.getElementById('settings-modal');
+  if (modal) modal.classList.add('show');
+  applySettingsUI();
+}
+
+function closeSettings() {
+  const modal = document.getElementById('settings-modal');
+  if (modal) modal.classList.remove('show');
+}
+
+function toggleShake() {
+  G.settings = G.settings || { shake: true, fx: true, sound: true };
+  G.settings.shake = !G.settings.shake;
+  applySettingsUI();
+  showToast('Screen Shake ' + (G.settings.shake ? 'ENABLED' : 'DISABLED'));
+}
+
+function toggleFX() {
+  G.settings = G.settings || { shake: true, fx: true, sound: true };
+  G.settings.fx = !G.settings.fx;
+  applySettingsUI();
+  showToast('Ability Effects ' + (G.settings.fx ? 'ENABLED' : 'DISABLED'));
+}
+
+function toggleSound() {
+  G.settings = G.settings || { shake: true, fx: true, sound: true };
+  G.settings.sound = !G.settings.sound;
+  applySettingsUI();
+  showToast('Sound Effects ' + (G.settings.sound ? 'ENABLED' : 'DISABLED'));
+}
+
 function renderManagers() {
   const container = document.getElementById('managers-list');
   container.innerHTML = '';
@@ -1723,7 +1750,7 @@ function updateHUD() {
 
   const gained = calcPrestigeShards();
   document.getElementById('prestige-gain-display').textContent = gained;
-  document.getElementById('prestige-btn').disabled = G.lifetimeOre < 5000000;
+  document.getElementById('prestige-btn').disabled = G.lifetimeOre < 10000;
 
   updateDepthProgress();
 }
@@ -1768,7 +1795,8 @@ function buyMiner(id) {
   if (G.ore < cost) return;
   G.ore -= cost;
   G.miners[id] = count + 1;
-  screenShake(1);
+  if (G.settings && G.settings.sound) playSound('buy');
+  if (G.settings && G.settings.shake) screenShake(1);
   renderMiners();
 }
 
@@ -1778,6 +1806,8 @@ function buyUpgrade(id) {
   G.ore -= u.cost;
   G.upgrades[id] = true;
   u.effect();
+  if (G.settings && G.settings.sound) playSound('upgrade');
+  if (G.settings && G.settings.shake) screenShake(2);
   renderUpgrades();
   showToast('✓ ' + u.name + ' unlocked!');
 }
@@ -1788,6 +1818,8 @@ function buyTech(id) {
   G.shards -= t.cost;
   G.tech[id] = true;
   t.effect();
+  if (G.settings && G.settings.sound) playSound('tech');
+  if (G.settings && G.settings.shake) screenShake(3);
   renderTech();
   renderUpgrades();
   renderMiners();
@@ -1803,6 +1835,8 @@ function buyManager(id) {
   G.ore -= mgr.cost;
   G.managers[id] = true;
   autoManagers.add(mgr.miner);
+  if (G.settings && G.settings.sound) playSound('buy');
+  if (G.settings && G.settings.shake) screenShake(2);
   renderManagers();
   renderMiners();
   showToast(mgr.name + ' hired.');
@@ -1889,8 +1923,16 @@ function activateAbility(id) {
   const ready = (G.abilityCooldowns[id] || 0);
   if (now < ready) return;
   a.activate(G);
+  if (G.settings && G.settings.sound) playSound('ability');
+  if (G.settings && G.settings.fx) {
+    const overlay = document.getElementById('ability-overlay');
+    if (overlay) {
+      overlay.style.background = 'radial-gradient(circle at 50% 50%, rgba(148, 0, 211, 0.25), rgba(148, 0, 211, 0))';
+      overlay.style.opacity = '0.45';
+      setTimeout(() => { overlay.style.opacity = '0'; }, 180);
+    }
+  }
   if (a.cooldown > 0) G.abilityCooldowns[id] = now + a.cooldown * 1000;
-  triggerAbilityFX(id);
   renderAbilitiesBar();
 }
 
@@ -2079,11 +2121,14 @@ function renderAchievements() {
 const LORE_EVENTS = [
   { id: 'lore_1', ore: 500,       title: 'Memo from Operations',      body: 'Day 1. Ore reserves confirmed. Management is pleased. They have sent a motivational poster. It says "DIG DEEPER." We have framed it.' },
   { id: 'lore_2', ore: 5000,      title: 'Geological Survey — Note 3', body: 'The eastern shaft has produced an anomalous formation. The rock looks almost deliberate. We have elected to blast through it.' },
+  { id: 'lore_2b', ore: 25000,    title: 'Audio Log — Faint Noise',   body: 'A recorded clip from Level 2: a low hum and what sounds like distant whispering. The author says it is "just the pipes," but the timestamp says 02:33 from north shaft.' },
   { id: 'lore_3', ore: 50000,     title: 'Incident Report #0014',      body: 'A miner reported hearing something below Shaft 7. He has been reassigned to surface operations. He says he prefers it.' },
   { id: 'lore_4', ore: 500000,    title: 'Internal Communication',     body: 'HR asks that staff refrain from referring to the lower tunnels as "the stomach." We understand the metaphor. We are asking anyway.' },
+  { id: 'lore_4b', ore: 2500000,  title: 'Supply Manifest',           body: 'A manifest lists a shipment of unmarked crates labeled "experimental reagents" delivered to the mining command. No one seems to know what they contain. No one is asking.' },
   { id: 'lore_5', ore: 5000000,   title: 'Project ARIA — Boot Log',   body: 'Unit designation: ARIA-1. Status: Online. First recorded query: "What is below us?" We told it not to ask that. It has not asked again.' },
   { id: 'lore_6', ore: 50000000,  title: 'Depth Report — 300m',       body: 'The soil composition changes at 300m. It is warm. Not geothermally warm. Specifically, locally warm, as if something is present.' },
   { id: 'lore_7', ore: 500000000, title: 'Recovered Page — Unknown Origin', body: 'it is not ore. the seams are not ore. we found the vein and it was not ore and then we kept going because it was still the right shape and now\n\n[page ends]' },
+  { id: 'lore_7b', ore: 1500000000,title: 'Distress Message',          body: '"We are not sure if the mine is expanding. The walls are breathing. We can see other eyes in the dark. A child is asking us to come closer." (transcript ends abruptly.)' },
   { id: 'lore_8', ore: 5000000000,title: 'Congratulations',           body: 'You have extracted more ore than any operation in recorded history. Management would like to celebrate. Management has not been seen in two days. Congratulations.' },
 ];
 
@@ -2108,8 +2153,40 @@ function showLoreEvent(ev) {
 }
 
 // ===================== VISUAL FEEDBACK =====================
+function playSound(type) {
+  if (!G.settings || !G.settings.sound) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const ctx = window.__deepDigAudioCtx || new AudioContext();
+  window.__deepDigAudioCtx = ctx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  let freq = 440;
+  let duration = 0.06;
+  switch(type) {
+    case 'click': freq = 550; duration = 0.05; break;
+    case 'buy': freq = 660; duration = 0.07; break;
+    case 'upgrade': freq = 780; duration = 0.1; break;
+    case 'tech': freq = 900; duration = 0.12; break;
+    case 'ability': freq = 520; duration = 0.14; break;
+    default: freq = 440; duration = 0.06;
+  }
+
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  osc.type = 'square';
+  gain.gain.setValueAtTime(0.09, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
+
 function screenShake(intensity) {
-  if (typeof SETTINGS !== "undefined" && !SETTINGS.screenShake) return;
+  if (!G.settings || !G.settings.shake) return;
   intensity = intensity || 3;
   const body = document.body;
   body.style.transform = `translate(${(Math.random()-0.5)*intensity}px, ${(Math.random()-0.5)*intensity}px)`;
@@ -2159,96 +2236,6 @@ function initKeyboard() {
   });
 }
 
-
-
-// ===================== SETTINGS =====================
-let SETTINGS = { screenShake: true, abilityFX: true };
-
-function loadSettings() {
-  var saved = localStorage.getItem('deepdig_settings');
-  if (saved) try { Object.assign(SETTINGS, JSON.parse(saved)); } catch(e) {}
-}
-function saveSettings() {
-  localStorage.setItem('deepdig_settings', JSON.stringify(SETTINGS));
-}
-function openSettings() {
-  updateSettingsUI();
-  document.getElementById('settings-modal').classList.add('show');
-}
-function closeSettings() {
-  document.getElementById('settings-modal').classList.remove('show');
-}
-function updateSettingsUI() {
-  var shakeBtn = document.getElementById('shake-toggle');
-  var fxBtn    = document.getElementById('fx-toggle');
-  if (shakeBtn) {
-    shakeBtn.textContent  = SETTINGS.screenShake ? 'ON' : 'OFF';
-    shakeBtn.style.background   = SETTINGS.screenShake ? '#0a2010' : '#1a1008';
-    shakeBtn.style.borderColor  = SETTINGS.screenShake ? 'var(--ore-dark)' : '#4a2010';
-    shakeBtn.style.color        = SETTINGS.screenShake ? 'var(--ore)' : '#804020';
-  }
-  if (fxBtn) {
-    fxBtn.textContent  = SETTINGS.abilityFX ? 'ON' : 'OFF';
-    fxBtn.style.background  = SETTINGS.abilityFX ? '#0a2010' : '#1a1008';
-    fxBtn.style.borderColor = SETTINGS.abilityFX ? 'var(--ore-dark)' : '#4a2010';
-    fxBtn.style.color       = SETTINGS.abilityFX ? 'var(--ore)' : '#804020';
-  }
-}
-function toggleShake() { SETTINGS.screenShake = !SETTINGS.screenShake; saveSettings(); updateSettingsUI(); }
-function toggleFX()    { SETTINGS.abilityFX   = !SETTINGS.abilityFX;   saveSettings(); updateSettingsUI(); }
-function hardReset() {
-  if (!confirm('Permanently delete ALL progress. Are you sure?')) return;
-  if (!confirm('Last chance. This cannot be undone.')) return;
-  ['deepdig_v3','deepdig_lore','deepdig_ach','deepdig_settings','gdpr_accepted'].forEach(function(k){ localStorage.removeItem(k); });
-  location.reload();
-}
-
-// ===================== ABILITY VISUAL EFFECTS =====================
-var ABILITY_FX = {
-  ore_rush:        { color:'#f5c842', particles:30, shake:3, flash:'rgba(245,200,66,0.15)',  dur:500  },
-  gold_vein:       { color:'#f5c842', particles:50, shake:5, flash:'rgba(245,200,66,0.28)',  dur:700  },
-  drill_frenzy:    { color:'#aaaaaa', particles:20, shake:4, flash:'rgba(160,160,160,0.12)', dur:300  },
-  deep_pulse:      { color:'#7ecfb0', particles:25, shake:3, flash:'rgba(126,207,176,0.18)', dur:500  },
-  cave_collapse:   { color:'#e05030', particles:60, shake:8, flash:'rgba(224,80,48,0.28)',   dur:800  },
-  iron_skin:       { color:'#888888', particles:12, shake:2, flash:'rgba(136,136,136,0.10)', dur:300  },
-  mole_swarm:      { color:'#c8b090', particles:40, shake:3, flash:'rgba(160,140,100,0.12)', dur:400  },
-  plasma_surge:    { color:'#7ecfb0', particles:35, shake:4, flash:'rgba(126,207,176,0.20)', dur:600  },
-  temporal_skip:   { color:'#8080e0', particles:40, shake:5, flash:'rgba(128,128,224,0.20)', dur:700  },
-  eldritch_hunger: { color:'#c84aff', particles:60, shake:7, flash:'rgba(200,74,255,0.25)',  dur:900  },
-  void_scream:     { color:'#3a1050', particles:80, shake:9, flash:'rgba(50,10,70,0.50)',    dur:1200 },
-  deep_truth:      { color:'#f5c842', particles:50, shake:6, flash:'rgba(245,200,66,0.22)',  dur:800  },
-};
-
-function triggerAbilityFX(id) {
-  if (!SETTINGS.abilityFX) return;
-  var fx = ABILITY_FX[id];
-  if (!fx) return;
-  var overlay = document.getElementById('ability-overlay');
-  if (overlay) {
-    overlay.style.background = fx.flash;
-    overlay.style.transition = 'opacity 0.04s';
-    overlay.style.opacity = '1';
-    setTimeout(function() {
-      overlay.style.transition = 'opacity ' + fx.dur + 'ms ease-out';
-      overlay.style.opacity = '0';
-    }, 40);
-  }
-  var cx = window.innerWidth / 2;
-  var cy = window.innerHeight / 2;
-  burstParticles(cx, cy, fx.particles, fx.color);
-  if (fx.particles >= 40) {
-    for (var i = 0; i < 16; i++) {
-      (function(idx) {
-        setTimeout(function() {
-          var angle = (idx / 16) * Math.PI * 2;
-          var r = 80 + Math.random() * 80;
-          burstParticles(cx + Math.cos(angle)*r, cy + Math.sin(angle)*r, 3, fx.color);
-        }, idx * 20);
-      })(i);
-    }
-  }
-  if (SETTINGS.screenShake) screenShake(fx.shake);
-}
 
 function initGDPR() {
   if (localStorage.getItem('gdpr_accepted')) return;
@@ -2326,6 +2313,7 @@ function gameTick() {
 function init() {
   loadGame();
   if (!G.managersEnabled) G.managersEnabled = {};
+  if (!G.settings) G.settings = { shake: true, fx: true, sound: true };
   reapplyAllEffects();
 
   // Restore depth milestones from lifetime ore
@@ -2350,9 +2338,7 @@ function init() {
   renderTech();
   renderManagers();
   renderAbilitiesBar();
-
-  loadSettings();
-  updateSettingsUI();
+  applySettingsUI();
 
   setInterval(gameTick, 100);
   setInterval(saveGame, 5000);
