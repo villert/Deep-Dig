@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deep Dig — Idle Mining</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23252018' width='100' height='100'/><g fill='%23e8a020'><path d='M50 20 L60 35 L50 40 L40 35 Z'/><rect x='45' y='38' width='10' height='35' fill='%23a06010'/><path d='M35 70 L50 60 L65 70 Z' fill='%237ecfb0'/></g></svg>" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1036,7 +1037,7 @@ const MINERS_DATA = [
     flavor: 'It is not a thing. It is a fact. The fact has learned to dig. You hired the fact.' },
 ];
 
-const TIER_LABELS = ['⛏ Workers & Machines', '🤖 Project ARIA', '👁 Heretical Operations'];
+const TIER_LABELS = ['⛏ Workers & Machines', 'Project ARIA', '👁 Heretical Operations'];
 const TIER_COLORS = ['var(--gold)', 'var(--ore)', 'var(--prestige)'];
 
 const UPGRADES_DATA = [
@@ -1133,8 +1134,8 @@ const TECH_DATA = [
     desc: '1.5× shard multiplier.',         flavor: 'The crystals hum at a frequency that feels like a warning. We turned that into a feature.',
     effect: () => { shardBonus *= 1.5; } },
   // --- TIER UNLOCKS ---
-  { id: 'tc_aria',     name: 'Project ARIA',                icon: '🤖', cost: 15, req: 'tc_prestige', tierUnlock: 1,
-    desc: 'Unlocks motivated AI workers. 2× all output.',
+  { id: 'tc_aria',     name: 'Project ARIA',                icon: '', cost: 15, req: 'tc_prestige', tierUnlock: 1,
+    desc: 'Unlocks motivated workers. 2× all output.',
     flavor: 'ARIA stands for Autonomous Resource Integration Architecture. The units prefer just ARIA. We let them have this.',
     effect: () => { globalMult *= 2; } },
   { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: '📖', cost: 80, req: 'tc_aria',    tierUnlock: 2,
@@ -1155,6 +1156,7 @@ const TECH_DATA = [
 
 // ===================== ABILITIES DATA =====================
 const ABILITIES_DATA = [
+  // Early (ore)
   {
     id: 'ore_rush',
     name: 'Ore Rush',
@@ -1173,7 +1175,7 @@ const ABILITIES_DATA = [
     icon: '✨',
     type: 'nuke',
     desc: 'Strike a hidden vein — instantly gain 20 minutes of income.',
-    unlockType: 'ore', unlockCost: 10000,
+    unlockType: 'ore', unlockCost: 50000,
     cooldown: 60 * 60,
     duration: 0,
     activate(g) {
@@ -1183,13 +1185,14 @@ const ABILITIES_DATA = [
     },
     isActive() { return false; },
   },
+  // Depth-tier abilities
   {
     id: 'drill_frenzy',
     name: 'Drill Frenzy',
     icon: '🔩',
     type: 'clicker',
     desc: 'Auto-clicks 100 times over 10 seconds.',
-    unlockType: 'depth', unlockCost: 50,
+    unlockType: 'depth', unlockCost: 200,
     cooldown: 20 * 60,
     duration: 10,
     activate(g) {
@@ -1211,19 +1214,44 @@ const ABILITIES_DATA = [
     icon: '🌊',
     type: 'buff',
     desc: '4× click power for 5 minutes.',
-    unlockType: 'depth', unlockCost: 100,
+    unlockType: 'depth', unlockCost: 300,
     cooldown: 25 * 60,
     duration: 5 * 60,
     activate(g) { g.abilityEnds['deep_pulse'] = Date.now() + 5*60*1000; },
     isActive(g) { return Date.now() < (g.abilityEnds['deep_pulse'] || 0); },
   },
   {
+    id: 'plasma_surge',
+    name: 'Plasma Surge',
+    icon: '🔆',
+    type: 'buff',
+    desc: '5× all ore production for 8 minutes.',
+    unlockType: 'depth', unlockCost: 1000,
+    cooldown: 60 * 60,
+    duration: 8 * 60,
+    activate(g) { g.abilityEnds['plasma_surge'] = Date.now() + 8*60*1000; },
+    isActive(g) { return Date.now() < (g.abilityEnds['plasma_surge'] || 0); },
+  },
+  {
+    id: 'eldritch_hunger',
+    name: 'Eldritch Hunger',
+    icon: '👁',
+    type: 'buff',
+    desc: '10× all output for 3 minutes.',
+    unlockType: 'depth', unlockCost: 1200,
+    cooldown: 120 * 60,
+    duration: 3 * 60,
+    activate(g) { g.abilityEnds['eldritch_hunger'] = Date.now() + 3*60*1000; },
+    isActive(g) { return Date.now() < (g.abilityEnds['eldritch_hunger'] || 0); },
+  },
+  // Shard-tier abilities
+  {
     id: 'cave_collapse',
     name: 'Cave Collapse',
     icon: '💥',
     type: 'nuke',
-    desc: 'Controlled demolition — instantly gain 1 hour of ore income.',
-    unlockType: 'shards', unlockCost: 3,
+    desc: 'Instantly gain 1 hour of ore income.',
+    unlockType: 'shards', unlockCost: 30,
     cooldown: 90 * 60,
     duration: 0,
     activate(g) {
@@ -1234,24 +1262,12 @@ const ABILITIES_DATA = [
     isActive() { return false; },
   },
   {
-    id: 'iron_skin',
-    name: 'Iron Skin',
-    icon: '🛡',
-    type: 'passive',
-    desc: 'Permanent +25% global ore production.',
-    unlockType: 'shards', unlockCost: 5,
-    cooldown: 0, duration: 0,
-    activate() {},
-    isActive() { return false; },
-    passive: true,
-  },
-  {
     id: 'mole_swarm',
     name: 'Mole Swarm',
     icon: '🐭',
     type: 'clicker',
-    desc: '500 frenzied moles auto-click over 15 seconds.',
-    unlockType: 'shards', unlockCost: 8,
+    desc: '500 auto-clicks over 15 seconds.',
+    unlockType: 'shards', unlockCost: 60,
     cooldown: 45 * 60,
     duration: 15,
     activate(g) {
@@ -1268,24 +1284,12 @@ const ABILITIES_DATA = [
     isActive(g) { return Date.now() < (g.abilityEnds['mole_swarm'] || 0); },
   },
   {
-    id: 'plasma_surge',
-    name: 'Plasma Surge',
-    icon: '🔆',
-    type: 'buff',
-    desc: '5× all ore production for 8 minutes. Sci-fi power.',
-    unlockType: 'depth', unlockCost: 300,
-    cooldown: 60 * 60,
-    duration: 8 * 60,
-    activate(g) { g.abilityEnds['plasma_surge'] = Date.now() + 8*60*1000; },
-    isActive(g) { return Date.now() < (g.abilityEnds['plasma_surge'] || 0); },
-  },
-  {
     id: 'temporal_skip',
     name: 'Temporal Skip',
     icon: '⏳',
     type: 'nuke',
-    desc: 'Fold time — gain 3 hours of offline income instantly.',
-    unlockType: 'shards', unlockCost: 20,
+    desc: 'Gain 3 hours of offline income instantly.',
+    unlockType: 'shards', unlockCost: 100,
     cooldown: 120 * 60,
     duration: 0,
     activate(g) {
@@ -1296,24 +1300,12 @@ const ABILITIES_DATA = [
     isActive() { return false; },
   },
   {
-    id: 'eldritch_hunger',
-    name: 'Eldritch Hunger',
-    icon: '👁',
-    type: 'buff',
-    desc: 'The Mass awakens — 10× all output for 3 minutes. It costs.',
-    unlockType: 'depth', unlockCost: 600,
-    cooldown: 120 * 60,
-    duration: 3 * 60,
-    activate(g) { g.abilityEnds['eldritch_hunger'] = Date.now() + 3*60*1000; },
-    isActive(g) { return Date.now() < (g.abilityEnds['eldritch_hunger'] || 0); },
-  },
-  {
     id: 'void_scream',
     name: 'Void Scream',
     icon: '🕳',
     type: 'clicker',
-    desc: 'The void auto-clicks 2000× over 20 seconds. Do not listen.',
-    unlockType: 'shards', unlockCost: 100,
+    desc: '2000 auto-clicks over 20 seconds.',
+    unlockType: 'shards', unlockCost: 500,
     cooldown: 90 * 60,
     duration: 20,
     activate(g) {
@@ -1330,12 +1322,24 @@ const ABILITIES_DATA = [
     isActive(g) { return Date.now() < (g.abilityEnds['void_scream'] || 0); },
   },
   {
+    id: 'iron_skin',
+    name: 'Iron Skin',
+    icon: '🛡',
+    type: 'passive',
+    desc: 'Permanent +25% global ore production.',
+    unlockType: 'shards', unlockCost: 45,
+    cooldown: 0, duration: 0,
+    activate() {},
+    isActive() { return false; },
+    passive: true,
+  },
+  {
     id: 'deep_truth',
     name: 'The Deep Truth',
     icon: '📿',
     type: 'passive',
-    desc: 'Permanent: +100% all output. You have seen what lies beneath.',
-    unlockType: 'shards', unlockCost: 150,
+    desc: 'Permanent +100% all output.',
+    unlockType: 'shards', unlockCost: 900,
     cooldown: 0, duration: 0,
     activate() {},
     isActive() { return false; },
@@ -1379,8 +1383,8 @@ function calcOrePerSec() {
 }
 
 function calcPrestigeShards() {
-  if (G.lifetimeOre < 5000000) return 0;
-  return Math.floor(Math.sqrt(G.lifetimeOre / 1000) * shardBonus);
+  if (G.lifetimeOre < 20000000) return 0;
+  return Math.floor(Math.sqrt(G.lifetimeOre / 200000) * shardBonus);
 }
 
 function calcPrestigeMultiplier(shards) {
@@ -1543,7 +1547,7 @@ function renderMiners() {
       ${icon(m.id, 28)}
       <div class="miner-info">
         <div class="miner-name">${m.name}</div>
-        <div class="miner-rate">${ops.toFixed(1)} ore/s each</div>
+        <div class="miner-rate">${ops.toFixed(1)} ore/s each${count > 0 ? ` • <span style="color:var(--ore)">${(ops * count).toFixed(1)}</span> total` : ''}</div>
         <div class="miner-flavor">${m.flavor}</div>
       </div>
       <div class="miner-count">${count}</div>
@@ -1870,6 +1874,16 @@ function doPrestige() {
   showToast('✦ Ascension complete! Multiplier: ×' + G.prestigeMultiplier.toFixed(2));
 }
 
+function hardReset() {
+  if (!confirm('Are you sure? This permanently deletes all progress and cannot be undone.')) return;
+  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem('deepdig_lore');
+  localStorage.removeItem('deepdig_ach');
+  localStorage.removeItem('gdpr_accepted');
+  // fallback reload to reinitialize clean state
+  location.reload();
+}
+
 // ===================== OFFLINE EARNINGS =====================
 function checkOffline() {
   const elapsed = Math.min((Date.now() - G.lastSave) / 1000, 3600 * 8);
@@ -1985,6 +1999,15 @@ function renderAbilitiesTab() {
       </div>
       ${reqLabel}
     `;
+
+    let reqText = '';
+    if (a.id === 'ore_rush') reqText = 'Free';
+    else if (a.unlockType === 'ore') reqText = `${fmt(a.unlockCost)} ore`;
+    else if (a.unlockType === 'shards') reqText = `${a.unlockCost} shards`;
+    else if (a.unlockType === 'depth') reqText = `${a.unlockCost}m depth`;
+
+    card.title = `${a.name} - ${typeLabel}\n${a.desc}\nUnlock: ${reqText}`;
+
     if (!unlocked && affordable) card.onclick = () => unlockAbility(a.id);
     container.appendChild(card);
   }
@@ -2034,7 +2057,7 @@ function renderAbilitiesBar() {
 
     html += `<div class="ability-btn-wrap">
       <div class="ability-btn-row">
-        <button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')">
+        <button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')" title="${a.name}: ${a.desc}">
           ${icon(a.id, 18)}
           <span>${a.name}</span>
           ${key ? `<span class="ability-keybind">${key}</span>` : ''}
