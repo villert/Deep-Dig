@@ -749,7 +749,7 @@
       <div class="prestige-body">
         <div class="prestige-info">
           Reset your mine for <b style="color:var(--prestige)">Crystal Shards</b>. Each shard permanently multiplies all ore gain.
-          Requires 10,000 lifetime ore.
+          Requires 5,000,000 lifetime ore.
         </div>
         <div class="prestige-gain">Gain: <span id="prestige-gain-display">0</span> shards</div>
         <button id="prestige-btn" onclick="doPrestige()" disabled>ASCEND THE MINE</button>
@@ -1404,7 +1404,7 @@ function calcOrePerSec() {
 }
 
 function calcPrestigeShards() {
-  if (G.lifetimeOre < 10000) return 0;
+  if (G.lifetimeOre < 5000000) return 0;
   return Math.floor(Math.sqrt(G.lifetimeOre / 1000) * shardBonus);
 }
 
@@ -1723,7 +1723,7 @@ function updateHUD() {
 
   const gained = calcPrestigeShards();
   document.getElementById('prestige-gain-display').textContent = gained;
-  document.getElementById('prestige-btn').disabled = G.lifetimeOre < 10000;
+  document.getElementById('prestige-btn').disabled = G.lifetimeOre < 5000000;
 
   updateDepthProgress();
 }
@@ -1811,7 +1811,7 @@ function buyManager(id) {
 // ===================== PRESTIGE =====================
 function doPrestige() {
   const gained = calcPrestigeShards();
-  if (gained === 0 || G.lifetimeOre < 10000) return;
+  if (gained === 0 || G.lifetimeOre < 5000000) return;
   if (!confirm('Ascend the mine? You will reset all ore, miners, and upgrades, but gain ' + gained + ' Crystal Shards.')) return;
 
   G.shards += gained;
