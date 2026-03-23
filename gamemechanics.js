@@ -1,4 +1,4 @@
-﻿// ===================== PIXEL ART ICONS =====================
+// ===================== PIXEL ART ICONS =====================
 function makePx(grid, palette, size) {
   size = size || 24;
   const rows = grid.trim().split('\n');
