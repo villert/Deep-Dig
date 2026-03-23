@@ -1471,20 +1471,21 @@ function renderAbout() {
     <p style="margin-bottom:12px;">You found a mine. You started digging. Something below noticed.</p>
     <p style="margin-bottom:16px;">Hire workers, research technology, manage your operation across three tiers of increasingly questionable contractors â€” human, artificial, and otherwise.</p>
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">HOW TO PLAY</div>
-    <p style="margin-bottom:6px;">â€¢ Click the mine button to earn ore manually.</p>
-    <p style="margin-bottom:6px;">â€¢ Hire workers to earn ore automatically.</p>
-    <p style="margin-bottom:6px;">â€¢ Buy upgrades and research tech to multiply output.</p>
-    <p style="margin-bottom:6px;">â€¢ Hire managers to automate worker purchasing.</p>
-    <p style="margin-bottom:6px;">â€¢ Ascend once you have 20M lifetime ore â€” reset everything for a permanent multiplier.</p>
-    <p style="margin-bottom:6px;">â€¢ Spend shards in the Shard Forge for permanent bonuses that survive ascension.</p>
-    <p style="margin-bottom:16px;">â€¢ Watch for random events â€” some help, some don't.</p>
+    <p style="margin-bottom:6px;">- Click the mine button to earn ore manually.</p>
+    <p style="margin-bottom:6px;">- Hire workers to earn ore automatically.</p>
+    <p style="margin-bottom:6px;">- Buy upgrades and research tech to multiply output.</p>
+    <p style="margin-bottom:6px;">- Hire managers to automate worker purchasing.</p>
+    <p style="margin-bottom:6px;">- Ascend once you have 20M lifetime ore â€” reset everything for a permanent multiplier.</p>
+    <p style="margin-bottom:6px;">- Spend shards in the Shard Forge for permanent bonuses that survive ascension.</p>
+    <p style="margin-bottom:16px;">- Watch for random events” some help, some don't.</p>
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">KEYBOARD SHORTCUTS</div>
-    <p style="margin-bottom:6px;">â€¢ Keys <span style="color:var(--gold-light);font-family:'IBM Plex Mono',monospace;">1â€“9</span> activate unlocked abilities.</p>
-    <p style="margin-bottom:16px;">â€¢ Your progress saves automatically every 5 seconds.</p>
+    <p style="margin-bottom:6px;">- Keys <span style="color:var(--gold-light);font-family:'IBM Plex Mono',monospace;">1-9</span> activate unlocked abilities.</p>
+    <p style="margin-bottom:16px;">- Your progress saves automatically every 5 seconds.</p>
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">TIERS</div>
-    <p style="margin-bottom:6px;"><span style="color:var(--gold)">â› Human</span> â€” Rookies, drills, carts, blasters. They are trying their best.</p>
-    <p style="margin-bottom:6px;"><span style="color:var(--ore)">ðŸ¤– Project ARIA</span> â€” Autonomous units. Efficient. Communicating with each other in ways we haven't authorised.</p>
-    <p style="margin-bottom:16px;"><span style="color:var(--prestige)">ðŸ‘ Heretical</span> â€” We found them below. We gave them contracts. Legal is still reviewing whether this was a good idea.</p>
+    <p style="margin-bottom:6px;"><span style="color:var(--gold)">-› Human</span> "Rookies, drills, carts, blasters. They are trying their best."</p>
+    <p style="margin-bottom:6px;"><span style="color:var(--ore)">–> Project ARIA</span> "Autonomous units. Efficient. Communicating with each other in ways we haven't authorised."</p>
+    <p style="margin-bottom:16px;"><span style="color:var(--prestige)">-> Heretical</span> "We found them below. We gave them contracts. Legal is still reviewing whether this was a good idea."</p>
+    <p style="margin-bottom:6px;"><span style="color:var(--gold)">And more to come....</span></p>
     <div style="border-top:1px solid var(--panel-border);padding-top:12px;margin-top:4px;font-size:10px;color:var(--text-muted);opacity:0.6;line-height:1.8;">
       The mine has been running since you opened this page.<br>
       It will continue running after you close it.<br>
