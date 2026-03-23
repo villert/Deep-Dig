@@ -847,7 +847,7 @@ function buildMinerRow(m) {
     ${icon(m.id, 28)}
     <div class="miner-info">
       <div class="miner-name">${m.name}</div>
-      <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?` â€¢ <span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
+      <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?`<span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
       <div class="miner-flavor">${m.flavor}</div>
     </div>
     <div class="miner-count">${count}</div>
@@ -918,7 +918,7 @@ function updateMinerRows() {
     if (countEl) countEl.textContent = count;
 
     const rateEl = row.querySelector('.miner-rate');
-    if (rateEl) rateEl.innerHTML = `${ops.toFixed(1)} ore/s each${count>0?` â€¢ <span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}`;
+    if (rateEl) rateEl.innerHTML = `${ops.toFixed(1)} ore/s each${count>0?`<span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}`;
 
     const btn = row.querySelector('.buy-btn');
     if (btn) {
@@ -1201,7 +1201,7 @@ function renderAbilitiesTab() {
     const card = document.createElement('div');
     card.className = 'ability-unlock-card' + (unlocked?' unlocked-card':'') + (!unlocked&&!affordable?' locked':'');
     let reqLabel = '';
-    if (a.id==='ore_rush') reqLabel = '<span class="ability-unlock-req done">“ FREE</span>';
+    if (a.id==='ore_rush') reqLabel = '<span class="ability-unlock-req done">FREE</span>';
     else if (unlocked) reqLabel = '<span class="ability-unlock-req done">“ UNLOCKED</span>';
     else if (a.unlockType==='ore')    reqLabel = `<span class="ability-unlock-req">${fmt(a.unlockCost)} ore</span>`;
     else if (a.unlockType==='shards') reqLabel = `<span class="ability-unlock-req shards">${a.unlockCost}  shards</span>`;
