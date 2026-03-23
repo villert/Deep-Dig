@@ -319,7 +319,7 @@ function renderShardShop() {
     const canAfford = G.shards >= item.cost;
     const card = document.createElement('div');
     card.style.cssText = `background:${bought?'#0e0818':'#150826'};border:1px solid ${bought?'#2a1040':canAfford?'#6030a0':'#2a1040'};border-radius:4px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:${bought||!canAfford?'default':'pointer'};opacity:${bought?0.5:1};transition:border-color 0.15s;`;
-    card.innerHTML = `<div style="flex:1"><div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:${bought?'#6040a0':'var(--text)'}">${item.name}</div><div style="font-size:9px;color:var(--text-muted);margin-top:2px">${item.desc}</div><div style="font-size:9px;color:#6040a0;margin-top:2px;font-style:italic">${item.flavor}</div></div><div style="font-size:12px;color:${bought?'#6040a0':canAfford?'var(--prestige)':'#4a3060'};white-space:nowrap;font-weight:600">${bought?'âœ“':item.cost+' âœ¦'}</div>`;
+    card.innerHTML = `<div style="flex:1"><div style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;color:${bought?'#6040a0':'var(--text)'}">${item.name}</div><div style="font-size:9px;color:var(--text-muted);margin-top:2px">${item.desc}</div><div style="font-size:9px;color:#6040a0;margin-top:2px;font-style:italic">${item.flavor}</div></div><div style="font-size:12px;color:${bought?'#6040a0':canAfford?'var(--prestige)':'#4a3060'};white-space:nowrap;font-weight:600">${bought?'':item.cost+''}</div>`;
     if (!bought && canAfford) {
       card.onmouseenter = () => card.style.borderColor = '#9050e0';
       card.onmouseleave = () => card.style.borderColor = canAfford?'#6030a0':'#2a1040';
@@ -336,7 +336,7 @@ function buyShardShop(id) {
   G.shards -= item.cost;
   G.shardShop[id] = true;
   item.effect();
-  showToast('âœ¦ ' + item.name + ' forged!');
+  showToast('' + item.name + ' forged!');
   renderShardShop();
   updateHUD();
 }
@@ -957,7 +957,7 @@ function renderUpgrades() {
     const reqMet = !u.req || G.upgrades[u.req] || checkMinerReq(u.req);
     const card = document.createElement('div');
     card.className = 'upgrade-card' + (bought?' bought':'') + (!reqMet?' locked':'');
-    card.innerHTML = `${icon(u.id,24)}<div class="upgrade-info"><div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc}</div><div class="upgrade-flavor">${u.flavor}</div></div><div class="upgrade-cost">${bought?'âœ“ DONE':fmt(u.cost)}</div>`;
+    card.innerHTML = `${icon(u.id,24)}<div class="upgrade-info"><div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc}</div><div class="upgrade-flavor">${u.flavor}</div></div><div class="upgrade-cost">${bought?'DONE':fmt(u.cost)}</div>`;
     if (!bought && reqMet) card.onclick = () => buyUpgrade(u.id);
     container.appendChild(card);
   }
@@ -981,7 +981,7 @@ function renderTech() {
     card.className = 'tech-card' + (bought?' bought':'') + (!reqMet?' locked':'');
     if (isTierUnlock && !bought) card.style.borderColor = t.tierUnlock===1 ? 'var(--ore-dark)' : '#4a1060';
     const tierBadge = isTierUnlock && !bought ? `<div style="font-size:9px;letter-spacing:1px;color:${t.tierUnlock===1?'var(--ore)':'var(--prestige)'};margin-top:2px">ðŸ”“ TIER UNLOCK</div>` : '';
-    card.innerHTML = `${icon(t.id,24)}<div class="upgrade-info"><div class="upgrade-name" style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;">${t.name}</div><div class="upgrade-desc">${t.desc}</div><div class="upgrade-flavor">${t.flavor}</div>${tierBadge}</div><div class="tech-cost">${bought?'âœ“':t.cost+' âœ¦'}</div>`;
+    card.innerHTML = `${icon(t.id,24)}<div class="upgrade-info"><div class="upgrade-name" style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;">${t.name}</div><div class="upgrade-desc">${t.desc}</div><div class="upgrade-flavor">${t.flavor}</div>${tierBadge}</div><div class="tech-cost">${bought?'':t.cost+''}</div>`;
     if (!bought && reqMet && canAfford) card.onclick = () => buyTech(t.id);
     container.appendChild(card);
   }
@@ -1092,7 +1092,7 @@ function buyUpgrade(id) {
   G.ore -= u.cost; G.upgrades[id] = true; u.effect();
   if (G.settings && G.settings.sound) playSound('upgrade');
   if (G.settings && G.settings.shake) screenShake(2);
-  renderUpgrades(); showToast('âœ“ ' + u.name + ' unlocked!');
+  renderUpgrades(); showToast('' + u.name + ' unlocked!');
 }
 
 function buyTech(id) {
@@ -1130,7 +1130,7 @@ function doPrestige() {
   screenShake(8);
   burstParticles(window.innerWidth/2, window.innerHeight/2, 24, '#c84aff');
   renderMiners(); renderUpgrades(); renderTech(); renderManagers();
-  showToast('âœ¦ Ascension complete! Multiplier: ×' + G.prestigeMultiplier.toFixed(2));
+  showToast('Ascension complete! Multiplier: ×' + G.prestigeMultiplier.toFixed(2));
 }
 
 function hardReset() {
@@ -1201,11 +1201,11 @@ function renderAbilitiesTab() {
     const card = document.createElement('div');
     card.className = 'ability-unlock-card' + (unlocked?' unlocked-card':'') + (!unlocked&&!affordable?' locked':'');
     let reqLabel = '';
-    if (a.id==='ore_rush') reqLabel = '<span class="ability-unlock-req done">âœ“ FREE</span>';
-    else if (unlocked) reqLabel = '<span class="ability-unlock-req done">âœ“ UNLOCKED</span>';
+    if (a.id==='ore_rush') reqLabel = '<span class="ability-unlock-req done">“ FREE</span>';
+    else if (unlocked) reqLabel = '<span class="ability-unlock-req done">“ UNLOCKED</span>';
     else if (a.unlockType==='ore')    reqLabel = `<span class="ability-unlock-req">${fmt(a.unlockCost)} ore</span>`;
-    else if (a.unlockType==='shards') reqLabel = `<span class="ability-unlock-req shards">${a.unlockCost} âœ¦ shards</span>`;
-    else if (a.unlockType==='depth')  reqLabel = `<span class="ability-unlock-req depth${G.depth>=a.unlockCost?' done':''}">${G.depth>=a.unlockCost?'âœ“ ':''}${a.unlockCost}m depth</span>`;
+    else if (a.unlockType==='shards') reqLabel = `<span class="ability-unlock-req shards">${a.unlockCost}  shards</span>`;
+    else if (a.unlockType==='depth')  reqLabel = `<span class="ability-unlock-req depth${G.depth>=a.unlockCost?' done':''}">${G.depth>=a.unlockCost?'':''}${a.unlockCost}m depth</span>`;
     const typeLabel = {buff:'BUFF',nuke:'NUKE',clicker:'AUTO-CLICK',passive:'PASSIVE'}[a.type];
     card.innerHTML = `<div class="ability-unlock-icon">${icon(a.id,20)}</div><div class="ability-unlock-info"><div class="ability-unlock-name">${a.name} <span style="font-size:9px;color:var(--text-muted)">[${typeLabel}]</span></div><div class="ability-unlock-desc">${a.desc}</div></div>${reqLabel}`;
     if (!unlocked && affordable) card.onclick = () => unlockAbility(a.id);
