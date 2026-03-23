@@ -156,27 +156,27 @@ const TIER_LABELS = ['â› Workers & Machines', 'Project ARIA', 'ðŸ‘ He
 const TIER_COLORS = ['var(--gold)', 'var(--ore)', 'var(--prestige)'];
 
 const UPGRADES_DATA = [
-  { id: 'sharp_pick',    name: 'Sharpened Pickaxe',      icon: 'â›', cost: 100,         desc: '2Ã— click power',                   flavor: 'A whetstone and fifteen minutes of quiet rage.', effect: () => { clickMult *= 2; }, req: null },
-  { id: 'helmet',        name: 'Safety Helmet',           icon: 'â›‘', cost: 500,         desc: '2Ã— Rookie Miner output',            flavor: 'Mandatory since the Incident. Miners still wear them sideways.', effect: () => { minerMults['pickaxe'] = (minerMults['pickaxe']||1)*2; }, req: null },
-  { id: 'lantern',       name: 'Carbide Lantern',         icon: 'ðŸ”¦', cost: 2000,        desc: '3Ã— click power',                   flavor: 'Lights the way. Also the canaries. We have stopped using canaries.', effect: () => { clickMult *= 3; }, req: 'sharp_pick' },
-  { id: 'stronger',      name: 'Reinforced Drill Bit',    icon: 'ðŸ”§', cost: 8000,        desc: '2Ã— Power Drill output',             flavor: 'The old bit is fine. This one is also fine, but more aggressively.', effect: () => { minerMults['drill'] = (minerMults['drill']||1)*2; }, req: null },
-  { id: 'rails',         name: 'Greased Rails',           icon: 'ðŸ›¤', cost: 40000,       desc: '2Ã— Ore Cart speed',                flavor: 'Significantly faster. The braking situation remains unaddressed.', effect: () => { minerMults['cart'] = (minerMults['cart']||1)*2; }, req: null },
-  { id: 'tnt',           name: 'Premium TNT',             icon: 'ðŸ§¨', cost: 150000,      desc: '2Ã— Rock Blaster yield',            flavor: '"Premium" means it explodes in the direction we want. Usually.', effect: () => { minerMults['blaster'] = (minerMults['blaster']||1)*2; }, req: null },
-  { id: 'deepsonar',     name: 'Deep Sonar Array',        icon: 'ðŸ“¡', cost: 600000,      desc: '5Ã— click power',                   flavor: 'Detects ore veins with 94% accuracy. The other 6% is not discussed.', effect: () => { clickMult *= 5; }, req: null },
-  { id: 'smelter2',      name: 'Catalytic Smelter',       icon: 'ðŸ”¥', cost: 3000000,     desc: '3Ã— Auto Smelter output',           flavor: 'The smoke is technically legal in this jurisdiction.', effect: () => { minerMults['factory'] = (minerMults['factory']||1)*3; }, req: null },
-  { id: 'drone_ai',      name: 'ARIA Firmware v2.1',      icon: 'ðŸ¤–', cost: 20000000,    desc: '2Ã— ARIA-1 Unit output',            flavor: 'The patch notes say "efficiency improvements". The units say nothing. They never said anything.', effect: () => { minerMults['drone'] = (minerMults['drone']||1)*2; }, req: null },
-  { id: 'plasma2',       name: 'Focused Thermal Core',    icon: 'ðŸ”†', cost: 150000000,   desc: '3Ã— Thermal Lance output',          flavor: 'Turns out pointing heat in one direction was the key. Groundbreaking.', effect: () => { minerMults['laser'] = (minerMults['laser']||1)*3; }, req: null },
-  { id: 'nano2',         name: 'Swarm Consensus Protocol',icon: 'ðŸ§¬', cost: 1200000000,  desc: '2Ã— Nano Swarm output',             flavor: 'They voted. We do not know what they voted on. Output doubled.', effect: () => { minerMults['nanoswarm'] = (minerMults['nanoswarm']||1)*2; }, req: null },
-  { id: 'gravity2',      name: 'Hawking Stabiliser',      icon: 'ðŸŒ‘', cost: 12000000000, desc: '2Ã— Gravity Siphon output',         flavor: 'Prevents the siphon from also consuming the mine, the staff, and Tuesday.', effect: () => { minerMults['blackhole'] = (minerMults['blackhole']||1)*2; }, req: null },
-  { id: 'clicklaser',    name: 'Photon Strike Module',    icon: 'âš¡', cost: 5000000000,  desc: '10Ã— click power',                  flavor: 'You are now clicking at the speed of light. Please click responsibly.', effect: () => { clickMult *= 10; }, req: null },
-  { id: 'worm2',         name: 'Pale Worm Pheromones',    icon: 'ðŸª±', cost: 5e13,        desc: '2Ã— Pale Tunnel Worm output',       flavor: 'Synthesised from a substance the lab has agreed to stop naming.', effect: () => { minerMults['worm'] = (minerMults['worm']||1)*2; }, req: null },
-  { id: 'eye2',          name: 'Ocular Resonance Rite',   icon: 'ðŸ‘', cost: 5e14,        desc: '3Ã— The Watching Mass output',      flavor: 'You stare into it. It stares into the ore. The ore is embarrassed.', effect: () => { minerMults['eyemass'] = (minerMults['eyemass']||1)*3; }, req: null },
-  { id: 'void2',         name: 'Void Communion Pact',     icon: 'ðŸ•³', cost: 5e15,        desc: '2Ã— Void Mouth output',             flavor: 'We agreed to something. We do not know what. Output is up.', effect: () => { minerMults['voidmouth'] = (minerMults['voidmouth']||1)*2; }, req: null },
-  { id: 'clickeldritch', name: 'Blasphemous Grip',        icon: 'ðŸ“¿', cost: 1e15,        desc: '25Ã— click power',                  flavor: 'It should not be possible to click this hard. And yet.', effect: () => { clickMult *= 25; }, req: null },
-  { id: 'tunnel2',      name: 'Adaptive Bore Head',      icon: 'ðŸŒ€', cost: 2000000,     desc: '3Ã— Tunnel Borer output',            flavor: 'Self-sharpening, self-steering, and recently, self-naming. We have not asked what it named itself.', effect: () => { minerMults['tunnel'] = (minerMults['tunnel']||1)*3; }, req: null },
-  { id: 'timefold2',    name: 'Paradox Suppressor',      icon: 'â³', cost: 8e10,        desc: '3Ã— Temporal Excavator output',      flavor: 'Prevents the excavator from mining ore that has not been deposited yet. Mostly.', effect: () => { minerMults['timefold'] = (minerMults['timefold']||1)*3; }, req: null },
-  { id: 'oldgod2',      name: 'Dreaming Deeper',         icon: 'ðŸ¦‘', cost: 2e16,        desc: '2Ã— Slumbering Old God output',      flavor: 'It rolled over. Output doubled. We are considering this a win and not thinking about what happens when it fully wakes.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*2; }, req: null },
-  { id: 'deeptruth2',   name: 'Second Revelation',       icon: 'ðŸ“¿', cost: 2e17,        desc: '3Ã— The Deep Truth output',          flavor: 'There was a second truth beneath the first. It is worse. It is also very productive.', effect: () => { minerMults['deeptruth'] = (minerMults['deeptruth']||1)*3; }, req: null },
+  { id: 'sharp_pick',    name: 'Sharpened Pickaxe',      icon: 'â›', cost: 100,         desc: '2× click power',                   flavor: 'A whetstone and fifteen minutes of quiet rage.', effect: () => { clickMult *= 2; }, req: null },
+  { id: 'helmet',        name: 'Safety Helmet',           icon: 'â›‘', cost: 500,         desc: '2× Rookie Miner output',            flavor: 'Mandatory since the Incident. Miners still wear them sideways.', effect: () => { minerMults['pickaxe'] = (minerMults['pickaxe']||1)*2; }, req: null },
+  { id: 'lantern',       name: 'Carbide Lantern',         icon: 'ðŸ”¦', cost: 2000,        desc: '3× click power',                   flavor: 'Lights the way. Also the canaries. We have stopped using canaries.', effect: () => { clickMult *= 3; }, req: 'sharp_pick' },
+  { id: 'stronger',      name: 'Reinforced Drill Bit',    icon: 'ðŸ”§', cost: 8000,        desc: '2× Power Drill output',             flavor: 'The old bit is fine. This one is also fine, but more aggressively.', effect: () => { minerMults['drill'] = (minerMults['drill']||1)*2; }, req: null },
+  { id: 'rails',         name: 'Greased Rails',           icon: 'ðŸ›¤', cost: 40000,       desc: '2× Ore Cart speed',                flavor: 'Significantly faster. The braking situation remains unaddressed.', effect: () => { minerMults['cart'] = (minerMults['cart']||1)*2; }, req: null },
+  { id: 'tnt',           name: 'Premium TNT',             icon: 'ðŸ§¨', cost: 150000,      desc: '2× Rock Blaster yield',            flavor: '"Premium" means it explodes in the direction we want. Usually.', effect: () => { minerMults['blaster'] = (minerMults['blaster']||1)*2; }, req: null },
+  { id: 'deepsonar',     name: 'Deep Sonar Array',        icon: 'ðŸ“¡', cost: 600000,      desc: '5× click power',                   flavor: 'Detects ore veins with 94% accuracy. The other 6% is not discussed.', effect: () => { clickMult *= 5; }, req: null },
+  { id: 'smelter2',      name: 'Catalytic Smelter',       icon: 'ðŸ”¥', cost: 3000000,     desc: '3× Auto Smelter output',           flavor: 'The smoke is technically legal in this jurisdiction.', effect: () => { minerMults['factory'] = (minerMults['factory']||1)*3; }, req: null },
+  { id: 'drone_ai',      name: 'ARIA Firmware v2.1',      icon: 'ðŸ¤–', cost: 20000000,    desc: '2× ARIA-1 Unit output',            flavor: 'The patch notes say "efficiency improvements". The units say nothing. They never said anything.', effect: () => { minerMults['drone'] = (minerMults['drone']||1)*2; }, req: null },
+  { id: 'plasma2',       name: 'Focused Thermal Core',    icon: 'ðŸ”†', cost: 150000000,   desc: '3× Thermal Lance output',          flavor: 'Turns out pointing heat in one direction was the key. Groundbreaking.', effect: () => { minerMults['laser'] = (minerMults['laser']||1)*3; }, req: null },
+  { id: 'nano2',         name: 'Swarm Consensus Protocol',icon: 'ðŸ§¬', cost: 1200000000,  desc: '2× Nano Swarm output',             flavor: 'They voted. We do not know what they voted on. Output doubled.', effect: () => { minerMults['nanoswarm'] = (minerMults['nanoswarm']||1)*2; }, req: null },
+  { id: 'gravity2',      name: 'Hawking Stabiliser',      icon: 'ðŸŒ‘', cost: 12000000000, desc: '2× Gravity Siphon output',         flavor: 'Prevents the siphon from also consuming the mine, the staff, and Tuesday.', effect: () => { minerMults['blackhole'] = (minerMults['blackhole']||1)*2; }, req: null },
+  { id: 'clicklaser',    name: 'Photon Strike Module',    icon: 'âš¡', cost: 5000000000,  desc: '10× click power',                  flavor: 'You are now clicking at the speed of light. Please click responsibly.', effect: () => { clickMult *= 10; }, req: null },
+  { id: 'worm2',         name: 'Pale Worm Pheromones',    icon: 'ðŸª±', cost: 5e13,        desc: '2× Pale Tunnel Worm output',       flavor: 'Synthesised from a substance the lab has agreed to stop naming.', effect: () => { minerMults['worm'] = (minerMults['worm']||1)*2; }, req: null },
+  { id: 'eye2',          name: 'Ocular Resonance Rite',   icon: 'ðŸ‘', cost: 5e14,        desc: '3× The Watching Mass output',      flavor: 'You stare into it. It stares into the ore. The ore is embarrassed.', effect: () => { minerMults['eyemass'] = (minerMults['eyemass']||1)*3; }, req: null },
+  { id: 'void2',         name: 'Void Communion Pact',     icon: 'ðŸ•³', cost: 5e15,        desc: '2× Void Mouth output',             flavor: 'We agreed to something. We do not know what. Output is up.', effect: () => { minerMults['voidmouth'] = (minerMults['voidmouth']||1)*2; }, req: null },
+  { id: 'clickeldritch', name: 'Blasphemous Grip',        icon: 'ðŸ“¿', cost: 1e15,        desc: '25× click power',                  flavor: 'It should not be possible to click this hard. And yet.', effect: () => { clickMult *= 25; }, req: null },
+  { id: 'tunnel2',      name: 'Adaptive Bore Head',      icon: 'ðŸŒ€', cost: 2000000,     desc: '3× Tunnel Borer output',            flavor: 'Self-sharpening, self-steering, and recently, self-naming. We have not asked what it named itself.', effect: () => { minerMults['tunnel'] = (minerMults['tunnel']||1)*3; }, req: null },
+  { id: 'timefold2',    name: 'Paradox Suppressor',      icon: 'â³', cost: 8e10,        desc: '3× Temporal Excavator output',      flavor: 'Prevents the excavator from mining ore that has not been deposited yet. Mostly.', effect: () => { minerMults['timefold'] = (minerMults['timefold']||1)*3; }, req: null },
+  { id: 'oldgod2',      name: 'Dreaming Deeper',         icon: 'ðŸ¦‘', cost: 2e16,        desc: '2× Slumbering Old God output',      flavor: 'It rolled over. Output doubled. We are considering this a win and not thinking about what happens when it fully wakes.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*2; }, req: null },
+  { id: 'deeptruth2',   name: 'Second Revelation',       icon: 'ðŸ“¿', cost: 2e17,        desc: '3× The Deep Truth output',          flavor: 'There was a second truth beneath the first. It is worse. It is also very productive.', effect: () => { minerMults['deeptruth'] = (minerMults['deeptruth']||1)*3; }, req: null },
 ];
 
 const MANAGERS_DATA = [
@@ -199,26 +199,26 @@ const MANAGERS_DATA = [
 ];
 
 const TECH_DATA = [
-  { id: 'tc_speed1',   name: 'Hydraulic Boost',             icon: 'âš¡', cost: 2,  req: null,          tierUnlock: 0, desc: '1.5Ã— all worker output.',        flavor: 'More pressure. More ore. The pipe has not burst yet.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_click1',   name: 'Grip Gloves',                 icon: 'ðŸ§¤', cost: 3,  req: 'tc_speed1',   tierUnlock: 0, desc: '2Ã— click power.',                flavor: 'Grip-certified. Blister-inducing. You asked for this.', effect: () => { clickMult *= 2; } },
-  { id: 'tc_deep',     name: 'Depth Mapping',               icon: 'ðŸ—º', cost: 5,  req: 'tc_click1',   tierUnlock: 0, desc: '2Ã— all worker output.',          flavor: 'We mapped it. Most of it. The rest of it mapped us.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_offline',  name: 'Night Shift',                 icon: 'ðŸŒ™', cost: 4,  req: null,          tierUnlock: 0, desc: '2Ã— offline earnings.',           flavor: 'The mine does not sleep. Neither do they anymore. We pay extra.', effect: () => { offlineMult *= 2; } },
-  { id: 'tc_auto',     name: 'Smart Dispatch',              icon: 'ðŸ“Ÿ', cost: 8,  req: 'tc_deep',     tierUnlock: 0, desc: '1.5Ã— all worker output.',        flavor: 'Automated routing. Fewer decisions. Fewer people to blame.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_prestige', name: 'Shard Resonance',             icon: 'ðŸ’Ž', cost: 10, req: 'tc_auto',     tierUnlock: 0, desc: '1.5Ã— shard multiplier.',         flavor: 'The crystals hum at a frequency that feels like a warning. We turned that into a feature.', effect: () => { shardBonus *= 1.5; } },
-  { id: 'tc_aria',     name: 'Project ARIA',                icon: '',  cost: 15, req: 'tc_prestige', tierUnlock: 1, desc: 'Unlocks motivated workers. 2Ã— all output.', flavor: 'ARIA stands for Autonomous Resource Integration Architecture. The units prefer just ARIA. We let them have this.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: 'ðŸ“–', cost: 80, req: 'tc_aria',     tierUnlock: 2, desc: 'Unlocks what is below. 3Ã— all output.', flavor: 'Chapter one advises against reading chapter two. The rest of the chapters are wet.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_quantum',  name: 'Quantum Lattice',             icon: 'ðŸ”¬', cost: 20, req: 'tc_aria',     tierUnlock: 0, desc: '2Ã— all worker output.',          flavor: 'The lattice observes the ore. The ore, observed, performs better. We have learned nothing from this.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_geometry', name: 'Forbidden Geometry',          icon: 'ðŸ“', cost: 50, req: 'tc_grimoire', tierUnlock: 0, desc: '3Ã— all worker output.',          flavor: 'The angles should not work. They do. Do not measure them directly.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_dreaming', name: 'The Dreaming Engine',         icon: 'ðŸ¦‘', cost: 75, req: 'tc_geometry', tierUnlock: 0, desc: '5Ã— click + 2Ã— all workers.',    flavor: 'It dreams of ore. While it dreams, we take the ore. We do not think about what happens when it wakes up.', effect: () => { clickMult *= 5; globalMult *= 2; } },
+  { id: 'tc_speed1',   name: 'Hydraulic Boost',             icon: 'âš¡', cost: 2,  req: null,          tierUnlock: 0, desc: '1.5× all worker output.',        flavor: 'More pressure. More ore. The pipe has not burst yet.', effect: () => { globalMult *= 1.5; } },
+  { id: 'tc_click1',   name: 'Grip Gloves',                 icon: 'ðŸ§¤', cost: 3,  req: 'tc_speed1',   tierUnlock: 0, desc: '2× click power.',                flavor: 'Grip-certified. Blister-inducing. You asked for this.', effect: () => { clickMult *= 2; } },
+  { id: 'tc_deep',     name: 'Depth Mapping',               icon: 'ðŸ—º', cost: 5,  req: 'tc_click1',   tierUnlock: 0, desc: '2× all worker output.',          flavor: 'We mapped it. Most of it. The rest of it mapped us.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_offline',  name: 'Night Shift',                 icon: 'ðŸŒ™', cost: 4,  req: null,          tierUnlock: 0, desc: '2× offline earnings.',           flavor: 'The mine does not sleep. Neither do they anymore. We pay extra.', effect: () => { offlineMult *= 2; } },
+  { id: 'tc_auto',     name: 'Smart Dispatch',              icon: 'ðŸ“Ÿ', cost: 8,  req: 'tc_deep',     tierUnlock: 0, desc: '1.5× all worker output.',        flavor: 'Automated routing. Fewer decisions. Fewer people to blame.', effect: () => { globalMult *= 1.5; } },
+  { id: 'tc_prestige', name: 'Shard Resonance',             icon: 'ðŸ’Ž', cost: 10, req: 'tc_auto',     tierUnlock: 0, desc: '1.5× shard multiplier.',         flavor: 'The crystals hum at a frequency that feels like a warning. We turned that into a feature.', effect: () => { shardBonus *= 1.5; } },
+  { id: 'tc_aria',     name: 'Project ARIA',                icon: '',  cost: 15, req: 'tc_prestige', tierUnlock: 1, desc: 'Unlocks motivated workers. 2× all output.', flavor: 'ARIA stands for Autonomous Resource Integration Architecture. The units prefer just ARIA. We let them have this.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: 'ðŸ“–', cost: 80, req: 'tc_aria',     tierUnlock: 2, desc: 'Unlocks what is below. 3× all output.', flavor: 'Chapter one advises against reading chapter two. The rest of the chapters are wet.', effect: () => { globalMult *= 3; } },
+  { id: 'tc_quantum',  name: 'Quantum Lattice',             icon: 'ðŸ”¬', cost: 20, req: 'tc_aria',     tierUnlock: 0, desc: '2× all worker output.',          flavor: 'The lattice observes the ore. The ore, observed, performs better. We have learned nothing from this.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_geometry', name: 'Forbidden Geometry',          icon: 'ðŸ“', cost: 50, req: 'tc_grimoire', tierUnlock: 0, desc: '3× all worker output.',          flavor: 'The angles should not work. They do. Do not measure them directly.', effect: () => { globalMult *= 3; } },
+  { id: 'tc_dreaming', name: 'The Dreaming Engine',         icon: 'ðŸ¦‘', cost: 75, req: 'tc_geometry', tierUnlock: 0, desc: '5× click + 2× all workers.',    flavor: 'It dreams of ore. While it dreams, we take the ore. We do not think about what happens when it wakes up.', effect: () => { clickMult *= 5; globalMult *= 2; } },
 ];
 
 const ABILITIES_DATA = [
-  { id: 'ore_rush',        name: 'Ore Rush',          icon: 'âš¡', type: 'buff',    desc: '2Ã— all ore production for 10 minutes.',           unlockType: 'ore',    unlockCost: 0,   cooldown: 30*60, duration: 10*60, activate(g) { g.abilityEnds['ore_rush'] = Date.now()+10*60*1000; },       isActive(g) { return Date.now()<(g.abilityEnds['ore_rush']||0); } },
+  { id: 'ore_rush',        name: 'Ore Rush',          icon: 'âš¡', type: 'buff',    desc: '2× all ore production for 10 minutes.',           unlockType: 'ore',    unlockCost: 0,   cooldown: 30*60, duration: 10*60, activate(g) { g.abilityEnds['ore_rush'] = Date.now()+10*60*1000; },       isActive(g) { return Date.now()<(g.abilityEnds['ore_rush']||0); } },
   { id: 'gold_vein',       name: 'Gold Vein',         icon: 'âœ¨', type: 'nuke',    desc: 'Strike a hidden vein â€” instantly gain 20 minutes of income.', unlockType: 'ore', unlockCost: 50000, cooldown: 60*60, duration: 0, activate(g) { const b=calcOrePerSec()*1200; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('âœ¨ Gold Vein struck! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
   { id: 'drill_frenzy',    name: 'Drill Frenzy',      icon: 'ðŸ”©', type: 'clicker', desc: 'Auto-clicks 100 times over 10 seconds.',          unlockType: 'depth',  unlockCost: 200, cooldown: 20*60, duration: 10,   activate(g) { g.abilityEnds['drill_frenzy']=Date.now()+10000; let c=0; const iv=setInterval(()=>{ if(c>=100){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },100); showToast('ðŸ”© Drill Frenzy! 100 auto-clicks!'); }, isActive(g) { return Date.now()<(g.abilityEnds['drill_frenzy']||0); } },
-  { id: 'deep_pulse',      name: 'Deep Pulse',        icon: 'ðŸŒŠ', type: 'buff',    desc: '4Ã— click power for 5 minutes.',                  unlockType: 'depth',  unlockCost: 300, cooldown: 25*60, duration: 5*60, activate(g) { g.abilityEnds['deep_pulse']=Date.now()+5*60*1000; },         isActive(g) { return Date.now()<(g.abilityEnds['deep_pulse']||0); } },
-  { id: 'plasma_surge',    name: 'Plasma Surge',      icon: 'ðŸ”†', type: 'buff',    desc: '5Ã— all ore production for 8 minutes.',           unlockType: 'depth',  unlockCost: 1000,cooldown: 60*60, duration: 8*60, activate(g) { g.abilityEnds['plasma_surge']=Date.now()+8*60*1000; },        isActive(g) { return Date.now()<(g.abilityEnds['plasma_surge']||0); } },
-  { id: 'eldritch_hunger', name: 'Eldritch Hunger',   icon: 'ðŸ‘', type: 'buff',    desc: '10Ã— all output for 3 minutes.',                  unlockType: 'depth',  unlockCost: 1200,cooldown: 120*60,duration: 3*60, activate(g) { g.abilityEnds['eldritch_hunger']=Date.now()+3*60*1000; },     isActive(g) { return Date.now()<(g.abilityEnds['eldritch_hunger']||0); } },
+  { id: 'deep_pulse',      name: 'Deep Pulse',        icon: 'ðŸŒŠ', type: 'buff',    desc: '4× click power for 5 minutes.',                  unlockType: 'depth',  unlockCost: 300, cooldown: 25*60, duration: 5*60, activate(g) { g.abilityEnds['deep_pulse']=Date.now()+5*60*1000; },         isActive(g) { return Date.now()<(g.abilityEnds['deep_pulse']||0); } },
+  { id: 'plasma_surge',    name: 'Plasma Surge',      icon: 'ðŸ”†', type: 'buff',    desc: '5× all ore production for 8 minutes.',           unlockType: 'depth',  unlockCost: 1000,cooldown: 60*60, duration: 8*60, activate(g) { g.abilityEnds['plasma_surge']=Date.now()+8*60*1000; },        isActive(g) { return Date.now()<(g.abilityEnds['plasma_surge']||0); } },
+  { id: 'eldritch_hunger', name: 'Eldritch Hunger',   icon: 'ðŸ‘', type: 'buff',    desc: '10× all output for 3 minutes.',                  unlockType: 'depth',  unlockCost: 1200,cooldown: 120*60,duration: 3*60, activate(g) { g.abilityEnds['eldritch_hunger']=Date.now()+3*60*1000; },     isActive(g) { return Date.now()<(g.abilityEnds['eldritch_hunger']||0); } },
   { id: 'cave_collapse',   name: 'Cave Collapse',     icon: 'ðŸ’¥', type: 'nuke',    desc: 'Instantly gain 1 hour of ore income.',           unlockType: 'shards', unlockCost: 30,  cooldown: 90*60, duration: 0,    activate(g) { const b=calcOrePerSec()*3600; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('ðŸ’¥ Cave Collapse! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
   { id: 'mole_swarm',      name: 'Mole Swarm',        icon: 'ðŸ­', type: 'clicker', desc: '500 auto-clicks over 15 seconds.',               unlockType: 'shards', unlockCost: 60,  cooldown: 45*60, duration: 15,   activate(g) { g.abilityEnds['mole_swarm']=Date.now()+15000; let c=0; const iv=setInterval(()=>{ if(c>=500){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },30); showToast('ðŸ­ Mole Swarm! 500 clicks incoming!'); }, isActive(g) { return Date.now()<(g.abilityEnds['mole_swarm']||0); } },
   { id: 'temporal_skip',   name: 'Temporal Skip',     icon: 'â³', type: 'nuke',    desc: 'Gain 3 hours of offline income instantly.',      unlockType: 'shards', unlockCost: 100, cooldown: 120*60,duration: 0,    activate(g) { const b=calcOrePerSec()*10800; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('â³ Temporal Skip! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
@@ -838,7 +838,7 @@ function buildMinerRow(m) {
   const cfg = MinerVisuals.CONFIGS[m.id];
   const tierClass = cfg && cfg.tier===1 ? ' tier-1-active' : cfg && cfg.tier===2 ? ' tier-2-active' : '';
   const hasWorkers = count > 0 ? ' row-has-workers' : '';
-  const qtyLabel = buyQty === 'max' ? `Ã—${qty}` : buyQty > 1 ? `Ã—${buyQty}` : '';
+  const qtyLabel = buyQty === 'max' ? `×${qty}` : buyQty > 1 ? `×${buyQty}` : '';
 
   const row = document.createElement('div');
   row.className = `miner-row${tierClass}${hasWorkers}`;
@@ -912,7 +912,7 @@ function updateMinerRows() {
     const canAfford = G.ore >= cost;
     const ops = m.baseOps * (minerMults[m.id]||1) * globalMult * G.prestigeMultiplier;
     const shortage = canAfford ? 0 : Math.ceil(cost - G.ore);
-    const qtyLabel = buyQty === 'max' ? `Ã—${qty}` : buyQty > 1 ? `Ã—${buyQty}` : '';
+    const qtyLabel = buyQty === 'max' ? `×${qty}` : buyQty > 1 ? `×${buyQty}` : '';
 
     const countEl = row.querySelector('.miner-count');
     if (countEl) countEl.textContent = count;
@@ -1032,7 +1032,7 @@ function updateHUD() {
   document.getElementById('click-reward-label').textContent = '+' + fmt(calcClickPower()) + ' ore / click';
   document.getElementById('hdr-depth').textContent = G.depth + 'm';
   document.getElementById('hdr-total').textContent = fmt(G.lifetimeOre);
-  document.getElementById('hdr-mult').textContent = 'Ã—' + G.prestigeMultiplier.toFixed(2);
+  document.getElementById('hdr-mult').textContent = '×' + G.prestigeMultiplier.toFixed(2);
   document.getElementById('depth-badge').textContent = 'DEPTH: ' + G.depth + 'm';
   document.getElementById('shard-count').textContent = G.shards;
   document.getElementById('prestige-gain-display').textContent = calcPrestigeShards();
@@ -1079,7 +1079,7 @@ function buyMiner(id) {
   const newCount = G.miners[id];
   const milestones = [10, 25, 50, 100, 250, 500];
   const hit = milestones.find(ms => newCount >= ms && newCount - qty < ms);
-  if (hit) setTimeout(() => showToast(`${m.name} Ã—${hit} â€” ${hit >= 500 ? 'geological event' : hit >= 100 ? 'industrial scale' : hit >= 50 ? 'serious operation' : 'respectable crew'}`), 200);
+  if (hit) setTimeout(() => showToast(`${m.name} ×${hit} — ${hit >= 500 ? 'geological event' : hit >= 100 ? 'industrial scale' : hit >= 50 ? 'serious operation' : 'respectable crew'}`), 200);
   if (G.settings && G.settings.sound) playSound('buy');
   if (G.settings && G.settings.shake) screenShake(1);
   updateMinerRows();
@@ -1130,7 +1130,7 @@ function doPrestige() {
   screenShake(8);
   burstParticles(window.innerWidth/2, window.innerHeight/2, 24, '#c84aff');
   renderMiners(); renderUpgrades(); renderTech(); renderManagers();
-  showToast('âœ¦ Ascension complete! Multiplier: Ã—' + G.prestigeMultiplier.toFixed(2));
+  showToast('âœ¦ Ascension complete! Multiplier: ×' + G.prestigeMultiplier.toFixed(2));
 }
 
 function hardReset() {
@@ -1513,7 +1513,7 @@ const RANDOM_EVENTS = [
     onEnd(g) { delete g.eventData; }
   },
   { id:'lucky_vein',   minOre:5000,    weight:12, duration:20, title:'Lucky Vein!',            color:'#f5c842',
-    desc:'A rich ore pocket. All output <b>3Ã—</b> for <b>20s</b>.',
+    desc:'A rich ore pocket. All output <b>3×</b> for <b>20s</b>.',
     flavor:'The assay report says "anomalous." The accountant says "fortuitous." The miners say nothing. They are busy.',
     onStart(g) { return true; },
     getMultiplier(g) { return 3; },
@@ -1527,7 +1527,7 @@ const RANDOM_EVENTS = [
     onEnd(g) {}
   },
   { id:'ore_surge',    minOre:50000,   weight:10, duration:15, title:'Ore Surge!',             color:'#7ecfb0',
-    desc:'Seismic pressure cracked a rich seam. Output <b>5Ã—</b> for <b>15s</b>.',
+    desc:'Seismic pressure cracked a rich seam. Output <b>5×</b> for <b>15s</b>.',
     flavor:'The ground shook. Everyone braced for disaster. Instead: ore. More ore than expected. Nobody is complaining.',
     onStart(g) { return true; },
     getMultiplier(g) { return 5; },
@@ -1544,7 +1544,7 @@ const RANDOM_EVENTS = [
     onEnd(g) {}
   },
   { id:'tremor',       minOre:100000,  weight:9,  duration:12, title:'Deep Tremor',            color:'#e05030',
-    desc:'Something moved below. Click power <b>10Ã—</b> for <b>12s</b> but workers paused.',
+    desc:'Something moved below. Click power <b>10×</b> for <b>12s</b> but workers paused.',
     flavor:'The seismograph needle went off the chart and then came back. It had seen something. It did not share.',
     onStart(g) { return true; },
     getMultiplier(g) { return 0; },
@@ -1566,7 +1566,7 @@ const RANDOM_EVENTS = [
     onEnd(g) {}
   },
   { id:'ancient_machine', minOre:1000000, weight:6, duration:30, title:'Ancient Machine',     color:'#c84aff',
-    desc:'Something old activated below. All output <b>8Ã—</b> for <b>30s</b>.',
+    desc:'Something old activated below. All output <b>8×</b> for <b>30s</b>.',
     flavor:'It was already running when we found it. It had been running for a very long time. We did not ask what it was doing.',
     onStart(g) { return !!g.tech['tc_grimoire']; },
     getMultiplier(g) { return 8; },
