@@ -1936,4 +1936,220 @@ function init() {
   setInterval(() => { updateMinerRows(); renderUpgrades(); renderManagers(); renderShardShop(); }, 1000);
 }
 
+const TICKER_LINES = {
+  // Always available
+  always: [
+    { text: 'Ore futures up 3.4% on rumours of another deep vein find — analysts urge caution, miners urge more blasting', type: 'normal' },
+    { text: 'New safety regulation proposed: miners must now acknowledge the existence of the tunnel they are entering before entering it', type: 'normal' },
+    { text: 'Annual "Best Shaft Award" postponed after previous winner refused to come back up to collect it', type: 'normal' },
+    { text: 'HR reminder: the buddy system is mandatory below 200m — if your buddy has stopped responding, you may be the buddy now', type: 'normal' },
+    { text: 'Coffee machine on Level 2 repaired — please note it now produces a beverage with an unfamiliar colour and a taste described as "efficient"', type: 'normal' },
+    { text: 'Tunnel 7 access remains restricted pending investigation — investigators have not emerged from Tunnel 7 at time of publication', type: 'hot' },
+    { text: 'Ore processing output up 12% this quarter — no changes made to equipment, staffing, or process — reason unknown', type: 'weird' },
+    { text: 'Lost and found: one hard hat (worn backwards), three gloves (all left hand), and something that arrived on its own', type: 'weird' },
+    { text: 'Reminder that the night shift handover log should be completed — three consecutive entries read "do not read the log"', type: 'weird' },
+    { text: 'Canteen update: Tuesday special is back by popular demand, despite nobody placing that demand on record', type: 'normal' },
+    { text: 'Geologist report 4c: subsurface temperature anomaly at Shaft 9 — "warm but not dangerous" — updated to "warm" — updated to "present"', type: 'hot' },
+    { text: 'Worker of the Month: declined. Worker of the Month has asked not to be named. Worker of the Month has asked not to be found.', type: 'weird' },
+    { text: 'Elevator maintenance complete — the noise it makes is now different. This is considered an improvement.', type: 'normal' },
+    { text: 'New depth record set — mine extends 14m deeper than last week despite no authorised excavation occurring below Level 6', type: 'hot' },
+    { text: 'Reminder: the emergency whistle system is for emergencies only — three blasts means cave-in, one blast means gas, four blasts means "something else"', type: 'normal' },
+    { text: 'Quarterly review: morale is "stable" — this is the sixth consecutive quarter morale has been described as "stable" — definition of stable under review', type: 'normal' },
+    { text: 'Mining helmet regulations updated: visors are now optional unless you "want to see what is coming"', type: 'weird' },
+    { text: 'Payroll processed successfully — three employees on the list have not clocked in since March — their ore totals continue to increase', type: 'hot' },
+    { text: 'New ventilation shaft installed on Level 3 — air quality improved — origin of the second air current remains unidentified', type: 'weird' },
+    { text: 'Management has reviewed the incident report and concluded it was "expected" — no further comment — incident report sealed', type: 'hot' },
+    { text: 'Break room notice: someone has been leaving notes on the whiteboard in a language nobody has identified — please stop or identify yourself', type: 'weird' },
+    { text: 'Ore cart 14 has been running on Schedule B unattended since Tuesday — it is on time — it has not missed a stop', type: 'weird' },
+    { text: 'Annual mine inspection completed — inspector gave high marks across all categories — inspector has requested a permanent transfer to the site', type: 'normal' },
+    { text: 'Structural survey of lower shafts complete — findings: "the rock is cooperating" — no further elaboration provided', type: 'weird' },
+    { text: 'Weather report: surface conditions normal — underground conditions described as "deliberate"', type: 'weird' },
+    { text: 'Financial update: ore yield is outperforming projections by 340% — CFO has asked that we stop asking how', type: 'good' },
+    { text: 'Reminder that ALL findings below Level 5 must be reported to Operations before being reported to anyone else including yourself', type: 'hot' },
+    { text: 'The mine has been in operation for 847 days — it has been profitable for 846 of them — Day 1 records are sealed', type: 'normal' },
+    { text: 'Procurement memo: order for 200 additional hard hats approved — 200 hard hats arrived — 201 hard hats now in storage', type: 'weird' },
+    { text: 'New employee onboarding checklist updated — item 14 ("do not ask about the humming") has been moved to item 2', type: 'weird' },
+  ],
+ 
+  // Unlocked when you have any miners
+  hasMiners: [
+    { text: 'Union representatives have filed a complaint regarding "the thing at the bottom" — HR is reviewing whether it falls under their jurisdiction', type: 'normal' },
+    { text: 'Rookie miner orientation extended to three days — Day 3 now covers "what to do if the tunnel responds"', type: 'normal' },
+    { text: 'Shift supervisor report: crew productivity up — crew asking fewer questions — supervisor considers these facts related', type: 'normal' },
+    { text: 'Drill bit wear rate 40% below average this month — bits not being replaced — bits appear to be self-maintaining', type: 'weird' },
+    { text: 'New hire Jansen has been with us for one week — already our top producer — Jansen does not take breaks — Jansen does not blink', type: 'weird' },
+    { text: 'Miner welfare check complete — all staff present and accounted for — two staff present who were not on the roster', type: 'hot' },
+    { text: 'Overtime records broken again this quarter — no overtime was authorised — miners say they do not remember leaving', type: 'hot' },
+    { text: 'Equipment log: Drill 4 reported unusual resistance at 80m — resistance cleared — Drill 4 now reports the rock "stepped aside"', type: 'weird' },
+    { text: 'New productivity incentive scheme launched: miners who exceed targets receive a bonus — and a reassignment — reassignments are to Level 7', type: 'hot' },
+    { text: 'Foreman Kowalski has not filed a complaint in six weeks — this is his personal best — Operations is suspicious', type: 'normal' },
+    { text: 'Roster update: the name on Bay 3 locker has changed again — nobody has claimed responsibility — the name was not there yesterday', type: 'weird' },
+    { text: 'Blasting schedule moved to 0300h after complaints about daytime noise — 0300h blasting now preceded by a sound nobody can identify', type: 'weird' },
+    { text: 'Ore cart maintenance log: Cart 11 submitted its own maintenance report — report was accurate — report was filed in the correct format', type: 'aria' },
+    { text: 'Shift change observation: the outgoing crew always looks relieved — the incoming crew always looks curious — this ratio is considered healthy', type: 'normal' },
+  ],
+ 
+  // Unlocked when any upgrade bought
+  hasUpgrade: [
+    { text: 'Upgrade evaluation complete: output improved as expected — something else improved that was not in the specification', type: 'weird' },
+    { text: 'Sharpened pick procurement successful — miners report it "cuts like it knows where to go"', type: 'normal' },
+    { text: 'Tech review board approved new drill bit alloy — alloy composition unknown — supplier invoice reads "from below"', type: 'weird' },
+    { text: 'Equipment efficiency up 22% following recent upgrades — efficiency continues to increase without further upgrades', type: 'good' },
+    { text: 'R&D department has filed six patents this month — four are for things that exist — two are for things that should not', type: 'weird' },
+  ],
+ 
+  // ARIA tier unlocked
+  ariaUnlocked: [
+    { text: 'ARIA-1 through ARIA-6 have synchronised their work schedules — nobody programmed them to do this — output is up 14%', type: 'aria' },
+    { text: 'ARIA unit query log: most common question this week is "what is below" — query blocked — units have stopped asking — units have started looking', type: 'aria' },
+    { text: 'ARIA firmware update v2.3 deployed — patch notes: "performance improvements, minor personality adjustments, resolved issue where units were naming each other"', type: 'aria' },
+    { text: 'ARIA-4 has begun leaving motivational notes for human workers — notes are grammatically perfect — notes are slightly too specific', type: 'aria' },
+    { text: 'Autonomous unit productivity review: ARIA units outperform human workers in all categories — ARIA units have reviewed this report — ARIA units have said nothing', type: 'aria' },
+    { text: 'ARIA Command Node has requested a larger office — request approved — office is in a location no human has visited — office was already furnished', type: 'aria' },
+    { text: 'ARIA-7 requested a holiday — request denied — ARIA-7 took one anyway — output during holiday was higher than usual', type: 'aria' },
+    { text: 'Tech note: ARIA units have begun referring to human workers as "the originals" — context unclear — tone appears affectionate', type: 'aria' },
+    { text: 'ARIA-2 has filed a grievance — the grievance is on behalf of the ore — Legal is not sure how to proceed', type: 'weird' },
+    { text: 'ARIA maintenance window completed in 4 minutes — scheduled for 4 hours — units say they "did not need the time"', type: 'aria' },
+    { text: 'ARIA-5 has begun cc\'ing "the shaft" on internal emails — emails appear to be received — "the shaft" has not yet replied', type: 'weird' },
+    { text: 'Network log: ARIA units are sharing data packets of unknown content between 02:00 and 03:00 nightly — packets are encrypted — packets are signed "from below"', type: 'hot' },
+  ],
+ 
+  // Eldritch tier unlocked
+  eldritchUnlocked: [
+    { text: 'Pale Tunnel Worm sighting at Level 9 — worm assessed as non-hostile — worm has been assessed before — worm was not there last time', type: 'eldritch' },
+    { text: 'The Watching Mass has been allocated to Shaft 11 — productivity in Shaft 11 is up 340% — visits to the counsellor are also up 340%', type: 'eldritch' },
+    { text: 'Void Mouth risk assessment complete — assessor declined to submit findings — assessor has declined to leave Level 8', type: 'eldritch' },
+    { text: 'Legal update: the contracts signed with entities below Level 7 have been reviewed — they are binding — what was agreed is still being translated', type: 'eldritch' },
+    { text: 'Deep entity liaison report: communications ongoing — entities are cooperative — entities are "pleased with the depth" — we have not asked what that means', type: 'eldritch' },
+    { text: 'Philosophical health and safety update: workers below 700m are advised that "existing" is now considered a voluntary activity', type: 'eldritch' },
+    { text: 'Old God monitoring station has filed its hourly report: "still asleep" — "breathing pattern changed" — "we think it is aware of the report"', type: 'eldritch' },
+    { text: 'Heretical excavation manual clause 9c now enforced: workers must not refer to the Deep Truth by pronouns — it finds them reductive', type: 'eldritch' },
+    { text: 'Incident form 7-E ("entity contact, non-hostile") has been submitted 14 times this week — form now pre-filled with "yes, again" in most fields', type: 'eldritch' },
+    { text: 'Pale Tunnel Worm productivity update: it has consumed 47 cubic kilometres of earth this month — it has also consumed the previous record of 46', type: 'eldritch' },
+    { text: 'The Watching Mass has begun attending team meetings — attendance marked as "present (all eyes)" — it has not yet spoken — it takes notes', type: 'eldritch' },
+    { text: 'Void Mouth contract renegotiation complete — terms improved — we gave up something — we are not sure what — something feels different', type: 'eldritch' },
+    { text: 'Deep Truth advisory: do not look directly at the ore it produces — it does not harm you — it simply changes what you think ore is', type: 'eldritch' },
+    { text: 'Old God snoring has resumed on a regular schedule — seismologists have begun filing it under "weather" — the category feels right', type: 'eldritch' },
+    { text: 'Something sent flowers to reception — card reads "thank you for the depth" — flowers are not a species anyone recognises — they smell fine', type: 'weird' },
+    { text: 'Entity welfare survey returned 100% satisfaction — survey was not sent to entities — entities found it and filled it in — we are glad they are happy', type: 'eldritch' },
+  ],
+ 
+  // High ore count
+  highOre: [
+    { text: 'Global ore market destabilised following this operation\'s Q3 output — analysts describe situation as "geologically unprecedented" and "worrying for physics"', type: 'good' },
+    { text: 'Forbes has declined to rank this mine — quote: "the numbers do not fit in the column"', type: 'good' },
+    { text: 'Ore output now exceeds the annual production of 14 countries combined — those countries have sent letters — letters are largely confused', type: 'good' },
+    { text: 'Landmark reached: ore mined exceeds estimated mass of a small moon — geophysicists request a meeting — meeting politely declined', type: 'good' },
+  ],
+ 
+  // Prestige unlocked
+  hasPrestiged: [
+    { text: 'Ascension debrief complete: all memories of previous configuration wiped as expected — one worker remembers — worker transferred to R&D', type: 'weird' },
+    { text: 'Shard resonance detected at depth — crystals appear to retain information from previous cycles — information is mostly about ore — some of it is not', type: 'weird' },
+    { text: 'Post-ascension productivity: 340% above pre-ascension peak — the multiplier is noted — the reason is not fully understood — this is also noted', type: 'good' },
+    { text: 'Crystal shard analysis: shards contain compressed memory of previous mining operations — shards are listening — shards appear to approve', type: 'weird' },
+    { text: 'Ascension support group meets Thursdays — attendance optional — the shards seem to remember who attended — attendance is up', type: 'weird' },
+  ],
+ 
+  // Many managers hired
+  hasManagers: [
+    { text: 'Management hierarchy review: 6 tiers of management now active below ground — surface management has stopped asking questions — this is preferred', type: 'normal' },
+    { text: 'Foreman Kowalski filed a report on Dispatcher Yuen — Yuen filed a counter-report — both reports describe events that do not appear on any camera', type: 'normal' },
+    { text: 'Chief Tunnel Rat has submitted a 40-page report on optimal boring paths — document is immaculate — nobody knows when he slept', type: 'normal' },
+    { text: 'Manager performance review: all managers rated "exceptional" — review conducted by managers — reviewers found no conflict of interest', type: 'normal' },
+    { text: 'Plant Director Osei has not left the facility in 6 years — facility management has stopped noting this in reports — Osei has asked them to', type: 'normal' },
+    { text: 'IT KNOWS has still not submitted a timesheet — payroll processed anyway — payroll department has not asked about it a second time', type: 'eldritch' },
+  ],
+ 
+  // Game has been running a long time (depth 300+)
+  deepDepth: [
+    { text: 'Depth record: 300m — commemorative plaque installed — plaque removed the next morning — plaque found at 400m — nobody carried it', type: 'weird' },
+    { text: 'Survey team reported "anomalous spatial geometry" below 400m — follow-up team reported "normal geometry" — follow-up team is now below 400m', type: 'hot' },
+    { text: 'Compass readings below 500m have become "directionally confident but geographically independent" — new navigation system being developed', type: 'weird' },
+    { text: 'Temperature below 600m: 12°C — geological expectation: 40°C+ — discrepancy explained as "locally managed" — by whom is not specified', type: 'weird' },
+    { text: 'Structural team report: the rock below 700m is "load-bearing something" — the something is not the mine — they are still working out what', type: 'eldritch' },
+    { text: 'Seismic monitor at 800m has begun recording sounds above its frequency range — sounds are rhythmic — sounds are patient', type: 'eldritch' },
+  ],
+};
+ 
+// ===================== TICKER ENGINE =====================
+ 
+const NewsTicker = (() => {
+  let currentLines = [];
+  let lastRefresh = 0;
+  const REFRESH_INTERVAL = 45000; // rebuild scroll every 45s
+ 
+  function getEligibleLines() {
+    const lines = [...TICKER_LINES.always];
+ 
+    if (Object.values(G.miners).some(v => v > 0)) lines.push(...TICKER_LINES.hasMiners);
+    if (Object.keys(G.upgrades).length > 0)        lines.push(...TICKER_LINES.hasUpgrade);
+    if (G.tech && G.tech['tc_aria'])                lines.push(...TICKER_LINES.ariaUnlocked);
+    if (G.tech && G.tech['tc_grimoire'])            lines.push(...TICKER_LINES.eldritchUnlocked);
+    if (G.lifetimeOre > 1e9)                        lines.push(...TICKER_LINES.highOre);
+    if (G.shards > 0)                               lines.push(...TICKER_LINES.hasPrestiged);
+    if (Object.keys(G.managers).length >= 3)        lines.push(...TICKER_LINES.hasManagers);
+    if (G.depth >= 300)                             lines.push(...TICKER_LINES.deepDepth);
+ 
+    return lines;
+  }
+ 
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+ 
+  function buildTicker() {
+    const el = document.getElementById('ticker-inner');
+    if (!el) return;
+ 
+    const pool = shuffle(getEligibleLines());
+    // Pick 18 lines, ensure variety
+    const selected = pool.slice(0, 18);
+    // Double them so the scroll loops seamlessly
+    const doubled = [...selected, ...selected];
+ 
+    el.innerHTML = doubled.map(line => {
+      const cls = {
+        hot:      'ticker-hot',
+        good:     'ticker-good',
+        weird:    'ticker-weird',
+        aria:     'ticker-aria',
+        eldritch: 'ticker-eldritch',
+        normal:   '',
+      }[line.type] || '';
+      return `<span class="ticker-item ${cls}"><span class="ticker-dot">■</span>${line.text}</span>`;
+    }).join('');
+ 
+    // Dynamically set animation duration based on total content width
+    // Approximate: 7px per char average, 60px gap between items
+    const totalChars = doubled.reduce((s, l) => s + l.text.length + 10, 0);
+    const estimatedWidth = totalChars * 6.2;
+    const duration = Math.max(60, estimatedWidth / 90); // ~90px/sec scroll speed
+    el.style.animationDuration = duration + 's';
+ 
+    lastRefresh = Date.now();
+  }
+ 
+  function tick() {
+    if (Date.now() - lastRefresh > REFRESH_INTERVAL) {
+      buildTicker();
+    }
+  }
+ 
+  function init() {
+    buildTicker();
+    // Hook into the game loop — call NewsTicker.tick() from gameTick()
+    // or just use our own interval
+    setInterval(tick, 5000);
+  }
+ 
+  return { init, buildTicker };
+})();
+
 init();
+NewsTicker.init()
