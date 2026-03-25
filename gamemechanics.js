@@ -1944,7 +1944,6 @@ function gameTick() {
   checkAchievements();
   checkLoreEvents();
 
-  if (Math.random() < 0.01) { renderMiners(); renderUpgrades(); }
 }
 
 // ===================== INIT =====================
