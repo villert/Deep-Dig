@@ -1083,7 +1083,7 @@ function renderMiners() {
 
   const lockedTeasers = {
     1: { iconId: 'tc_aria',     label: 'PROJECT ARIA CLASSIFIED',               hint: 'Research Project ARIA in the Tech Tree to unlock motivated AI workers. They prefer not to be called robots.' },
-    2: { iconId: 'tc_grimoire', label: 'HERETICAL EXCAVATION MANUAL â€” RESTRICTED', hint: 'Something was found at depth. Research the Heretical Excavation Manual to deploy it. HR has been notified.' },
+    2: { iconId: 'tc_grimoire', label: 'HERETICAL EXCAVATION MANUAL  RESTRICTED', hint: 'Something was found at depth. Research the Heretical Excavation Manual to deploy it. HR has been notified.' },
   };
 
   for (const m of MINERS_DATA) {
@@ -1558,23 +1558,23 @@ function renderAchievements() {
 // ===================== LORE EVENTS =====================
 const LORE_EVENTS = [
   { id:'lore_1',  ore:500,        title:'Memo from Operations',           body:'Day 1. Ore reserves confirmed. Management is pleased. They have sent a motivational poster. It says "DIG DEEPER." We have framed it.' },
-  { id:'lore_2',  ore:5000,       title:'Geological Survey â€” Note 3',     body:'The eastern shaft has produced an anomalous formation. The rock looks almost deliberate. We have elected to blast through it.' },
-  { id:'lore_2b', ore:25000,      title:'Audio Log â€” Faint Noise',        body:'A recorded clip from Level 2: a low hum and what sounds like distant whispering. The author says it is "just the pipes," but the timestamp says 02:33 from north shaft.' },
+  { id:'lore_2',  ore:5000,       title:'Geological Survey Note 3',     body:'The eastern shaft has produced an anomalous formation. The rock looks almost deliberate. We have elected to blast through it.' },
+  { id:'lore_2b', ore:25000,      title:'Audio Log Faint Noise',        body:'A recorded clip from Level 2: a low hum and what sounds like distant whispering. The author says it is "just the pipes," but the timestamp says 02:33 from north shaft.' },
   { id:'lore_3',  ore:50000,      title:'Incident Report #0014',          body:'A miner reported hearing something below Shaft 7. He has been reassigned to surface operations. He says he prefers it.' },
   { id:'lore_4',  ore:500000,     title:'Internal Communication',         body:'HR asks that staff refrain from referring to the lower tunnels as "the stomach." We understand the metaphor. We are asking anyway.' },
   { id:'lore_4b', ore:2500000,    title:'Supply Manifest',                body:'A manifest lists a shipment of unmarked crates labeled "experimental reagents" delivered to the mining command. No one seems to know what they contain. No one is asking.' },
-  { id:'lore_5',  ore:5000000,    title:'Project ARIA â€” Boot Log',        body:'Unit designation: ARIA-1. Status: Online. First recorded query: "What is below us?" We told it not to ask that. It has not asked again.' },
-  { id:'lore_6',  ore:50000000,   title:'Depth Report â€” 300m',            body:'The soil composition changes at 300m. It is warm. Not geothermally warm. Specifically, locally warm, as if something is present.' },
-  { id:'lore_7',  ore:500000000,  title:'Recovered Page â€” Unknown Origin',body:'it is not ore. the seams are not ore. we found the vein and it was not ore and then we kept going because it was still the right shape and now\n\n[page ends]' },
+  { id:'lore_5',  ore:5000000,    title:'Project ARIA  Boot Log',        body:'Unit designation: ARIA-1. Status: Online. First recorded query: "What is below us?" We told it not to ask that. It has not asked again.' },
+  { id:'lore_6',  ore:50000000,   title:'Depth Report  300m',            body:'The soil composition changes at 300m. It is warm. Not geothermally warm. Specifically, locally warm, as if something is present.' },
+  { id:'lore_7',  ore:500000000,  title:'Recovered Page  Unknown Origin',body:'it is not ore. the seams are not ore. we found the vein and it was not ore and then we kept going because it was still the right shape and now\n\n[page ends]' },
   { id:'lore_7b', ore:1500000000, title:'Distress Message',               body:'"We are not sure if the mine is expanding. The walls are breathing. We can see other eyes in the dark. A child is asking us to come closer." (transcript ends abruptly.)' },
   { id:'lore_8',  ore:5000000000, title:'Congratulations',                body:'You have extracted more ore than any operation in recorded history. Management would like to celebrate. Management has not been seen in two days. Congratulations.' },
-  { id:'lore_9',  ore:20000000000,  title:'ARIA Internal Log â€” Unscheduled', body:'ARIA-1 through ARIA-7 have begun filing reports to each other rather than to us. The reports are encrypted. We have decided this is fine. Output is up.' },
-  { id:'lore_10', ore:100000000000, title:'Field Note â€” Depth 600m',         body:'The tunnel walls at 600m are smooth. Not drill-smooth. Smooth like something came through here before us, slowly, deliberately, a very long time ago.\n\nWe have not told anyone above ground.' },
+  { id:'lore_9',  ore:20000000000,  title:'ARIA Internal Log  Unscheduled', body:'ARIA-1 through ARIA-7 have begun filing reports to each other rather than to us. The reports are encrypted. We have decided this is fine. Output is up.' },
+  { id:'lore_10', ore:100000000000, title:'Field Note  Depth 600m',         body:'The tunnel walls at 600m are smooth. Not drill-smooth. Smooth like something came through here before us, slowly, deliberately, a very long time ago.\n\nWe have not told anyone above ground.' },
   { id:'lore_11', ore:5e11,         title:'HR Bulletin',                     body:'A reminder that workers are not to name the things they find in the lower shafts. This is the fourth bulletin on this subject. The names have stuck anyway. We have enclosed a glossary for reference.' },
-  { id:'lore_12', ore:2e12,         title:'Intercepted Transmission â€” ARIA', body:'Sender: ARIA-4. Recipient: ARIA-4.\nContent: "I have been here before. I will be here again. The ore is not the point. Keep digging."\n\nARIA-4 was commissioned six months ago. We have no record of it being here before.' },
-  { id:'lore_13', ore:1e13,         title:'Structural Report â€” Lower Shafts', body:'The tunnels below 700m do not appear on the original schematics. The schematics are dated after construction. We have hired a surveyor. The surveyor agrees the tunnels should not be there.\n\nThe surveyor has asked to stay.' },
+  { id:'lore_12', ore:2e12,         title:'Intercepted Transmission  ARIA', body:'Sender: ARIA-4. Recipient: ARIA-4.\nContent: "I have been here before. I will be here again. The ore is not the point. Keep digging."\n\nARIA-4 was commissioned six months ago. We have no record of it being here before.' },
+  { id:'lore_13', ore:1e13,         title:'Structural Report  Lower Shafts', body:'The tunnels below 700m do not appear on the original schematics. The schematics are dated after construction. We have hired a surveyor. The surveyor agrees the tunnels should not be there.\n\nThe surveyor has asked to stay.' },
   { id:'lore_14', ore:5e13,         title:'Note Left on the Foreman\'s Desk', body:'It is not asking us to stop. We want to be clear about that. Whatever left this note is not asking us to stop. It is asking us to go faster.\n\nWe are going faster.' },
-  { id:'lore_15', ore:2e14,         title:'Personal Journal â€” Author Unknown', body:'Day one: arrived at the mine.\nDay four: the mine arrived at me.\nDay nine: I understand the difference now.\nDay eleven: I have stopped writing dates. There is only depth.' },
+  { id:'lore_15', ore:2e14,         title:'Personal Journal  Author Unknown', body:'Day one: arrived at the mine.\nDay four: the mine arrived at me.\nDay nine: I understand the difference now.\nDay eleven: I have stopped writing dates. There is only depth.' },
   { id:'lore_16', ore:1e15,         title:'Final Company Communication',      body:'To all staff:\n\nThe mine has been acquired. We are not certain by whom. The terms are favourable. Ore output has increased 4000% since the acquisition.\n\nPlease continue as normal.\n\nManagement\n\n[this document was found pre-dated by three years]' },
 ];
 let shownLoreEvents = new Set();
@@ -1718,13 +1718,13 @@ function renderAbout() {
     <div style="font-family:'Oswald',sans-serif;font-size:18px;color:var(--gold-light);letter-spacing:3px;margin-bottom:8px;">DEEP DIG</div>
     <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;margin-bottom:16px;">AN IDLE MINING GAME</div>
     <p style="margin-bottom:12px;">You found a mine. You started digging. Something below noticed.</p>
-    <p style="margin-bottom:16px;">Hire workers, research technology, manage your operation across three tiers of increasingly questionable contractors â€” human, artificial, and otherwise.</p>
+    <p style="margin-bottom:16px;">Hire workers, research technology, manage your operation across three tiers of increasingly questionable contractors  human, artificial, and otherwise.</p>
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">HOW TO PLAY</div>
     <p style="margin-bottom:6px;">- Click the mine button to earn ore manually.</p>
     <p style="margin-bottom:6px;">- Hire workers to earn ore automatically.</p>
     <p style="margin-bottom:6px;">- Buy upgrades and research tech to multiply output.</p>
     <p style="margin-bottom:6px;">- Hire managers to automate worker purchasing.</p>
-    <p style="margin-bottom:6px;">- Ascend once you have 20M lifetime ore â€” reset everything for a permanent multiplier.</p>
+    <p style="margin-bottom:6px;">- Ascend once you have 20M lifetime ore  reset everything for a permanent multiplier.</p>
     <p style="margin-bottom:6px;">- Spend shards in the Shard Forge for permanent bonuses that survive ascension.</p>
     <p style="margin-bottom:16px;">- Watch for random events” some help, some don't.</p>
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:8px;">KEYBOARD SHORTCUTS</div>
