@@ -5,7 +5,7 @@ AN IDLE MINING GAME
 
 You found a mine. You started digging. Something below noticed.
 
-Hire workers, research technology, manage your operation across three tiers of increasingly questionable contractors â€” human, artificial, and otherwise.
+Hire workers, research technology, manage your operation across three tiers of increasingly questionable contractors human, artificial, and otherwise.
 HOW TO PLAY
 
 - Click the mine button to earn ore manually.
@@ -16,7 +16,7 @@ HOW TO PLAY
 
 - Hire managers to automate worker purchasing.
 
-- Ascend once you have 20M lifetime ore â€” reset everything for a permanent multiplier.
+- Ascend once you have 20M lifetime ore reset everything for a permanent multiplier.
 
 - Spend shards in the Shard Forge for permanent bonuses that survive ascension.
 
