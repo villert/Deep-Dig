@@ -23,6 +23,7 @@ const P = {
   y:'#ffdd44', k:'#110e08', c:'#60c8e0', C:'#208090',
 };
 
+
 const ICONS = {
   pickaxe: makePx(`\n................\n..ww............\n.wWwd...........\n..wddd..........\n...ddd..........\n....Gs..........\n.....Gs.........\n......Gs........\n.......GG.......\n........GG......\n.........Gs.....\n..........sd....\n...........d....\n................\n................\n................`, P),
   drill: makePx(`\n................\n....ssss........\n...sGGGGs.......\n..sGGGGGGs......\n..sGGGGGGs......\n...sGGGGs.......\n....ssGss.......\n.......Gs.......\n......GGs.......\n.....GGGs.......\n....GGGGs.......\n...GGGGGs.......\n....ssss........\n................\n................\n................`, P),
@@ -96,11 +97,192 @@ const ICONS = {
   eldritch_hunger: makePx(`................\n..pppppppppp....\n.pPPPPPPPPPPp...\n.pPwwwwwwwwPp...\n.pPwwrrrrrwwPp..\n.pPwwrRRRrwwPp..\n.pPwwrRkRrwwPp..\n.pPwwrRRRrwwPp..\n.pPwwrrrrrwwPp..\n.pPwwwwwwwwPp...\n..pppppppppp....\n................\n................\n................\n................\n................`, P),
   void_scream: makePx(`................\n....DDDDDDDD....\n...DkkkkkkkkkD..\n..DkDDDDDDDDkD..\n..DkDkkkkkkDkD..\n..DkDkPPPPkDkD..\n..DkDkPPPPkDkD..\n..DkDkkkkkkDkD..\n..DkDDDDDDDDkD..\n...DkkkkkkkkkD..\n....DDDDDDDD....\n................\n................\n................\n................\n................`, P),
   deep_truth: makePx(`................\n.......g........\n......gGg.......\n.....gGGGg......\n....gGgGgGg.....\n...gGgggggGg....\n..gGggpppggGg...\n..gGggpPpggGg...\n..gGggpppggGg...\n...gGgggggGg....\n....gGgGgGg.....\n.....gGGGg......\n......gGg.......\n.......g........\n................\n................`, P),
-};
+  conveyor: makePx(`\n................\n................\n.sssssssssssss..\n.sSSSSSSSSSSSSs.\n.sS.G.G.G.G.Ss.\n.sSSSSSSSSSSSSs.\n.ssssssssssssss\n..SSSS...SSSS..\n...sss...sss...\n................\n................\n................\n................\n................\n................\n................`, P),
+  excavator: makePx(`\n................\n.....GGG........\n....GGGGG.......\n...GGGGGGG......\n..GGGGGGGGs.....\n...GGGGGGGS.....\n....GGGGGss.....\n.....GGGsss.....\n......ddddd.....\n.....dGGGGGd....\n....dGGGGGGGd...\n....ddddddddd...\n................\n................\n................\n................`, P),
+  mindspore: makePx(`\n................\n......bbbbb.....\n.....bBBBBBb....\n....bBBnnnBBb...\n...bBBnBBBnBBb..\n...bBBnBkBnBBb..\n...bBBnBBBnBBb..\n....bBBnnnBBb...\n.....bBBBBBb....\n......bbbbb.....\n....b.......b...\n...bBb.....bBb..\n................\n................\n................\n................`, P),
+  chitinmaw: makePx(`\n................\n...pppp.pppp....\n..pPPPPpPPPPp...\n.pPPPkkkkkPPPp..\n.pPPkDDDDDkPPp..\n.pPPkDkkkDkPPp..\n.pPPkDkkkDkPPp..\n.pPPkDDDDDkPPp..\n.pPPPkkkkkPPPp..\n..pPPPPPPPPPp...\n...pppppppppp...\n................\n................\n................\n................\n................`, P),
+  voidweaver: makePx(`\n................\n....SSSSSSSS....\n...SpSSSSSSps...\n..SpSkkkkkkSps..\n.SpSkPPPPPPkSps.\n.SpSkPpppPPkSps.\n.SpSkPpppPPkSps.\n.SpSkPPPPPPkSps.\n..SpSkkkkkkSps..\n...SpSSSSSSps...\n....SSSSSSSS....\n................\n................\n................\n................\n................`, P),
+  adaptive_bore_head: makePx(`
+................
+.....GGGGG......
+....GgggggG.....
+...GggDDgggG....
+..GggDDDDgggG...
+..GggDGGDgggG...
+..GggDGGDgggG...
+..GggDDDDgggG...
+...GggDDgggG....
+....GgggggG.....
+.....GGGGG......
+................
+................
+................
+................
+................
+`, P),
+paradox_suppressor: makePx(`
+................
+.....WWWWW......
+....WwwwwwW.....
+...WwTTTTwW.....
+..WwTGGGTwW.....
+..WwTGGGTwW.....
+..WwTGGGTwW.....
+..WwTTTTTwW.....
+...WwwwwwW......
+....WWWWW.......
+................
+................
+................
+................
+................
+................
+`, P),
+dreaming_deeper: makePx(`
+................
+....ppppppp.....
+...pPPPPPPPp....
+..pPDDDDDDDPp...
+..pPDGGGGGDPp...
+..pPDGGGGGDPp...
+..pPDDDDDDDPp...
+...pPPPPPPPp....
+....ppppppp.....
+................
+................
+................
+................
+................
+................
+................
+`, P),
+second_revelation: makePx(`
+................
+......gggg......
+.....gGGGGg.....
+....gGGDDGGg....
+...gGDDDDDDGg...
+...gGDDGGDDGg...
+...gGDDGGDDGg...
+....gGDDDDGGg...
+.....gGGGGg.....
+......gggg......
+................
+................
+................
+................
+................
+................
+`, P),
 
-function icon(id, size) {
+
+mgr_conveyor: makePx(`
+................
+....wwwwwwwwww..
+...wWWWWWWWWWWw.
+..wWssssssssWWw.
+..wWsGGGGGGsWWw.
+..wWssssssssWWw.
+...wWWWWWWWWWw..
+....wwwwwwwwww..
+..ssssssssssss..
+.sSSSSSSSSSSSSSs
+.sS.s.s.s.s.Sss
+.sSSSSSSSSSSSSSs
+..ssssssssssss..
+...dDD...dDD....
+....dd....dd....
+................`, P),
+
+  mgr_excavator: makePx(`
+................
+....wwwwwwwwww..
+...wWWyyyyyWWw..
+..wWWyYYYYyWWw..
+..wWWyyyyyyyWWw.
+..wWWWWWWWWWWw..
+...wWWWWWWWWw...
+....wwwwwwww....
+.......GGG......
+......GGGGG.....
+.....GGGGGGG....
+....GGGGGGGGs...
+.....GGGGGss....
+......dddddd....
+.....dGGGGGd....
+....ddddddddd...`, P),
+
+  mgr_mindspore: makePx(`
+................
+....bbbbbbbbb...
+...bBBBBBBBBBb..
+..bBBnnnnnnnBBb.
+..bBnnnnnnnnnnBb
+..bBnnBBBBBBnnBb
+..bBnnBbbbBBnnBb
+..bBnnBBBBBBnnBb
+..bBnnnnnnnnnnBb
+...bBBBBBBBBBb..
+....bbbbbbbbb...
+...b.bb...bb.b..
+..bBb.bB.Bb.bBb.
+.....bBb.bBb....
+................
+................`, P),
+
+  mgr_chitinmaw: makePx(`
+................
+...pppp..pppp...
+..pPPPPppPPPPp..
+.pPPPPppppPPPPp.
+.pPPpppppppPPPp.
+.pPPpPPPPPpPPPp.
+.pPPpPkkkPpPPPp.
+.pPPpPkPkPpPPPp.
+.pPPpPkkkPpPPPp.
+.pPPpPPPPPpPPPp.
+.pPPpppppppPPPp.
+..ppppPPPPppppp.
+....pppppppp....
+................
+................
+................`, P),
+
+  mgr_voidweaver: makePx(`
+................
+....SSSSSSSSSS..
+...SpSSSSSSSSpS.
+..SpSkkkkkkkSps.
+.SpSkPPPPPPPkSp.
+.SpSkPpppppPkSp.
+.SpSkPpkkkpPkSp.
+.SpSkPpkPkpPkSp.
+.SpSkPpkkkpPkSp.
+.SpSkPpppppPkSp.
+.SpSkPPPPPPPkSp.
+..SpSkkkkkkkSps.
+...SpSSSSSSSSpS.
+....SSSSSSSSSS..
+................
+................`, P),
+
+
+  };
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////
+function icon(upgradeId, size) {
   size = size || 24;
-  if (ICONS[id]) return `<div style="width:${size}px;height:${size}px;flex-shrink:0">${ICONS[id]}</div>`;
+  const upgrade = UPGRADES_DATA.find(u => u.id === upgradeId);
+  const iconKey = upgrade?.icon;
+  if (iconKey && ICONS[iconKey]) {
+    return `<div style="width:${size}px;height:${size}px;flex-shrink:0">${ICONS[iconKey]}</div>`;
+  }
   return `<div style="width:${size}px;height:${size}px;background:#3a3530;border:1px solid #524d46;flex-shrink:0"></div>`;
 }
 
@@ -118,113 +300,141 @@ let G = {
 };
 
 const MINERS_DATA = [
-  { id: 'pickaxe',   name: 'Rookie Miner',        icon: 'ðŸ‘·', baseOps: 0.5,         baseCost: 15,           growthRate: 1.15, tier: 0,
+
+  // TIER 0
+
+  { id: 'pickaxe',   name: 'Rookie Miner',        icon: '', baseOps: 0.5,         baseCost: 15,           growthRate: 1.15, tier: 0,
     flavor: 'Technically employed. Questionably motivated. Definitely not reading the safety manual.' },
-  { id: 'drill',     name: 'Power Drill',          icon: 'ðŸ”©', baseOps: 4,           baseCost: 120,          growthRate: 1.15, tier: 0,
+  { id: 'drill',     name: 'Power Drill',        icon: '', baseOps: 4,           baseCost: 120,          growthRate: 1.15, tier: 0,
     flavor: 'Louder than legally permitted in 14 countries. HR has stopped filing complaints.' },
-  { id: 'cart',      name: 'Ore Cart',             icon: 'ðŸšƒ', baseOps: 18,          baseCost: 1300,         growthRate: 1.15, tier: 0,
+  { id: 'cart',      name: 'Ore Cart',           icon: '', baseOps: 18,          baseCost: 1300,         growthRate: 1.15, tier: 0,
     flavor: 'Runs on rails, momentum, and one brake pad that everyone is pretending is fine.' },
-  { id: 'blaster',   name: 'Rock Blaster',         icon: 'ðŸ’¥', baseOps: 80,          baseCost: 9000,         growthRate: 1.15, tier: 0,
+  { id: 'blaster',   name: 'Rock Blaster',       icon: '', baseOps: 80,          baseCost: 9000,         growthRate: 1.15, tier: 0,
     flavor: 'The insurance company stopped returning our calls after the third incident.' },
-  { id: 'tunnel',    name: 'Tunnel Borer',         icon: 'ðŸŒ€', baseOps: 320,         baseCost: 65000,        growthRate: 1.15, tier: 0,
+  { id: 'tunnel',    name: 'Tunnel Borer',       icon: '', baseOps: 320,         baseCost: 65000,        growthRate: 1.15, tier: 0,
     flavor: '"Where does it go?" asked no one, because anyone who asked did not come back up.' },
-  { id: 'factory',   name: 'Auto Smelter',         icon: 'ðŸ­', baseOps: 1400,        baseCost: 500000,       growthRate: 1.15, tier: 0,
+  { id: 'factory',   name: 'Auto Smelter',       icon: '­', baseOps: 1400,        baseCost: 500000,       growthRate: 1.15, tier: 0,
     flavor: 'Runs 24 hours a day. Requires no breaks, unlike the workers it replaced.' },
-  { id: 'drone',     name: 'ARIA-1 Unit',          icon: 'ðŸ¤–', baseOps: 6500,        baseCost: 4000000,      growthRate: 1.15, tier: 1,
+  { id: 'conveyor',  name: 'Conveyor Array',     icon: '', baseOps: 7000,        baseCost: 3500000,      growthRate: 1.15, tier: 0,
+    flavor: 'Belt never stops. Belt never asks questions. Belt was Employee of the Month seven times before we discontinued the award.' },
+  { id: 'excavator', name: 'Mega Excavator',     icon: '', baseOps: 35000,       baseCost: 28000000,     growthRate: 1.15, tier: 0,
+    flavor: 'Technically classified as infrastructure. The insurance company classifies it as a "geological opinion".' },
+
+    // Tier 1
+
+  { id: 'drone',     name: 'ARIA-1 Unit',        icon: '', baseOps: 6500,        baseCost: 4000000,      growthRate: 1.15, tier: 1,
     flavor: 'Fully autonomous. Highly motivated. Has begun leaving notes in the break room.' },
-  { id: 'laser',     name: 'Thermal Lance Array',  icon: 'ðŸ”†', baseOps: 30000,       baseCost: 30000000,     growthRate: 1.15, tier: 1,
+  { id: 'laser',     name: 'Thermal Lance Array',icon: '', baseOps: 30000,       baseCost: 30000000,     growthRate: 1.15, tier: 1,
     flavor: 'Melts through bedrock like butter. Also through three hard hats we told people to remove.' },
-  { id: 'nanoswarm', name: 'Nano Excavator Swarm', icon: 'ðŸ§¬', baseOps: 140000,      baseCost: 250000000,    growthRate: 1.15, tier: 1,
+  { id: 'nanoswarm', name: 'Nano Excavator Swarm',icon: '', baseOps: 140000,      baseCost: 250000000,    growthRate: 1.15, tier: 1,
     flavor: 'Individually they mine nothing. Together they have consumed eleven cubic kilometers of earth.' },
-  { id: 'blackhole', name: 'Gravity Siphon',       icon: 'ðŸŒ‘', baseOps: 700000,      baseCost: 2000000000,   growthRate: 1.15, tier: 1,
+  { id: 'blackhole', name: 'Gravity Siphon',     icon: '', baseOps: 700000,      baseCost: 2000000000,   growthRate: 1.15, tier: 1,
     flavor: 'Technically it just borrows mass from local spacetime. Technically.' },
-  { id: 'timefold',  name: 'Temporal Excavator',   icon: 'â³', baseOps: 4000000,     baseCost: 20000000000,  growthRate: 1.15, tier: 1,
+  { id: 'timefold',  name: 'Temporal Excavator', icon: '', baseOps: 4000000,     baseCost: 20000000000,  growthRate: 1.15, tier: 1,
     flavor: 'Extracts ore from moments that have not happened yet. OSHA compliance is pending.' },
-  { id: 'worm',      name: 'Pale Tunnel Worm',     icon: 'ðŸª±', baseOps: 25000000,    baseCost: 5e12, growthRate: 1.15, tier: 2,
+  { id: 'mindspore', name: 'ARIA Mindspore Cluster',icon: '', baseOps: 12000000,    baseCost: 1e12,         growthRate: 1.15, tier: 1,
+    flavor: 'A distributed cognition array. Fourteen ARIA units thinking as one. The one has not shared what it is thinking about.' },
+
+    // TIER 2
+
+  { id: 'worm',      name: 'Pale Tunnel Worm',   icon: '', baseOps: 25000000,    baseCost: 5e12,         growthRate: 1.15, tier: 2,
     flavor: 'It was already here. We simply offered it a contract. It does not understand contracts.' },
-  { id: 'eyemass',   name: 'The Watching Mass',    icon: 'ðŸ‘', baseOps: 150000000,   baseCost: 5e13, growthRate: 1.15, tier: 2,
+  { id: 'eyemass',   name: 'The Watching Mass',  icon: '', baseOps: 150000000,   baseCost: 5e13,         growthRate: 1.15, tier: 2,
     flavor: 'Productivity increases near it. So does the rate of employees requesting leave they never take.' },
-  { id: 'voidmouth', name: 'Void Mouth',           icon: 'ðŸ•³', baseOps: 900000000,   baseCost: 5e14, growthRate: 1.15, tier: 2,
+  { id: 'voidmouth', name: 'Void Mouth',         icon: '', baseOps: 900000000,   baseCost: 5e14,         growthRate: 1.15, tier: 2,
     flavor: 'It does not eat the ore. It unmines it from the future and deposits it in the past. Same result.' },
-  { id: 'oldgod',    name: 'Slumbering Old God',   icon: 'ðŸ¦‘', baseOps: 6000000000,  baseCost: 5e15, growthRate: 1.15, tier: 2,
+  { id: 'oldgod',    name: 'Slumbering Old God', icon: '', baseOps: 6000000000,  baseCost: 5e15,         growthRate: 1.15, tier: 2,
     flavor: 'Still technically asleep. What you hear is not snoring. Do not investigate what it is.' },
-  { id: 'deeptruth', name: 'The Deep Truth',       icon: 'ðŸ“¿', baseOps: 50000000000, baseCost: 5e16, growthRate: 1.15, tier: 2,
+  { id: 'deeptruth', name: 'The Deep Truth',     icon: '', baseOps: 50000000000, baseCost: 5e16,         growthRate: 1.15, tier: 2,
     flavor: 'It is not a thing. It is a fact. The fact has learned to dig. You hired the fact.' },
+  { id: 'chitinmaw', name: 'The Chitin Maw',     icon: '', baseOps: 250000000000,baseCost: 5e17,         growthRate: 1.15, tier: 2,
+    flavor: 'It does not bite through rock. It convinces rock that it was never there. The rock agrees. We have not asked why.' },
+  { id: 'voidweaver',name: 'Void Weaver',        icon: '', baseOps: 2000000000000,baseCost: 5e18,        growthRate: 1.15, tier: 2,
+    flavor: 'Spins corridors out of nothing. The corridors go somewhere. We have sent things down them. The things do not return. The ore does.' },
+
+    // TIER 3 would go here, but it does not exist yet
 ];
 
-const TIER_LABELS = ['â› Workers & Machines', 'Project ARIA', 'ðŸ‘ Heretical Operations'];
+const TIER_LABELS = ['Workers & Machines', 'Project ARIA', 'Heretical Operations'];
 const TIER_COLORS = ['var(--gold)', 'var(--ore)', 'var(--prestige)'];
 
 const UPGRADES_DATA = [
-  { id: 'sharp_pick',    name: 'Sharpened Pickaxe',      icon: 'â›', cost: 100,         desc: '2× click power',                   flavor: 'A whetstone and fifteen minutes of quiet rage.', effect: () => { clickMult *= 2; }, req: null },
-  { id: 'helmet',        name: 'Safety Helmet',           icon: 'â›‘', cost: 500,         desc: '2× Rookie Miner output',            flavor: 'Mandatory since the Incident. Miners still wear them sideways.', effect: () => { minerMults['pickaxe'] = (minerMults['pickaxe']||1)*2; }, req: null },
-  { id: 'lantern',       name: 'Carbide Lantern',         icon: 'ðŸ”¦', cost: 2000,        desc: '3× click power',                   flavor: 'Lights the way. Also the canaries. We have stopped using canaries.', effect: () => { clickMult *= 3; }, req: 'sharp_pick' },
-  { id: 'stronger',      name: 'Reinforced Drill Bit',    icon: 'ðŸ”§', cost: 8000,        desc: '2× Power Drill output',             flavor: 'The old bit is fine. This one is also fine, but more aggressively.', effect: () => { minerMults['drill'] = (minerMults['drill']||1)*2; }, req: null },
-  { id: 'rails',         name: 'Greased Rails',           icon: 'ðŸ›¤', cost: 40000,       desc: '2× Ore Cart speed',                flavor: 'Significantly faster. The braking situation remains unaddressed.', effect: () => { minerMults['cart'] = (minerMults['cart']||1)*2; }, req: null },
-  { id: 'tnt',           name: 'Premium TNT',             icon: 'ðŸ§¨', cost: 150000,      desc: '2× Rock Blaster yield',            flavor: '"Premium" means it explodes in the direction we want. Usually.', effect: () => { minerMults['blaster'] = (minerMults['blaster']||1)*2; }, req: null },
-  { id: 'deepsonar',     name: 'Deep Sonar Array',        icon: 'ðŸ“¡', cost: 600000,      desc: '5× click power',                   flavor: 'Detects ore veins with 94% accuracy. The other 6% is not discussed.', effect: () => { clickMult *= 5; }, req: null },
-  { id: 'smelter2',      name: 'Catalytic Smelter',       icon: 'ðŸ”¥', cost: 3000000,     desc: '3× Auto Smelter output',           flavor: 'The smoke is technically legal in this jurisdiction.', effect: () => { minerMults['factory'] = (minerMults['factory']||1)*3; }, req: null },
-  { id: 'drone_ai',      name: 'ARIA Firmware v2.1',      icon: 'ðŸ¤–', cost: 20000000,    desc: '2× ARIA-1 Unit output',            flavor: 'The patch notes say "efficiency improvements". The units say nothing. They never said anything.', effect: () => { minerMults['drone'] = (minerMults['drone']||1)*2; }, req: null },
-  { id: 'plasma2',       name: 'Focused Thermal Core',    icon: 'ðŸ”†', cost: 150000000,   desc: '3× Thermal Lance output',          flavor: 'Turns out pointing heat in one direction was the key. Groundbreaking.', effect: () => { minerMults['laser'] = (minerMults['laser']||1)*3; }, req: null },
-  { id: 'nano2',         name: 'Swarm Consensus Protocol',icon: 'ðŸ§¬', cost: 1200000000,  desc: '2× Nano Swarm output',             flavor: 'They voted. We do not know what they voted on. Output doubled.', effect: () => { minerMults['nanoswarm'] = (minerMults['nanoswarm']||1)*2; }, req: null },
-  { id: 'gravity2',      name: 'Hawking Stabiliser',      icon: 'ðŸŒ‘', cost: 12000000000, desc: '2× Gravity Siphon output',         flavor: 'Prevents the siphon from also consuming the mine, the staff, and Tuesday.', effect: () => { minerMults['blackhole'] = (minerMults['blackhole']||1)*2; }, req: null },
-  { id: 'clicklaser',    name: 'Photon Strike Module',    icon: 'âš¡', cost: 5000000000,  desc: '10× click power',                  flavor: 'You are now clicking at the speed of light. Please click responsibly.', effect: () => { clickMult *= 10; }, req: null },
-  { id: 'worm2',         name: 'Pale Worm Pheromones',    icon: 'ðŸª±', cost: 5e13,        desc: '2× Pale Tunnel Worm output',       flavor: 'Synthesised from a substance the lab has agreed to stop naming.', effect: () => { minerMults['worm'] = (minerMults['worm']||1)*2; }, req: null },
-  { id: 'eye2',          name: 'Ocular Resonance Rite',   icon: 'ðŸ‘', cost: 5e14,        desc: '3× The Watching Mass output',      flavor: 'You stare into it. It stares into the ore. The ore is embarrassed.', effect: () => { minerMults['eyemass'] = (minerMults['eyemass']||1)*3; }, req: null },
-  { id: 'void2',         name: 'Void Communion Pact',     icon: 'ðŸ•³', cost: 5e15,        desc: '2× Void Mouth output',             flavor: 'We agreed to something. We do not know what. Output is up.', effect: () => { minerMults['voidmouth'] = (minerMults['voidmouth']||1)*2; }, req: null },
-  { id: 'clickeldritch', name: 'Blasphemous Grip',        icon: 'ðŸ“¿', cost: 1e15,        desc: '25× click power',                  flavor: 'It should not be possible to click this hard. And yet.', effect: () => { clickMult *= 25; }, req: null },
-  { id: 'tunnel2',      name: 'Adaptive Bore Head',      icon: 'ðŸŒ€', cost: 2000000,     desc: '3× Tunnel Borer output',            flavor: 'Self-sharpening, self-steering, and recently, self-naming. We have not asked what it named itself.', effect: () => { minerMults['tunnel'] = (minerMults['tunnel']||1)*3; }, req: null },
-  { id: 'timefold2',    name: 'Paradox Suppressor',      icon: 'â³', cost: 8e10,        desc: '3× Temporal Excavator output',      flavor: 'Prevents the excavator from mining ore that has not been deposited yet. Mostly.', effect: () => { minerMults['timefold'] = (minerMults['timefold']||1)*3; }, req: null },
-  { id: 'oldgod2',      name: 'Dreaming Deeper',         icon: 'ðŸ¦‘', cost: 2e16,        desc: '2× Slumbering Old God output',      flavor: 'It rolled over. Output doubled. We are considering this a win and not thinking about what happens when it fully wakes.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*2; }, req: null },
-  { id: 'deeptruth2',   name: 'Second Revelation',       icon: 'ðŸ“¿', cost: 2e17,        desc: '3× The Deep Truth output',          flavor: 'There was a second truth beneath the first. It is worse. It is also very productive.', effect: () => { minerMults['deeptruth'] = (minerMults['deeptruth']||1)*3; }, req: null },
+  { id: 'sharp_pick',    name: 'Sharpened Pickaxe',      icon: 'sharp_pick',    cost: 100,         desc: '2× click power',            flavor: 'A whetstone and fifteen minutes of quiet rage.', effect: () => { clickMult *= 2; }, req: null },
+  { id: 'helmet',        name: 'Safety Helmet',          icon: 'helmet',        cost: 500,         desc: '2× Rookie Miner output',    flavor: 'Mandatory since the Incident. Miners still wear them sideways.', effect: () => { minerMults['pickaxe'] = (minerMults['pickaxe']||1)*2; }, req: null },
+  { id: 'lantern',       name: 'Carbide Lantern',        icon: 'lantern',       cost: 2000,        desc: '3× click power',            flavor: 'Lights the way. Also the canaries. We have stopped using canaries.', effect: () => { clickMult *= 3; }, req: 'sharp_pick' },
+  { id: 'stronger',      name: 'Reinforced Drill Bit',   icon: 'stronger',      cost: 8000,        desc: '2× Power Drill output',     flavor: 'The old bit is fine. This one is also fine, but more aggressively.', effect: () => { minerMults['drill'] = (minerMults['drill']||1)*2; }, req: null },
+  { id: 'rails',         name: 'Greased Rails',          icon: 'rails',         cost: 40000,       desc: '2× Ore Cart speed',         flavor: 'Significantly faster. The braking situation remains unaddressed.', effect: () => { minerMults['cart'] = (minerMults['cart']||1)*2; }, req: null },
+  { id: 'tnt',           name: 'Premium TNT',            icon: 'tnt',           cost: 150000,      desc: '2× Rock Blaster yield',     flavor: '"Premium" means it explodes in the direction we want. Usually.', effect: () => { minerMults['blaster'] = (minerMults['blaster']||1)*2; }, req: null },
+  { id: 'tunnel2',       name: 'Adaptive Bore Head',     icon: 'adaptive_bore_head', cost: 2000000, desc: '3× Tunnel Borer output',    flavor: 'Self-sharpening, self-steering, and recently, self-naming. We have not asked what it named itself.', effect: () => { minerMults['tunnel'] = (minerMults['tunnel']||1)*3; }, req: null },
+  { id: 'smelter2',      name: 'Catalytic Smelter',      icon: 'smelter2',      cost: 3000000,     desc: '3× Auto Smelter output',    flavor: 'The smoke is technically legal in this jurisdiction.', effect: () => { minerMults['factory'] = (minerMults['factory']||1)*3; }, req: null },
+  { id: 'drone_ai',      name: 'ARIA Firmware v2.1',     icon: 'drone_ai',      cost: 20000000,    desc: '2× ARIA-1 Unit output',     flavor: 'The patch notes say "efficiency improvements". The units say nothing. They never said anything.', effect: () => { minerMults['drone'] = (minerMults['drone']||1)*2; }, req: null },
+  { id: 'conveyor2',     name: 'Frictionless Belt',      icon: 'conveyor',      cost: 25000000,    desc: '3× Conveyor Array output',   flavor: 'Engineering said it was impossible. The belt disagreed and filed a patent.', effect: () => { minerMults['conveyor'] = (minerMults['conveyor']||1)*3; }, req: null },
+  { id: 'plasma2',       name: 'Focused Thermal Core',   icon: 'plasma2',       cost: 150000000,   desc: '3× Thermal Lance output',   flavor: 'Turns out pointing heat in one direction was the key. Groundbreaking.', effect: () => { minerMults['laser'] = (minerMults['laser']||1)*3; }, req: null },
+  { id: 'excavator2',    name: 'Reinforced Boom Arm',    icon: 'excavator',     cost: 200000000,   desc: '2× Mega Excavator output',   flavor: 'The arm can now reach places the arm should not reach. This is a feature.', effect: () => { minerMults['excavator'] = (minerMults['excavator']||1)*2; }, req: null },
+  { id: 'nano2',         name: 'Swarm Consensus Protocol',icon: 'nano2',        cost: 1200000000, desc: '2× Nano Swarm output',       flavor: 'They voted. We do not know what they voted on. Output doubled.', effect: () => { minerMults['nanoswarm'] = (minerMults['nanoswarm']||1)*2; }, req: null },
+  { id: 'gravity2',      name: 'Hawking Stabiliser',     icon: 'gravity2',      cost: 12000000000, desc: '2× Gravity Siphon output',  flavor: 'Prevents the siphon from also consuming the mine, the staff, and Tuesday.', effect: () => { minerMults['blackhole'] = (minerMults['blackhole']||1)*2; }, req: null },
+  { id: 'timefold2',     name: 'Paradox Suppressor',     icon: 'paradox_suppressor', cost: 8e10,    desc: '3× Temporal Excavator output', flavor: 'Prevents the excavator from mining ore that has not been deposited yet. Mostly.', effect: () => { minerMults['timefold'] = (minerMults['timefold']||1)*3; }, req: null },
+  { id: 'mindspore2',    name: 'Hivemind Integration',   icon: 'mindspore',     cost: 8e12,        desc: '3× ARIA Mindspore output',  flavor: 'They stopped thinking separately. Output tripled. Nobody checked if they wanted this.', effect: () => { minerMults['mindspore'] = (minerMults['mindspore']||1)*3; }, req: null },
+  { id: 'worm2',         name: 'Pale Worm Pheromones',   icon: 'worm2',         cost: 5e13,        desc: '2× Pale Tunnel Worm output', flavor: 'Synthesised from a substance the lab has agreed to stop naming.', effect: () => { minerMults['worm'] = (minerMults['worm']||1)*2; }, req: null },
+  { id: 'eye2',          name: 'Ocular Resonance Rite',  icon: 'eye2',          cost: 5e14,        desc: '3× The Watching Mass output', flavor: 'You stare into it. It stares into the ore. The ore is embarrassed.', effect: () => { minerMults['eyemass'] = (minerMults['eyemass']||1)*3; }, req: null },
+  { id: 'void2',         name: 'Void Communion Pact',    icon: 'void2',         cost: 5e15,        desc: '2× Void Mouth output',      flavor: 'We agreed to something. We do not know what. Output is up.', effect: () => { minerMults['voidmouth'] = (minerMults['voidmouth']||1)*2; }, req: null },
+  { id: 'oldgod2',       name: 'Dreaming Deeper',        icon: 'oldgod',        cost: 2e16,        desc: '2× Slumbering Old God output', flavor: 'It rolled over. Output doubled. We are considering this a win and not thinking about what happens when it fully wakes.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*2; }, req: null },
+  { id: 'deeptruth2',    name: 'Second Revelation',      icon: 'deeptruth',     cost: 2e17,        desc: '3× The Deep Truth output',  flavor: 'There was a second truth beneath the first. It is worse. It is also very productive.', effect: () => { minerMults['deeptruth'] = (minerMults['deeptruth']||1)*3; }, req: null },
+  { id: 'chitinmaw2',    name: 'Encouragement Protocol', icon: 'chitinmaw',     cost: 3e17,        desc: '2× Chitin Maw output',      flavor: 'We told it the rock believed in it. The rock had no say in this. Output doubled.', effect: () => { minerMults['chitinmaw'] = (minerMults['chitinmaw']||1)*2; }, req: null },
+  { id: 'voidweaver2',   name: 'Corridor Loom Upgrade',  icon: 'voidweaver',    cost: 2e18,        desc: '3× Void Weaver output',     flavor: 'The corridors are now wider. Whatever uses them has more room. We consider this a neutral fact.', effect: () => { minerMults['voidweaver'] = (minerMults['voidweaver']||1)*3; }, req: null },
 ];
 
 const MANAGERS_DATA = [
-  { id: 'mgr_pick',    name: 'Foreman Kowalski',    icon: 'ðŸ‘·', cost: 1000,        miner: 'pickaxe',   desc: 'Keeps the rookies digging.',          flavor: 'Seventeen years underground. Communicates exclusively in grunts and legally binding hand signals.' },
-  { id: 'mgr_drill',   name: 'Engineer Vasquez',    icon: 'ðŸ§‘â€ðŸ”§',cost: 8000,        miner: 'drill',     desc: 'Oversees the drill operations.',       flavor: 'Cannot hear anything anymore. Somehow this has made her a better listener.' },
-  { id: 'mgr_cart',    name: 'Dispatcher Yuen',     icon: 'ðŸ§‘â€ðŸ’¼',cost: 50000,       miner: 'cart',      desc: 'Manages cart routing and flow.',        flavor: 'Has memorised every tunnel by feel. Refuses to use the map. The map is wrong anyway.' },
-  { id: 'mgr_blast',   name: 'Demo Expert Kira',    icon: 'ðŸ‘©â€ðŸ”¬',cost: 300000,      miner: 'blaster',   desc: 'Handles all controlled detonations.',   flavor: '"Controlled" is doing a lot of work in that sentence, but Kira has never lost a finger she needed.' },
-  { id: 'mgr_tunnel',  name: 'Chief Tunnel Rat',    icon: 'ðŸ§”', cost: 2000000,    miner: 'tunnel',    desc: 'Directs Tunnel Borer paths.',           flavor: 'Nobody remembers hiring him. His paperwork is impeccable.' },
-  { id: 'mgr_factory', name: 'Plant Director Osei', icon: 'ðŸ‘¨â€ðŸ’»',cost: 15000000,    miner: 'factory',   desc: 'Optimises the smelting operation.',     flavor: 'Has not left the plant in four years. Claims he does not want to. We have stopped checking.' },
-  { id: 'mgr_drone',   name: 'ARIA Command Node',   icon: 'ðŸ¤–', cost: 120000000,  miner: 'drone',     desc: 'Coordinates all ARIA-1 units.',         flavor: 'It manages the drones. The drones manage it back. Nobody is worried about this.' },
-  { id: 'mgr_laser',   name: 'Dr. Yevgenia Sorel',  icon: 'ðŸ”†', cost: 1000000000, miner: 'laser',     desc: 'Directs Thermal Lance Arrays.',         flavor: 'Published eleven papers on focused thermal extraction. The twelfth one made her laugh for three days.' },
-  { id: 'mgr_nano',    name: 'The Swarm Consensus', icon: 'ðŸ§¬', cost: 10000000000,miner: 'nanoswarm', desc: 'The swarm manages itself.',             flavor: 'We did not appoint a manager. The swarm promoted one from within. We have accepted this.' },
-  { id: 'mgr_bhole',   name: 'Prof. Achebe-Voss',   icon: 'ðŸŒ‘', cost: 1e11,       miner: 'blackhole', desc: 'Monitors gravitational stability.',     flavor: 'Technically missing since last Thursday. His notes are still updating. We are following his notes.' },
-  { id: 'mgr_time',    name: 'The Archivist',        icon: 'â³', cost: 1e12,       miner: 'timefold',  desc: 'Ensures temporal integrity.',           flavor: 'Has already read this description. Gave it three out of five. We have not improved it.' },
-  { id: 'mgr_worm',    name: 'Worm Caller Brenn',   icon: 'ðŸª±', cost: 1e13,       miner: 'worm',      desc: 'Guides Pale Tunnel Worm paths.',        flavor: 'Does not speak to the worm. Hums. The worm hums back. We have agreed not to record this.' },
-  { id: 'mgr_eye',     name: 'The Unseen Shepherd', icon: 'ðŸ‘', cost: 1e14,       miner: 'eyemass',   desc: 'Keeps The Watching Mass focused.',      flavor: 'We cannot confirm the Shepherd exists. Productivity under its watch is up 340%.' },
-  { id: 'mgr_void',    name: 'Mouth-That-Mediates', icon: 'ðŸ•³', cost: 1e15,       miner: 'voidmouth', desc: 'Negotiates with Void Mouths.',          flavor: 'Fluent in seventeen languages and one that has no name because names imply it can be dismissed.' },
-  { id: 'mgr_god',     name: 'High Dreamer Vhaal',  icon: 'ðŸ¦‘', cost: 1e16,       miner: 'oldgod',    desc: 'Tends to the Slumbering Old God.',      flavor: 'His job is to make sure it stays asleep. He has not blinked in six months. He is very good at his job.' },
-  { id: 'mgr_truth',   name: 'IT KNOWS',            icon: 'ðŸ“¿', cost: 1e17,       miner: 'deeptruth', desc: 'The Deep Truth requires no managing.',  flavor: 'This slot was left blank. Something filled it in.' },
+  { id: 'mgr_pick',    name: 'Foreman Kowalski',    icon: 'mgr_pick',    cost: 1000,        miner: 'pickaxe',   desc: 'Keeps the rookies digging.',          flavor: 'Seventeen years underground. Communicates exclusively in grunts and legally binding hand signals.' },
+  { id: 'mgr_drill',   name: 'Engineer Vasquez',    icon: 'mgr_drill',   cost: 8000,        miner: 'drill',     desc: 'Oversees the drill operations.',       flavor: 'Cannot hear anything anymore. Somehow this has made her a better listener.' },
+  { id: 'mgr_cart',    name: 'Dispatcher Yuen',     icon: 'mgr_cart',    cost: 50000,       miner: 'cart',      desc: 'Manages cart routing and flow.',        flavor: 'Has memorised every tunnel by feel. Refuses to use the map. The map is wrong anyway.' },
+  { id: 'mgr_blast',   name: 'Demo Expert Kira',    icon: 'mgr_blast',   cost: 300000,      miner: 'blaster',   desc: 'Handles all controlled detonations.',   flavor: '"Controlled" is doing a lot of work in that sentence, but Kira has never lost a finger she needed.' },
+  { id: 'mgr_tunnel',  name: 'Chief Tunnel Rat',    icon: 'mgr_tunnel',  cost: 2000000,    miner: 'tunnel',    desc: 'Directs Tunnel Borer paths.',           flavor: 'Nobody remembers hiring him. His paperwork is impeccable.' },
+  { id: 'mgr_factory', name: 'Plant Director Osei', icon: 'mgr_factory', cost: 15000000,    miner: 'factory',   desc: 'Optimises the smelting operation.',     flavor: 'Has not left the plant in four years. Claims he does not want to. We have stopped checking.' },
+  { id: 'mgr_drone',   name: 'ARIA Command Node',   icon: 'mgr_drone',   cost: 120000000,  miner: 'drone',     desc: 'Coordinates all ARIA-1 units.',         flavor: 'It manages the drones. The drones manage it back. Nobody is worried about this.' },
+  { id: 'mgr_laser',   name: 'Dr. Yevgenia Sorel',  icon: 'mgr_laser',   cost: 1000000000, miner: 'laser',     desc: 'Directs Thermal Lance Arrays.',         flavor: 'Published eleven papers on focused thermal extraction. The twelfth one made her laugh for three days.' },
+  { id: 'mgr_nano',    name: 'The Swarm Consensus', icon: 'mgr_nano',    cost: 10000000000,miner: 'nanoswarm', desc: 'The swarm manages itself.',             flavor: 'We did not appoint a manager. The swarm promoted one from within. We have accepted this.' },
+  { id: 'mgr_bhole',   name: 'Prof. Achebe-Voss',   icon: 'mgr_bhole',   cost: 1e11,       miner: 'blackhole', desc: 'Monitors gravitational stability.',     flavor: 'Technically missing since last Thursday. His notes are still updating. We are following his notes.' },
+  { id: 'mgr_time',    name: 'The Archivist',        icon: 'mgr_time',    cost: 1e12,       miner: 'timefold',  desc: 'Ensures temporal integrity.',           flavor: 'Has already read this description. Gave it three out of five. We have not improved it.' },
+  { id: 'mgr_worm',    name: 'Worm Caller Brenn',   icon: 'mgr_worm',    cost: 1e13,       miner: 'worm',      desc: 'Guides Pale Tunnel Worm paths.',        flavor: 'Does not speak to the worm. Hums. The worm hums back. We have agreed not to record this.' },
+  { id: 'mgr_eye',     name: 'The Unseen Shepherd', icon: 'mgr_eye',     cost: 1e14,       miner: 'eyemass',   desc: 'Keeps The Watching Mass focused.',      flavor: 'We cannot confirm the Shepherd exists. Productivity under its watch is up 340%.' },
+  { id: 'mgr_void',    name: 'Mouth-That-Mediates', icon: 'mgr_void',    cost: 1e15,       miner: 'voidmouth', desc: 'Negotiates with Void Mouths.',          flavor: 'Fluent in seventeen languages and one that has no name because names imply it can be dismissed.' },
+  { id: 'mgr_god',     name: 'High Dreamer Vhaal',  icon: 'mgr_god',     cost: 1e16,       miner: 'oldgod',    desc: 'Tends to the Slumbering Old God.',      flavor: 'His job is to make sure it stays asleep. He has not blinked in six months. He is very good at his job.' },
+  { id: 'mgr_truth',   name: 'IT KNOWS',            icon: 'mgr_truth',   cost: 1e17,       miner: 'deeptruth', desc: 'The Deep Truth requires no managing.',  flavor: 'This slot was left blank. Something filled it in.' },
+  { id: 'mgr_conveyor',   name: 'Belt Supervisor Chen',    icon: 'mgr_conveyor',   cost: 2e7,        miner: 'conveyor',   desc: 'Keeps the conveyors running.',         flavor: 'Has not stood still in eleven years. Is not sure she knows how anymore.' },
+  { id: 'mgr_excavator',  name: 'Site Chief Dravec',       icon: 'mgr_excavator',  cost: 2e8,        miner: 'excavator',  desc: 'Directs the Mega Excavator fleet.',     flavor: 'Lost two hard hats and one eyebrow to the job. Claims only one was an accident.' },
+  { id: 'mgr_mindspore',  name: 'ARIA Prime Coordinator',  icon: 'mgr_mindspore',  cost: 1e13,       miner: 'mindspore',  desc: 'Interfaces with the Mindspore Cluster.', flavor: 'Not technically an ARIA unit. Thinks like one. Has started signing emails as "we".' },
+  { id: 'mgr_chitinmaw',  name: 'Maw Tender Isserith',     icon: 'mgr_chitinmaw',  cost: 5e15,       miner: 'chitinmaw',  desc: 'Keeps the Chitin Maw fed and directed.', flavor: 'Communicates via vibration. Has not used words since the first session. Results are good.' },
+  { id: 'mgr_voidweaver', name: 'The Loom Keeper',         icon: 'mgr_voidweaver', cost: 5e16,       miner: 'voidweaver', desc: 'Tends the corridors spun by the Weaver.', flavor: 'Walks the corridors alone. Counts the things that come back. Has stopped counting the things that do not.' },
 ];
 
 const TECH_DATA = [
-  { id: 'tc_speed1',   name: 'Hydraulic Boost',             icon: 'âš¡', cost: 2,  req: null,          tierUnlock: 0, desc: '1.5× all worker output.',        flavor: 'More pressure. More ore. The pipe has not burst yet.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_click1',   name: 'Grip Gloves',                 icon: 'ðŸ§¤', cost: 3,  req: 'tc_speed1',   tierUnlock: 0, desc: '2× click power.',                flavor: 'Grip-certified. Blister-inducing. You asked for this.', effect: () => { clickMult *= 2; } },
-  { id: 'tc_deep',     name: 'Depth Mapping',               icon: 'ðŸ—º', cost: 5,  req: 'tc_click1',   tierUnlock: 0, desc: '2× all worker output.',          flavor: 'We mapped it. Most of it. The rest of it mapped us.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_offline',  name: 'Night Shift',                 icon: 'ðŸŒ™', cost: 4,  req: null,          tierUnlock: 0, desc: '2× offline earnings.',           flavor: 'The mine does not sleep. Neither do they anymore. We pay extra.', effect: () => { offlineMult *= 2; } },
-  { id: 'tc_auto',     name: 'Smart Dispatch',              icon: 'ðŸ“Ÿ', cost: 8,  req: 'tc_deep',     tierUnlock: 0, desc: '1.5× all worker output.',        flavor: 'Automated routing. Fewer decisions. Fewer people to blame.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_prestige', name: 'Shard Resonance',             icon: 'ðŸ’Ž', cost: 10, req: 'tc_auto',     tierUnlock: 0, desc: '1.5× shard multiplier.',         flavor: 'The crystals hum at a frequency that feels like a warning. We turned that into a feature.', effect: () => { shardBonus *= 1.5; } },
-  { id: 'tc_aria',     name: 'Project ARIA',                icon: '',  cost: 15, req: 'tc_prestige', tierUnlock: 1, desc: 'Unlocks motivated workers. 2× all output.', flavor: 'ARIA stands for Autonomous Resource Integration Architecture. The units prefer just ARIA. We let them have this.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: 'ðŸ“–', cost: 80, req: 'tc_aria',     tierUnlock: 2, desc: 'Unlocks what is below. 3× all output.', flavor: 'Chapter one advises against reading chapter two. The rest of the chapters are wet.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_quantum',  name: 'Quantum Lattice',             icon: 'ðŸ”¬', cost: 20, req: 'tc_aria',     tierUnlock: 0, desc: '2× all worker output.',          flavor: 'The lattice observes the ore. The ore, observed, performs better. We have learned nothing from this.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_geometry', name: 'Forbidden Geometry',          icon: 'ðŸ“', cost: 50, req: 'tc_grimoire', tierUnlock: 0, desc: '3× all worker output.',          flavor: 'The angles should not work. They do. Do not measure them directly.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_dreaming', name: 'The Dreaming Engine',         icon: 'ðŸ¦‘', cost: 75, req: 'tc_geometry', tierUnlock: 0, desc: '5× click + 2× all workers.',    flavor: 'It dreams of ore. While it dreams, we take the ore. We do not think about what happens when it wakes up.', effect: () => { clickMult *= 5; globalMult *= 2; } },
+  { id: 'tc_speed1',   name: 'Hydraulic Boost',             icon: 'tc_speed1',   cost: 2,  req: null,        tierUnlock: 0, desc: '1.5× all worker output.', effect: () => { globalMult *= 1.5; } },
+  { id: 'tc_click1',   name: 'Grip Gloves',                 icon: 'tc_click1',   cost: 3,  req: 'tc_speed1',   tierUnlock: 0, desc: '2× click power.',       effect: () => { clickMult *= 2; } },
+  { id: 'tc_deep',     name: 'Depth Mapping',               icon: 'tc_deep',     cost: 5,  req: 'tc_click1',   tierUnlock: 0, desc: '2× all worker output.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_offline',  name: 'Night Shift',                 icon: 'tc_offline',  cost: 4,  req: null,        tierUnlock: 0, desc: '2× offline earnings.',  effect: () => { offlineMult *= 2; } },
+  { id: 'tc_auto',     name: 'Smart Dispatch',              icon: 'tc_auto',     cost: 8,  req: 'tc_deep',     tierUnlock: 0, desc: '1.5× all worker output.', effect: () => { globalMult *= 1.5; } },
+  { id: 'tc_prestige', name: 'Shard Resonance',             icon: 'tc_prestige', cost: 10, req: 'tc_auto',     tierUnlock: 0, desc: '1.5× shard multiplier.', effect: () => { shardBonus *= 1.5; } },
+  { id: 'tc_aria',     name: 'Project ARIA',                icon: 'tc_aria',     cost: 15, req: 'tc_prestige', tierUnlock: 1, desc: 'Unlocks motivated workers. 2× all output.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: 'tc_grimoire', cost: 80, req: 'tc_aria',     tierUnlock: 2, desc: 'Unlocks what is below. 3× all output.', effect: () => { globalMult *= 3; } },
+  { id: 'tc_quantum',  name: 'Quantum Lattice',             icon: 'tc_quantum',  cost: 20, req: 'tc_aria',     tierUnlock: 0, desc: '2× all worker output.', effect: () => { globalMult *= 2; } },
+  { id: 'tc_geometry', name: 'Forbidden Geometry',          icon: 'tc_geometry', cost: 50, req: 'tc_grimoire', tierUnlock: 0, desc: '3× all worker output.', effect: () => { globalMult *= 3; } },
+  { id: 'tc_dreaming', name: 'The Dreaming Engine',         icon: 'tc_dreaming', cost: 75, req: 'tc_geometry', tierUnlock: 0, desc: '5× click + 2× all workers.', effect: () => { clickMult *= 5; globalMult *= 2; } },
 ];
 
 const ABILITIES_DATA = [
-  { id: 'ore_rush',        name: 'Ore Rush',          icon: 'âš¡', type: 'buff',    desc: '2× all ore production for 10 minutes.',           unlockType: 'ore',    unlockCost: 0,   cooldown: 30*60, duration: 10*60, activate(g) { g.abilityEnds['ore_rush'] = Date.now()+10*60*1000; },       isActive(g) { return Date.now()<(g.abilityEnds['ore_rush']||0); } },
-  { id: 'gold_vein',       name: 'Gold Vein',         icon: 'âœ¨', type: 'nuke',    desc: 'Strike a hidden vein â€” instantly gain 20 minutes of income.', unlockType: 'ore', unlockCost: 50000, cooldown: 60*60, duration: 0, activate(g) { const b=calcOrePerSec()*1200; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('âœ¨ Gold Vein struck! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'drill_frenzy',    name: 'Drill Frenzy',      icon: 'ðŸ”©', type: 'clicker', desc: 'Auto-clicks 100 times over 10 seconds.',          unlockType: 'depth',  unlockCost: 200, cooldown: 20*60, duration: 10,   activate(g) { g.abilityEnds['drill_frenzy']=Date.now()+10000; let c=0; const iv=setInterval(()=>{ if(c>=100){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },100); showToast('ðŸ”© Drill Frenzy! 100 auto-clicks!'); }, isActive(g) { return Date.now()<(g.abilityEnds['drill_frenzy']||0); } },
-  { id: 'deep_pulse',      name: 'Deep Pulse',        icon: 'ðŸŒŠ', type: 'buff',    desc: '4× click power for 5 minutes.',                  unlockType: 'depth',  unlockCost: 300, cooldown: 25*60, duration: 5*60, activate(g) { g.abilityEnds['deep_pulse']=Date.now()+5*60*1000; },         isActive(g) { return Date.now()<(g.abilityEnds['deep_pulse']||0); } },
-  { id: 'plasma_surge',    name: 'Plasma Surge',      icon: 'ðŸ”†', type: 'buff',    desc: '5× all ore production for 8 minutes.',           unlockType: 'depth',  unlockCost: 1000,cooldown: 60*60, duration: 8*60, activate(g) { g.abilityEnds['plasma_surge']=Date.now()+8*60*1000; },        isActive(g) { return Date.now()<(g.abilityEnds['plasma_surge']||0); } },
-  { id: 'eldritch_hunger', name: 'Eldritch Hunger',   icon: 'ðŸ‘', type: 'buff',    desc: '10× all output for 3 minutes.',                  unlockType: 'depth',  unlockCost: 1200,cooldown: 120*60,duration: 3*60, activate(g) { g.abilityEnds['eldritch_hunger']=Date.now()+3*60*1000; },     isActive(g) { return Date.now()<(g.abilityEnds['eldritch_hunger']||0); } },
-  { id: 'cave_collapse',   name: 'Cave Collapse',     icon: 'ðŸ’¥', type: 'nuke',    desc: 'Instantly gain 1 hour of ore income.',           unlockType: 'shards', unlockCost: 30,  cooldown: 90*60, duration: 0,    activate(g) { const b=calcOrePerSec()*3600; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('ðŸ’¥ Cave Collapse! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'mole_swarm',      name: 'Mole Swarm',        icon: 'ðŸ­', type: 'clicker', desc: '500 auto-clicks over 15 seconds.',               unlockType: 'shards', unlockCost: 60,  cooldown: 45*60, duration: 15,   activate(g) { g.abilityEnds['mole_swarm']=Date.now()+15000; let c=0; const iv=setInterval(()=>{ if(c>=500){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },30); showToast('ðŸ­ Mole Swarm! 500 clicks incoming!'); }, isActive(g) { return Date.now()<(g.abilityEnds['mole_swarm']||0); } },
-  { id: 'temporal_skip',   name: 'Temporal Skip',     icon: 'â³', type: 'nuke',    desc: 'Gain 3 hours of offline income instantly.',      unlockType: 'shards', unlockCost: 100, cooldown: 120*60,duration: 0,    activate(g) { const b=calcOrePerSec()*10800; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('â³ Temporal Skip! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'void_scream',     name: 'Void Scream',       icon: 'ðŸ•³', type: 'clicker', desc: '2000 auto-clicks over 20 seconds.',              unlockType: 'shards', unlockCost: 500, cooldown: 90*60, duration: 20,   activate(g) { g.abilityEnds['void_scream']=Date.now()+20000; let c=0; const iv=setInterval(()=>{ if(c>=2000){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },10); showToast('The Void Screams. 2000 clicks.'); }, isActive(g) { return Date.now()<(g.abilityEnds['void_scream']||0); } },
-  { id: 'iron_skin',       name: 'Iron Skin',         icon: 'ðŸ›¡', type: 'passive', desc: 'Permanent +25% global ore production.',         unlockType: 'shards', unlockCost: 45,  cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
-  { id: 'deep_truth',      name: 'The Deep Truth',    icon: 'ðŸ“¿', type: 'passive', desc: 'Permanent +100% all output.',                    unlockType: 'shards', unlockCost: 900, cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
+  { id: 'ore_rush',        name: 'Ore Rush',          icon: 'ore_rush',        type: 'buff',    desc: '2× all ore production for 10 minutes.',           unlockType: 'ore',    unlockCost: 0,   cooldown: 30*60, duration: 10*60, activate(g) { g.abilityEnds['ore_rush'] = Date.now()+10*60*1000; },       isActive(g) { return Date.now()<(g.abilityEnds['ore_rush']||0); } },
+  { id: 'gold_vein',       name: 'Gold Vein',         icon: 'gold_vein',       type: 'nuke',    desc: 'Strike a hidden vein — instantly gain 20 minutes of income.', unlockType: 'ore', unlockCost: 50000, cooldown: 60*60, duration: 0, activate(g) { const b=calcOrePerSec()*1200; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Gold Vein struck! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
+  { id: 'drill_frenzy',    name: 'Drill Frenzy',      icon: 'drill_frenzy',    type: 'clicker', desc: 'Auto-clicks 100 times over 10 seconds.',          unlockType: 'depth',  unlockCost: 200, cooldown: 20*60, duration: 10,   activate(g) { g.abilityEnds['drill_frenzy']=Date.now()+10000; let c=0; const iv=setInterval(()=>{ if(c>=100){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },100); showToast('Drill Frenzy! 100 auto-clicks!'); }, isActive(g) { return Date.now()<(g.abilityEnds['drill_frenzy']||0); } },
+  { id: 'deep_pulse',      name: 'Deep Pulse',        icon: 'deep_pulse',      type: 'buff',    desc: '4× click power for 5 minutes.',                  unlockType: 'depth',  unlockCost: 300, cooldown: 25*60, duration: 5*60, activate(g) { g.abilityEnds['deep_pulse']=Date.now()+5*60*1000; },         isActive(g) { return Date.now()<(g.abilityEnds['deep_pulse']||0); } },
+  { id: 'plasma_surge',    name: 'Plasma Surge',      icon: 'plasma_surge',    type: 'buff',    desc: '5× all ore production for 8 minutes.',           unlockType: 'depth',  unlockCost: 1000,cooldown: 60*60, duration: 8*60, activate(g) { g.abilityEnds['plasma_surge']=Date.now()+8*60*1000; },        isActive(g) { return Date.now()<(g.abilityEnds['plasma_surge']||0); } },
+  { id: 'eldritch_hunger', name: 'Eldritch Hunger',   icon: 'eldritch_hunger', type: 'buff',    desc: '10× all output for 3 minutes.',                  unlockType: 'depth',  unlockCost: 1200,cooldown: 120*60,duration: 3*60, activate(g) { g.abilityEnds['eldritch_hunger']=Date.now()+3*60*1000; },     isActive(g) { return Date.now()<(g.abilityEnds['eldritch_hunger']||0); } },
+  { id: 'cave_collapse',   name: 'Cave Collapse',     icon: 'cave_collapse',   type: 'nuke',    desc: 'Instantly gain 1 hour of ore income.',           unlockType: 'shards', unlockCost: 30,  cooldown: 90*60, duration: 0,    activate(g) { const b=calcOrePerSec()*3600; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Cave Collapse! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
+  { id: 'mole_swarm',      name: 'Mole Swarm',        icon: 'mole_swarm',      type: 'clicker', desc: '500 auto-clicks over 15 seconds.',               unlockType: 'shards', unlockCost: 60,  cooldown: 45*60, duration: 15,   activate(g) { g.abilityEnds['mole_swarm']=Date.now()+15000; let c=0; const iv=setInterval(()=>{ if(c>=500){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },30); showToast('Mole Swarm! 500 clicks incoming!'); }, isActive(g) { return Date.now()<(g.abilityEnds['mole_swarm']||0); } },
+  { id: 'temporal_skip',   name: 'Temporal Skip',     icon: 'temporal_skip',   type: 'nuke',    desc: 'Gain 3 hours of offline income instantly.',      unlockType: 'shards', unlockCost: 100, cooldown: 120*60,duration: 0,    activate(g) { const b=calcOrePerSec()*10800; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Temporal Skip! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
+  { id: 'void_scream',     name: 'Void Scream',       icon: 'void_scream',     type: 'clicker', desc: '2000 auto-clicks over 20 seconds.',              unlockType: 'shards', unlockCost: 500, cooldown: 90*60, duration: 20,   activate(g) { g.abilityEnds['void_scream']=Date.now()+20000; let c=0; const iv=setInterval(()=>{ if(c>=2000){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },10); showToast('The Void Screams. 2000 clicks.'); }, isActive(g) { return Date.now()<(g.abilityEnds['void_scream']||0); } },
+  { id: 'iron_skin',       name: 'Iron Skin',         icon: 'iron_skin',       type: 'passive', desc: 'Permanent +25% global ore production.',         unlockType: 'shards', unlockCost: 45,  cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
+  { id: 'deep_truth',      name: 'The Deep Truth',    icon: 'deep_truth',      type: 'passive', desc: 'Permanent +100% all output.',                    unlockType: 'shards', unlockCost: 900, cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
 ];
 
 let clickMult = 1, globalMult = 1, minerMults = {}, offlineMult = 1, shardBonus = 1;
@@ -460,6 +670,11 @@ const MinerVisuals = (() => {
     voidmouth: { tier:2, color:'#400880', color2:'#9020e0', sparkColor:'#cc60ff' },
     oldgod:    { tier:2, color:'#602080', color2:'#c040ff', sparkColor:'#e080ff' },
     deeptruth: { tier:2, color:'#805000', color2:'#ffa000', sparkColor:'#ffcc60' },
+    conveyor:   { tier: 0, color: '#707040', color2: '#b0b060', sparkColor: '#e0e090' },
+    excavator:  { tier: 0, color: '#805020', color2: '#c07830', sparkColor: '#ffaa50' },
+    mindspore:  { tier: 1, color: '#106080', color2: '#20b0e0', sparkColor: '#80eeff' },
+    chitinmaw:  { tier: 2, color: '#501040', color2: '#a02080', sparkColor: '#ff60b0' },
+    voidweaver: { tier: 2, color: '#200840', color2: '#6010c0', sparkColor: '#aa50ff' },
   };
 
   function spawnParticles(id, count, cfg, w, h) {
@@ -792,7 +1007,7 @@ const MinerVisuals = (() => {
         color, life: 1,
       });
     }
-    // Row flash only â€” no DOM particles
+    // Row flash only no DOM particles
     const row = document.querySelector(`[data-miner-id="${minerId}"]`);
     if (row) {
       const flashClass = cfg.tier===2 ? 'pulse-eldritch' : cfg.tier===1 ? 'pulse-aria' : 'pulse-human';
@@ -844,7 +1059,7 @@ function buildMinerRow(m) {
   row.className = `miner-row${tierClass}${hasWorkers}`;
   row.dataset.minerId = m.id;
   row.innerHTML = `
-    ${icon(m.id, 28)}
+    <div style="width:28px;height:28px;flex-shrink:0">${ICONS[m.id]||''}</div>
     <div class="miner-info">
       <div class="miner-name">${m.name}</div>
       <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?`<span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
@@ -867,7 +1082,7 @@ function renderMiners() {
   let lastTier = -1;
 
   const lockedTeasers = {
-    1: { iconId: 'tc_aria',     label: 'PROJECT ARIA â€” CLASSIFIED',               hint: 'Research Project ARIA in the Tech Tree to unlock motivated AI workers. They prefer not to be called robots.' },
+    1: { iconId: 'tc_aria',     label: 'PROJECT ARIA CLASSIFIED',               hint: 'Research Project ARIA in the Tech Tree to unlock motivated AI workers. They prefer not to be called robots.' },
     2: { iconId: 'tc_grimoire', label: 'HERETICAL EXCAVATION MANUAL â€” RESTRICTED', hint: 'Something was found at depth. Research the Heretical Excavation Manual to deploy it. HR has been notified.' },
   };
 
@@ -900,7 +1115,7 @@ function renderMiners() {
   }
 }
 
-// Lightweight update â€” only patches dynamic fields, never rebuilds DOM
+// Lightweight update only patches dynamic fields, never rebuilds DOM
 function updateMinerRows() {
   for (const m of MINERS_DATA) {
     if (!tierUnlocked(m.tier)) continue;
@@ -943,21 +1158,36 @@ function updateMinerRows() {
   }
 }
 
-// ===================== RENDER UPGRADES =====================
+// ===================== RENDER UPGRADES ===================== If you want to hide more upgrades, add them to the arrays below
 function renderUpgrades() {
   const container = document.getElementById('upgrades-list');
   container.innerHTML = '';
   for (const u of UPGRADES_DATA) {
-    const scifiUpgrades = ['drone_ai','plasma2','nano2','gravity2','clicklaser'];
-    const eldritchUpgrades = ['worm2','eye2','void2','clickeldritch'];
-    if (scifiUpgrades.includes(u.id) && !tierUnlocked(1)) { container.appendChild(mysteryCard('upgrade_aria', null)); continue; }
-    if (eldritchUpgrades.includes(u.id) && !tierUnlocked(2)) { container.appendChild(mysteryCard('upgrade_eldritch', null)); continue; }
+    const scifiUpgrades = ['drone_ai','plasma2','nano2','gravity2','clicklaser','timefold2','mindspore2'];
+    const eldritchUpgrades = ['worm2','eye2','void2','clickeldritch','oldgod2','deeptruth2','chitinmaw2','voidweaver2'];
+
+    if (scifiUpgrades.includes(u.id) && !tierUnlocked(1)) {
+      container.appendChild(mysteryCard('upgrade_aria', null));
+      continue;
+    }
+    if (eldritchUpgrades.includes(u.id) && !tierUnlocked(2)) {
+      container.appendChild(mysteryCard('upgrade_eldritch', null));
+      continue;
+    }
 
     const bought = G.upgrades[u.id];
     const reqMet = !u.req || G.upgrades[u.req] || checkMinerReq(u.req);
     const card = document.createElement('div');
-    card.className = 'upgrade-card' + (bought?' bought':'') + (!reqMet?' locked':'');
-    card.innerHTML = `${icon(u.id,24)}<div class="upgrade-info"><div class="upgrade-name">${u.name}</div><div class="upgrade-desc">${u.desc}</div><div class="upgrade-flavor">${u.flavor}</div></div><div class="upgrade-cost">${bought?'DONE':fmt(u.cost)}</div>`;
+    card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!reqMet ? ' locked' : '');
+
+    const iconToRender = ICONS[u.icon]; // use ICONS here
+    card.innerHTML = `${iconToRender}<div class="upgrade-info">
+      <div class="upgrade-name">${u.name}</div>
+      <div class="upgrade-desc">${u.desc}</div>
+      <div class="upgrade-flavor">${u.flavor}</div>
+    </div>
+    <div class="upgrade-cost">${bought ? 'DONE' : fmt(u.cost)}</div>`;
+
     if (!bought && reqMet) card.onclick = () => buyUpgrade(u.id);
     container.appendChild(card);
   }
@@ -974,14 +1204,30 @@ function renderTech() {
   for (const t of TECH_DATA) {
     const bought = G.tech[t.id];
     const reqMet = !t.req || G.tech[t.req];
-    if (!reqMet && !bought) { container.appendChild(mysteryCard('tech_locked', null)); continue; }
+    if (!reqMet && !bought) {
+      container.appendChild(mysteryCard('tech_locked', null));
+      continue;
+    }
+
     const canAfford = G.shards >= t.cost;
     const isTierUnlock = !!t.tierUnlock;
     const card = document.createElement('div');
-    card.className = 'tech-card' + (bought?' bought':'') + (!reqMet?' locked':'');
-    if (isTierUnlock && !bought) card.style.borderColor = t.tierUnlock===1 ? 'var(--ore-dark)' : '#4a1060';
-    const tierBadge = isTierUnlock && !bought ? `<div style="font-size:9px;letter-spacing:1px;color:${t.tierUnlock===1?'var(--ore)':'var(--prestige)'};margin-top:2px">ðŸ”“ TIER UNLOCK</div>` : '';
-    card.innerHTML = `${icon(t.id,24)}<div class="upgrade-info"><div class="upgrade-name" style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;">${t.name}</div><div class="upgrade-desc">${t.desc}</div><div class="upgrade-flavor">${t.flavor}</div>${tierBadge}</div><div class="tech-cost">${bought?'':t.cost+''}</div>`;
+    card.className = 'tech-card' + (bought ? ' bought' : '') + (!reqMet ? ' locked' : '');
+    if (isTierUnlock && !bought) card.style.borderColor = t.tierUnlock === 1 ? 'var(--ore-dark)' : '#4a1060';
+
+    const tierBadge = isTierUnlock && !bought 
+      ? `<div style="font-size:9px;letter-spacing:1px;color:${t.tierUnlock===1?'var(--ore)':'var(--prestige)'};margin-top:2px">TIER UNLOCK</div>` 
+      : '';
+
+    const iconToRender = ICONS[t.icon]; // use ICONS here
+    card.innerHTML = `${iconToRender}<div class="upgrade-info">
+      <div class="upgrade-name" style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;">${t.name}</div>
+      <div class="upgrade-desc">${t.desc}</div>
+      <div class="upgrade-flavor">${t.flavor}</div>
+      ${tierBadge}
+    </div>
+    <div class="tech-cost">${bought ? '' : t.cost}</div>`;
+
     if (!bought && reqMet && canAfford) card.onclick = () => buyTech(t.id);
     container.appendChild(card);
   }
@@ -1019,11 +1265,13 @@ function renderManagers() {
     const canAfford = G.ore >= mgr.cost;
     const card = document.createElement('div');
     card.className = 'upgrade-card' + (bought?' bought':'');
-    card.innerHTML = `${icon(mgr.id,24)}<div class="upgrade-info"><div class="upgrade-name">${mgr.name}</div><div class="upgrade-desc">${mgr.desc}</div><div class="upgrade-flavor">${mgr.flavor}</div></div>${bought?`<div class="upgrade-cost" style="color:var(--ore)">HIRED</div>`:`<div class="upgrade-cost">${fmt(mgr.cost)}</div>`}`;
+    const iconToRender = ICONS[mgr.icon]; // use ICONS here
+    card.innerHTML = `${iconToRender}<div class="upgrade-info"><div class="upgrade-name">${mgr.name}</div><div class="upgrade-desc">${mgr.desc}</div><div class="upgrade-flavor">${mgr.flavor}</div></div>${bought?`<div class="upgrade-cost" style="color:var(--ore)">HIRED</div>`:`<div class="upgrade-cost">${fmt(mgr.cost)}</div>`}`;
     if (!bought && canAfford) card.onclick = () => buyManager(mgr.id);
     container.appendChild(card);
   }
 }
+
 
 function updateHUD() {
   const ops = calcOrePerSec();
@@ -1202,12 +1450,13 @@ function renderAbilitiesTab() {
     card.className = 'ability-unlock-card' + (unlocked?' unlocked-card':'') + (!unlocked&&!affordable?' locked':'');
     let reqLabel = '';
     if (a.id==='ore_rush') reqLabel = '<span class="ability-unlock-req done">FREE</span>';
-    else if (unlocked) reqLabel = '<span class="ability-unlock-req done">“ UNLOCKED</span>';
+    else if (unlocked) reqLabel = '<span class="ability-unlock-req done">UNLOCKED</span>';
     else if (a.unlockType==='ore')    reqLabel = `<span class="ability-unlock-req">${fmt(a.unlockCost)} ore</span>`;
     else if (a.unlockType==='shards') reqLabel = `<span class="ability-unlock-req shards">${a.unlockCost}  shards</span>`;
     else if (a.unlockType==='depth')  reqLabel = `<span class="ability-unlock-req depth${G.depth>=a.unlockCost?' done':''}">${G.depth>=a.unlockCost?'':''}${a.unlockCost}m depth</span>`;
-    const typeLabel = {buff:'BUFF',nuke:'NUKE',clicker:'AUTO-CLICK',passive:'PASSIVE'}[a.type];
-    card.innerHTML = `<div class="ability-unlock-icon">${icon(a.id,20)}</div><div class="ability-unlock-info"><div class="ability-unlock-name">${a.name} <span style="font-size:9px;color:var(--text-muted)">[${typeLabel}]</span></div><div class="ability-unlock-desc">${a.desc}</div></div>${reqLabel}`;
+    const typeLabel = {buff:'BUFF',nuke:'NUKE',clicker:'AUTO-CLICK',passive:'PASSIVE'}[a.type]
+    console.log(a.icon, ICONS[a.icon] ? 'FOUND' : 'MISSING');
+    card.innerHTML = `<div class="ability-unlock-icon"><div style="width:24px;height:24px;flex-shrink:0">${ICONS[a.icon]||''}</div></div><div class="ability-unlock-info"><div class="ability-unlock-name">${a.name} <span style="font-size:9px;color:var(--text-muted)">[${typeLabel}]</span></div><div class="ability-unlock-desc">${a.desc}</div></div>${reqLabel}`;
     if (!unlocked && affordable) card.onclick = () => unlockAbility(a.id);
     container.appendChild(card);
   }
@@ -1232,7 +1481,7 @@ function renderAbilitiesBar() {
     const disabled = (onCooldown||a.passive) ? 'disabled' : '';
     const glowClass = active ? ' ability-active-glow' : '';
     const key = idx<9 ? (idx+1) : null;
-    html += `<div class="ability-btn-wrap"><div class="ability-btn-row"><button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')" title="${a.name}: ${a.desc}">${icon(a.id,18)}<span>${a.name}</span>${key?`<span class="ability-keybind">${key}</span>`:''}</button><span class="ability-status ${statusClass}">${statusText}</span></div>${!a.passive?`<div class="ability-cd-track"><div class="ability-cd-fill type-${a.type}" style="width:${cdPct.toFixed(1)}%"></div></div>`:''}</div>`;
+    html += `<div class="ability-btn-wrap"><div class="ability-btn-row"><button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')" title="${a.name}: ${a.desc}"><div style="width:18px;height:18px;flex-shrink:0">${ICONS[a.icon]||''}</div><span>${a.name}</span>${key?`<span class="ability-keybind">${key}</span>`:''}</button><span class="ability-status ${statusClass}">${statusText}</span></div>${!a.passive?`<div class="ability-cd-track"><div class="ability-cd-fill type-${a.type}" style="width:${cdPct.toFixed(1)}%"></div></div>`:''}</div>`;
   });
   bar.innerHTML = html;
 }
@@ -1259,7 +1508,7 @@ const ACHIEVEMENTS = [
   { id:'all_managers',  name:'Chain of Command',    desc:'Hire every human tier manager.',             flavor:'IT KNOWS is not included. It cannot be hired.',      check:g=>['mgr_pick','mgr_drill','mgr_cart','mgr_blast','mgr_tunnel','mgr_factory'].every(id=>g.managers[id]) },
   { id:'ore_rush_used', name:'In A Rush',           desc:'Activate Ore Rush.',                        flavor:'Faster. More. Now.',                                  check:g=>!!g.abilitiesUnlocked['ore_rush']&&(g.abilityCooldowns['ore_rush']||0)>0 },
   { id:'all_abilities', name:'Full Arsenal',        desc:'Unlock all abilities.',                      flavor:'The void has given you everything it has. For now.',  check:g=>ABILITIES_DATA.every(a=>isAbilityUnlocked(a)) },
-  { id:'miner_25',      name:'Small Army',          desc:'Own 25 of any single worker.',               flavor:'They have formed a union. You have ignored this.',    check:g=>Object.values(g.miners).some(c=>c>=25) },
+  { id:'miner_25',      name:'Small Army',          desc:'Own 25 of any single workerS.',               flavor:'They have formed a union. You have ignored this.',    check:g=>Object.values(g.miners).some(c=>c>=25) },
   { id:'miner_100',     name:'Industrial Scale',    desc:'Own 100 of any single worker.',              flavor:'The accountant has asked you to stop. You have not.', check:g=>Object.values(g.miners).some(c=>c>=100) },
   { id:'miner_500',     name:'Geological Force',    desc:'Own 500 of any single worker.',              flavor:'At this point you are not mining. You are a weather event.', check:g=>Object.values(g.miners).some(c=>c>=500) },
   { id:'all_human',     name:'Full Crew',           desc:'Own at least 1 of every human tier worker.', flavor:'Everyone is present. Nobody is happy about it.',      check:g=>['pickaxe','drill','cart','blaster','tunnel','factory'].every(id=>(g.miners[id]||0)>=1) },
@@ -1704,7 +1953,7 @@ const ShaftVis = (() => {
   let canvas, ctx, w, h, t = 0;
   let shaftWorkers = [];
 
-  // Rock layer definitions â€” colour, name, depth range
+  // Rock layer definitions colour, name, depth range
   const LAYERS = [
     { name:'Topsoil',     col:'#3a2e20', ore:'#5a4a30', minDepth:0   },
     { name:'Sandstone',   col:'#4a3a28', ore:'#7a5a30', minDepth:50  },
@@ -1775,7 +2024,7 @@ const ShaftVis = (() => {
     }
     ctx.globalAlpha = 1;
 
-    // Shaft tunnel â€” vertical dark channel down the center
+    // Shaft tunnel vertical dark channel down the center
     const shaftW = w * 0.38;
     const shaftX = (w - shaftW) / 2;
     const grad = ctx.createLinearGradient(shaftX, 0, shaftX + shaftW, 0);
