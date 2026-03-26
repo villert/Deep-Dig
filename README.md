@@ -21,6 +21,8 @@ HOW TO PLAY
 - Spend shards in the Shard Forge for permanent bonuses that survive ascension.
 
 - Watch for random events” some help, some don't.
+
+
 KEYBOARD SHORTCUTS
 
 - Keys 1-9 activate unlocked abilities.
