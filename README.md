@@ -35,6 +35,7 @@ TIERS
 -> Heretical "We found them below. We gave them contracts. Legal is still reviewing whether this was a good idea."
 
 And more to come....
-The mine has been running since you opened this page.
-It will continue running after you close it.
-Something below is aware of this. 
+
+The game can be played at itch.io
+
+https://coffeetimerz.itch.io/deep-dig
