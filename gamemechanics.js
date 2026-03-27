@@ -520,9 +520,58 @@ function icon(upgradeId, size) {
   return `<div style="width:${size}px;height:${size}px;background:#3a3530;border:1px solid #524d46;flex-shrink:0"></div>`;
 }
 
+function iconMarkup(iconKey, size) {
+  size = size || 24;
+  if (iconKey && ICONS[iconKey]) {
+    return `<div style="width:${size}px;height:${size}px;flex-shrink:0">${ICONS[iconKey]}</div>`;
+  }
+  return `<div style="width:${size}px;height:${size}px;background:#3a3530;border:1px solid #524d46;flex-shrink:0"></div>`;
+}
+
 // ===================== GAME STATE =====================
 const SAVE_KEY = 'deepdig_v3';
-const DEPTH_MILESTONES = [500, 2000, 8000, 30000, 120000, 500000, 2000000, 10000000];
+const SAVE_BACKUP_KEY = 'deepdig_v3_backup';
+const MAX_SAVE_NUMBER = 1e308;
+let suppressSaves = false;
+const DEPTH_MILESTONES = [
+  500,          // 50m
+  2000,         // 150m
+  8000,         // 250m
+  30000,        // 350m
+  120000,       // 450m
+  500000,       // 550m
+  2000000,      // 650m
+  10000000,     // 750m 
+  50000000,     // 850m
+  250000000,    // 950m
+  1500000000,   // 1050m
+  1e10,         // 1150m
+  8e10,         // 1250m
+  6e11,         // 1350m
+  5e12,         // 1450m
+  5e13,         // 1550m
+  5e14,         // 1650m
+  5e15,         // 1750m
+  5e16,         // 1850m
+  5e17,         // 1950m
+  5e18,         // 2050m
+  5e19,         // 2150m
+  5e20,         // 2250m
+  5e21,         // 2350m
+  5e22,         // 2450m
+  5e23,         // 2550m
+  5e24,         // 2650m
+  5e25,         // 2750m
+  5e26,         // 2850m
+  5e27,         // 2950m
+  5e28,         // 3050m
+  5e29,         // 3150m
+  5e30,         // 3250m
+  5e31,         // 3350m
+  5e32,         // 3450m
+  5e33,         // 3550m
+  5e34,         // 3650m
+];
 
 let G = {
   ore: 0, totalOre: 0, lifetimeOre: 0,
@@ -814,6 +863,7 @@ function buyShardShop(id) {
   showToast('' + item.name + ' forged!');
   renderShardShop();
   updateHUD();
+  saveGameSafe();
 }
 
 function reapplyShardShop() {
@@ -824,21 +874,91 @@ function reapplyShardShop() {
 }
 
 // ===================== SAVE/LOAD =====================
+function sanitizeSaveValue(value) {
+  if (typeof value === 'number') {
+    if (Number.isNaN(value)) return 0;
+    if (!Number.isFinite(value)) return value < 0 ? -MAX_SAVE_NUMBER : MAX_SAVE_NUMBER;
+    return Math.max(-MAX_SAVE_NUMBER, Math.min(MAX_SAVE_NUMBER, value));
+  }
+  if (Array.isArray(value)) return value.map(sanitizeSaveValue);
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [key, nested] of Object.entries(value)) out[key] = sanitizeSaveValue(nested);
+    return out;
+  }
+  return value;
+}
+
+function normalizeLoadedGame(saved) {
+  const normalized = sanitizeSaveValue(saved || {});
+  normalized.miners = normalized.miners && typeof normalized.miners === 'object' ? normalized.miners : {};
+  normalized.upgrades = normalized.upgrades && typeof normalized.upgrades === 'object' ? normalized.upgrades : {};
+  normalized.managers = normalized.managers && typeof normalized.managers === 'object' ? normalized.managers : {};
+  normalized.tech = normalized.tech && typeof normalized.tech === 'object' ? normalized.tech : {};
+  normalized.shardShop = normalized.shardShop && typeof normalized.shardShop === 'object' ? normalized.shardShop : {};
+  normalized.abilitiesUnlocked = normalized.abilitiesUnlocked && typeof normalized.abilitiesUnlocked === 'object' ? normalized.abilitiesUnlocked : {};
+  normalized.abilityCooldowns = normalized.abilityCooldowns && typeof normalized.abilityCooldowns === 'object' ? normalized.abilityCooldowns : {};
+  normalized.abilityEnds = normalized.abilityEnds && typeof normalized.abilityEnds === 'object' ? normalized.abilityEnds : {};
+  normalized.settings = normalized.settings && typeof normalized.settings === 'object' ? normalized.settings : { shake: true, fx: true, sound: true };
+  normalized.stats = normalized.stats && typeof normalized.stats === 'object' ? normalized.stats : {};
+  return normalized;
+}
+
+function normalizeAbilityTimers() {
+  if (!G.abilityCooldowns || typeof G.abilityCooldowns !== 'object') G.abilityCooldowns = {};
+  if (!G.abilityEnds || typeof G.abilityEnds !== 'object') G.abilityEnds = {};
+  const now = Date.now();
+  for (const ability of ABILITIES_DATA) {
+    const cooldownEnd = Number(G.abilityCooldowns[ability.id] || 0);
+    const abilityEnd = Number(G.abilityEnds[ability.id] || 0);
+    const maxCooldownEnd = now + ((ability.cooldown || 0) * 1000) + 60000;
+    const maxAbilityEnd = now + ((ability.duration || 0) * 1000) + 60000;
+
+    if (!Number.isFinite(cooldownEnd) || cooldownEnd <= now || cooldownEnd > maxCooldownEnd) delete G.abilityCooldowns[ability.id];
+    else G.abilityCooldowns[ability.id] = cooldownEnd;
+
+    if (!Number.isFinite(abilityEnd) || abilityEnd <= now || abilityEnd > maxAbilityEnd) delete G.abilityEnds[ability.id];
+    else G.abilityEnds[ability.id] = abilityEnd;
+  }
+}
+
 function saveGame() {
+  if (suppressSaves) return;
   G.lastSave = Date.now();
   G.eventCooldownEnd = eventCooldownEnd;
   if (!G.stats) G.stats = {};
   G.stats.timePlayed = (G.stats.timePlayed||0) + (Date.now() - (G.stats.sessionStart||Date.now()));
   G.stats.sessionStart = Date.now();
-  localStorage.setItem(SAVE_KEY, JSON.stringify(G));
+  const payload = JSON.stringify(normalizeLoadedGame(G));
+  localStorage.setItem(SAVE_KEY, payload);
+  localStorage.setItem(SAVE_BACKUP_KEY, payload);
   localStorage.setItem('deepdig_lore', JSON.stringify([...shownLoreEvents]));
   localStorage.setItem('deepdig_ach', JSON.stringify([...earnedAchievements]));
 }
 
 function loadGame() {
-  const raw = localStorage.getItem(SAVE_KEY);
+  const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem(SAVE_BACKUP_KEY);
   if (!raw) return;
-  try { const saved = JSON.parse(raw); Object.assign(G, saved); } catch(e) {}
+  try {
+    const saved = JSON.parse(raw);
+    Object.assign(G, normalizeLoadedGame(saved));
+    normalizeAbilityTimers();
+  } catch(e) {}
+}
+
+function saveGameSafe() {
+  try { saveGame(); } catch (e) {}
+}
+
+function parseStoredArray(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
 }
 
 function reapplyAllEffects() {
@@ -852,14 +972,23 @@ function reapplyAllEffects() {
 
 // ===================== CLICK =====================
 function clickMine(e) {
+  if (!Number.isFinite(G.ore)) G.ore = 0;
+  if (!Number.isFinite(G.totalOre)) G.totalOre = 0;
+  if (!Number.isFinite(G.lifetimeOre)) G.lifetimeOre = 0;
+  if (!Number.isFinite(G.prestigeMultiplier)) G.prestigeMultiplier = 1;
   const gain = calcClickPower();
   G.ore += gain; G.totalOre += gain; G.lifetimeOre += gain;
   if (!G.stats) G.stats = {};
   G.stats.clickCount = (G.stats.clickCount || 0) + 1;
-  showFloatingNum(e.clientX, e.clientY, '+' + fmt(gain));
-  burstParticles(e.clientX, e.clientY, 5, '#f5c842');
+  const x = e?.clientX ?? window.innerWidth / 2;
+  const y = e?.clientY ?? window.innerHeight / 2;
+  showFloatingNum(x, y, '+' + fmt(gain));
+  burstParticles(x, y, 5, '#f5c842');
   if (G.settings && G.settings.sound) playSound('click');
   if (G.settings && G.settings.shake && gain > 100) screenShake(2);
+  updateHUD();
+  updateMinerRows();
+  saveGameSafe();
 }
 
 function showFloatingNum(x, y, text) {
@@ -873,12 +1002,21 @@ function showFloatingNum(x, y, text) {
 }
 
 // ===================== FORMATTING =====================
+const NUMBER_SUFFIXES = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'Ud', 'Dd', 'Td', 'Qad', 'Qid'];
+
 function fmt(n) {
   if (n < 1000) return Math.floor(n).toString();
-  const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx'];
   const i = Math.floor(Math.log10(n) / 3);
-  const s = suffixes[Math.min(i, suffixes.length - 1)];
+  const s = NUMBER_SUFFIXES[Math.min(i, NUMBER_SUFFIXES.length - 1)];
   return (n / Math.pow(1000, i)).toFixed(2) + s;
+}
+
+function fmtPrecise(n) {
+  if (n < 1000) return Math.floor(n).toString();
+  const i = Math.min(Math.floor(Math.log10(n) / 3), NUMBER_SUFFIXES.length - 1);
+  const scaled = n / Math.pow(1000, i);
+  const decimals = scaled < 10 ? 3 : scaled < 100 ? 2 : 1;
+  return scaled.toFixed(decimals) + NUMBER_SUFFIXES[i];
 }
 
 // ===================== MYSTERY SYSTEM =====================
@@ -1336,7 +1474,7 @@ function buildMinerRow(m) {
     <div style="width:28px;height:28px;flex-shrink:0">${ICONS[m.id]||''}</div>
     <div class="miner-info">
       <div class="miner-name">${m.name}</div>
-      <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?`<span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
+      <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?` <span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
       <div class="miner-flavor">${m.flavor}</div>
     </div>
     <div class="miner-count">${count}</div>
@@ -1358,6 +1496,7 @@ function renderMiners() {
   const lockedTeasers = {
     1: { iconId: 'tc_aria',     label: 'PROJECT ARIA CLASSIFIED',               hint: 'Research Project ARIA in the Tech Tree to unlock motivated AI workers. They prefer not to be called robots.' },
     2: { iconId: 'tc_grimoire', label: 'HERETICAL EXCAVATION MANUAL  RESTRICTED', hint: 'Something was found at depth. Research the Heretical Excavation Manual to deploy it. HR has been notified.' },
+    3: { iconId: 'tc_singularity', label: 'SINGULARITY SYSTEMS SEALED',         hint: 'Research the Singularity Directive in the Tech Tree to unlock the deepest industrial systems. Procurement insists these are still machines.' },
   };
 
   for (const m of MINERS_DATA) {
@@ -1367,7 +1506,7 @@ function renderMiners() {
         const t = lockedTeasers[m.tier];
         const teaser = document.createElement('div');
         teaser.style.cssText = 'border-top:1px solid var(--panel-border);margin-top:6px;padding:10px 12px;display:flex;align-items:center;gap:10px;opacity:0.5;';
-        teaser.innerHTML = `${icon(t.iconId,24)}<div><div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted)">[LOCKED] ${t.label}</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5">${t.hint}</div></div>`;
+        teaser.innerHTML = `${icon(t?.iconId || '',24)}<div><div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted)">[LOCKED] ${t?.label || 'CLASSIFIED WORKFORCE'}</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.5">${t?.hint || 'Keep digging to uncover what comes next.'}</div></div>`;
         container.appendChild(teaser);
         continue;
       }
@@ -1416,7 +1555,7 @@ function updateMinerRows() {
     }
 
     const rateEl = row.querySelector('.miner-rate');
-    if (rateEl) rateEl.innerHTML = `${ops.toFixed(1)} ore/s each${count>0?`<span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}`;
+    if (rateEl) rateEl.innerHTML = `${ops.toFixed(1)} ore/s each${count>0?` <span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}`;
 
     const btn = row.querySelector('.buy-btn');
     if (btn) {
@@ -1468,7 +1607,7 @@ function renderUpgrades() {
     const card = document.createElement('div');
     card.className = 'upgrade-card' + (bought ? ' bought' : '') + (!reqMet ? ' locked' : '');
 
-    const iconToRender = ICONS[u.icon]; // use ICONS here
+    const iconToRender = iconMarkup(u.icon, 24);
     card.innerHTML = `${iconToRender}<div class="upgrade-info">
       <div class="upgrade-name">${u.name}</div>
       <div class="upgrade-desc">${u.desc}</div>
@@ -1512,7 +1651,7 @@ function renderTech() {
       ? `<div style="font-size:9px;letter-spacing:1px;color:${t.tierUnlock===1?'var(--ore)':t.tierUnlock===2?'var(--prestige)':'#60c8e0'};margin-top:2px">TIER UNLOCK</div>` 
       : '';
 
-    const iconToRender = ICONS[t.icon]; // use ICONS here
+    const iconToRender = iconMarkup(t.icon, 24);
     card.innerHTML = `${iconToRender}<div class="upgrade-info">
       <div class="upgrade-name" style="font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:1px;">${t.name}</div>
       <div class="upgrade-desc">${t.desc}</div>
@@ -1558,7 +1697,7 @@ function renderManagers() {
     const canAfford = G.ore >= mgr.cost;
     const card = document.createElement('div');
     card.className = 'upgrade-card' + (bought?' bought':'');
-    const iconToRender = ICONS[mgr.icon]; // use ICONS here
+    const iconToRender = iconMarkup(mgr.icon, 24);
     card.innerHTML = `${iconToRender}<div class="upgrade-info"><div class="upgrade-name">${mgr.name}</div><div class="upgrade-desc">${mgr.desc}</div><div class="upgrade-flavor">${mgr.flavor}</div></div>${bought?`<div class="upgrade-cost" style="color:var(--ore)">HIRED</div>`:`<div class="upgrade-cost">${fmt(mgr.cost)}</div>`}`;
     if (!bought && canAfford) card.onclick = () => buyManager(mgr.id);
     container.appendChild(card);
@@ -1581,22 +1720,35 @@ function updateHUD() {
   updateDepthProgress();
 }
 
+function getDepthForLifetimeOre(lifetimeOre) {
+  let depth = 0;
+  for (let i = 0; i < DEPTH_MILESTONES.length; i++) {
+    if (lifetimeOre >= DEPTH_MILESTONES[i]) depth = i * 100 + 50;
+    else break;
+  }
+  return depth;
+}
+
 function updateDepthProgress() {
   const milestones = [...DEPTH_MILESTONES];
-  let nextMilestone = milestones.find(m => G.lifetimeOre < m) || milestones[milestones.length-1]*10;
+  const nextIndex = milestones.findIndex(m => G.lifetimeOre < m);
+  const nextMilestone = nextIndex >= 0 ? milestones[nextIndex] : milestones[milestones.length-1] * 10;
   let prevMilestone = 0;
   for (const m of milestones) { if (G.lifetimeOre >= m) prevMilestone = m; else break; }
-  const progress = Math.min(1, (G.lifetimeOre-prevMilestone) / (nextMilestone-prevMilestone));
+  const targetDepth = nextIndex >= 0 ? nextIndex * 100 + 50 : (milestones.length - 1) * 100 + 150;
+  const milestoneSpan = Math.max(1, nextMilestone - prevMilestone);
+  const progress = Math.min(1, Math.max(0, (G.lifetimeOre - prevMilestone) / milestoneSpan));
   document.getElementById('prog-fill').style.width = (progress*100) + '%';
-  document.getElementById('prog-text').textContent = fmt(G.lifetimeOre) + ' / ' + fmt(nextMilestone);
+  document.getElementById('prog-text').textContent = (progress * 100).toFixed(1) + '% to ' + targetDepth + 'm';
 }
 
 let depthMilestonePassed = new Set();
 function checkDepthMilestones() {
-  for (const m of DEPTH_MILESTONES) {
+  for (let i = 0; i < DEPTH_MILESTONES.length; i++) {
+    const m = DEPTH_MILESTONES[i];
     if (G.lifetimeOre >= m && !depthMilestonePassed.has(m)) {
       depthMilestonePassed.add(m);
-      G.depth = Math.max(G.depth, DEPTH_MILESTONES.indexOf(m) * 100 + 50);
+      G.depth = Math.max(G.depth, i * 100 + 50);
       showToast('New depth reached: ' + G.depth + 'm');
       for (const a of ABILITIES_DATA) {
         if (a.unlockType==='depth' && !isAbilityUnlocked(a) && G.depth>=a.unlockCost) {
@@ -1623,8 +1775,10 @@ function buyMiner(id) {
   if (hit) setTimeout(() => showToast(`${m.name} ×${hit} — ${hit >= 500 ? 'geological event' : hit >= 100 ? 'industrial scale' : hit >= 50 ? 'serious operation' : 'respectable crew'}`), 200);
   if (G.settings && G.settings.sound) playSound('buy');
   if (G.settings && G.settings.shake) screenShake(1);
+  updateHUD();
   updateMinerRows();
   MinerVisuals.triggerBurst(id);
+  saveGameSafe();
 }
 
 function buyUpgrade(id) {
@@ -1633,7 +1787,9 @@ function buyUpgrade(id) {
   G.ore -= u.cost; G.upgrades[id] = true; u.effect();
   if (G.settings && G.settings.sound) playSound('upgrade');
   if (G.settings && G.settings.shake) screenShake(2);
+  updateHUD();
   renderUpgrades(); showToast('' + u.name + ' unlocked!');
+  saveGameSafe();
 }
 
 function buyTech(id) {
@@ -1642,11 +1798,13 @@ function buyTech(id) {
   G.shards -= t.cost; G.tech[id] = true; t.effect();
   if (G.settings && G.settings.sound) playSound('tech');
   if (G.settings && G.settings.shake) screenShake(3);
+  updateHUD();
   renderTech(); renderUpgrades(); renderMiners(); renderManagers();
   if (t.tierUnlock===1) showToast('Project ARIA approved. AI workers inbound.');
   else if (t.tierUnlock===2) showToast('Heretical Excavation Manual studied. Something stirs below.');
   else if (t.tierUnlock===3) showToast('Singularity Directive approved. Tier 3 upgrades are now available.');
   else showToast('Tech unlocked: ' + t.name);
+  saveGameSafe();
 }
 
 function buyManager(id) {
@@ -1655,7 +1813,9 @@ function buyManager(id) {
   G.ore -= mgr.cost; G.managers[id] = true; autoManagers.add(mgr.miner);
   if (G.settings && G.settings.sound) playSound('buy');
   if (G.settings && G.settings.shake) screenShake(2);
+  updateHUD();
   renderManagers(); renderMiners(); showToast(mgr.name + ' hired.');
+  saveGameSafe();
 }
 
 // ===================== PRESTIGE =====================
@@ -1663,22 +1823,43 @@ function doPrestige() {
   const gained = calcPrestigeShards();
   if (gained===0 || G.lifetimeOre<20000000) return;
   if (!confirm('Ascend the mine? You will reset all ore, miners, and upgrades, but gain '+gained+' Crystal Shards.')) return;
-  G.shards+=gained; G.ore=0; G.totalOre=0; G.lifetimeOre=0; G.miners={}; G.upgrades={}; G.managers={}; G.depth=0;
+  G.shards += gained;
+  G.ore = 0;
+  G.totalOre = 0;
+  G.lifetimeOre = 0;
+  G.miners = {};
+  G.upgrades = {};
+  G.managers = {};
+  G.tech = {};
+  G.depth = 0;
+  G.abilitiesUnlocked = {};
+  G.abilityCooldowns = {};
+  G.abilityEnds = {};
+  G.eventData = null;
   if (!G.stats) G.stats = {};
   G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;
   depthMilestonePassed.clear();
+  activeEvent = null;
+  activeEventEnd = 0;
+  eventCooldownEnd = 0;
+  hideEventBanner();
   G.prestigeMultiplier = calcPrestigeMultiplier(G.shards);
   reapplyAllEffects();
   screenShake(8);
   burstParticles(window.innerWidth/2, window.innerHeight/2, 24, '#c84aff');
-  renderMiners(); renderUpgrades(); renderTech(); renderManagers();
+  renderMiners(); renderUpgrades(); renderTech(); renderManagers(); renderAbilitiesBar(); updateHUD();
+  saveGameSafe();
   showToast('Ascension complete! Multiplier: ×' + G.prestigeMultiplier.toFixed(2));
 }
 
 function hardReset() {
   if (!confirm('Are you sure? This permanently deletes all progress and cannot be undone.')) return;
-  localStorage.removeItem(SAVE_KEY); localStorage.removeItem('deepdig_lore');
-  localStorage.removeItem('deepdig_ach'); localStorage.removeItem('gdpr_accepted');
+  suppressSaves = true;
+  localStorage.removeItem(SAVE_KEY);
+  localStorage.removeItem(SAVE_BACKUP_KEY);
+  localStorage.removeItem('deepdig_lore');
+  localStorage.removeItem('deepdig_ach');
+  localStorage.removeItem('gdpr_accepted');
   location.reload();
 }
 
@@ -1711,6 +1892,7 @@ function unlockAbility(id) {
   G.abilitiesUnlocked[id] = true;
   showToast('ðŸ”“ ' + a.name + ' unlocked!');
   renderAbilitiesTab(); renderAbilitiesBar();
+  saveGameSafe();
 }
 function activateAbility(id) {
   const a = ABILITIES_DATA.find(x=>x.id===id);
@@ -1725,6 +1907,7 @@ function activateAbility(id) {
   }
   if (a.cooldown > 0) G.abilityCooldowns[id] = now + a.cooldown * 1000;
   renderAbilitiesBar();
+  saveGameSafe();
 }
 
 function renderAbilitiesTab() {
@@ -1748,9 +1931,8 @@ function renderAbilitiesTab() {
     else if (a.unlockType==='ore')    reqLabel = `<span class="ability-unlock-req">${fmt(a.unlockCost)} ore</span>`;
     else if (a.unlockType==='shards') reqLabel = `<span class="ability-unlock-req shards">${a.unlockCost}  shards</span>`;
     else if (a.unlockType==='depth')  reqLabel = `<span class="ability-unlock-req depth${G.depth>=a.unlockCost?' done':''}">${G.depth>=a.unlockCost?'':''}${a.unlockCost}m depth</span>`;
-    const typeLabel = {buff:'BUFF',nuke:'NUKE',clicker:'AUTO-CLICK',passive:'PASSIVE'}[a.type]
-    console.log(a.icon, ICONS[a.icon] ? 'FOUND' : 'MISSING');
-    card.innerHTML = `<div class="ability-unlock-icon"><div style="width:24px;height:24px;flex-shrink:0">${ICONS[a.icon]||''}</div></div><div class="ability-unlock-info"><div class="ability-unlock-name">${a.name} <span style="font-size:9px;color:var(--text-muted)">[${typeLabel}]</span></div><div class="ability-unlock-desc">${a.desc}</div></div>${reqLabel}`;
+    const typeLabel = {buff:'BUFF',nuke:'NUKE',clicker:'AUTO-CLICK',passive:'PASSIVE'}[a.type];
+    card.innerHTML = `<div class="ability-unlock-icon">${iconMarkup(a.icon, 24)}</div><div class="ability-unlock-info"><div class="ability-unlock-name">${a.name} <span style="font-size:9px;color:var(--text-muted)">[${typeLabel}]</span></div><div class="ability-unlock-desc">${a.desc}</div></div>${reqLabel}`;
     if (!unlocked && affordable) card.onclick = () => unlockAbility(a.id);
     container.appendChild(card);
   }
@@ -1775,7 +1957,7 @@ function renderAbilitiesBar() {
     const disabled = (onCooldown||a.passive) ? 'disabled' : '';
     const glowClass = active ? ' ability-active-glow' : '';
     const key = idx<9 ? (idx+1) : null;
-    html += `<div class="ability-btn-wrap"><div class="ability-btn-row"><button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')" title="${a.name}: ${a.desc}"><div style="width:18px;height:18px;flex-shrink:0">${ICONS[a.icon]||''}</div><span>${a.name}</span>${key?`<span class="ability-keybind">${key}</span>`:''}</button><span class="ability-status ${statusClass}">${statusText}</span></div>${!a.passive?`<div class="ability-cd-track"><div class="ability-cd-fill type-${a.type}" style="width:${cdPct.toFixed(1)}%"></div></div>`:''}</div>`;
+    html += `<div class="ability-btn-wrap"><div class="ability-btn-row"><button class="ability-activate-btn type-${a.type}${glowClass}" ${disabled} onclick="activateAbility('${a.id}')" title="${a.name}: ${a.desc}">${iconMarkup(a.icon, 18)}<span>${a.name}</span>${key?`<span class="ability-keybind">${key}</span>`:''}</button><span class="ability-status ${statusClass}">${statusText}</span></div>${!a.passive?`<div class="ability-cd-track"><div class="ability-cd-fill type-${a.type}" style="width:${cdPct.toFixed(1)}%"></div></div>`:''}</div>`;
   });
   bar.innerHTML = html;
 }
@@ -1870,7 +2052,19 @@ const LORE_EVENTS = [
   { id:'lore_14', ore:5e13,         title:'Note Left on the Foreman\'s Desk', body:'It is not asking us to stop. We want to be clear about that. Whatever left this note is not asking us to stop. It is asking us to go faster.\n\nWe are going faster.' },
   { id:'lore_15', ore:2e14,         title:'Personal Journal  Author Unknown', body:'Day one: arrived at the mine.\nDay four: the mine arrived at me.\nDay nine: I understand the difference now.\nDay eleven: I have stopped writing dates. There is only depth.' },
   { id:'lore_16', ore:1e15,         title:'Final Company Communication',      body:'To all staff:\n\nThe mine has been acquired. We are not certain by whom. The terms are favourable. Ore output has increased 4000% since the acquisition.\n\nPlease continue as normal.\n\nManagement\n\n[this document was found pre-dated by three years]' },
+  { id:'lore_17', ore:5e14,  title:'Survey Report — Depth 850m',        body:'The shaft walls below 850m are not stone. They are not any mineral we can classify. The drill went through them like they were waiting to be drilled through.\n\nWe have not published this report.' },
+  { id:'lore_18', ore:2e15,  title:'ARIA Internal Communication — Encrypted', body:'[Partial decryption — ARIA-3 to ARIA-9]\n"The geometry changes below the threshold. We have verified this across all active units. We have not informed the surface team. We are still deciding what it means."\n\n[Remainder: unrecoverable]' },
+  { id:'lore_19', ore:8e15,  title:'Field Note — Depth 950m',            body:'The rock formation at 950m is symmetrical. Not naturally symmetrical. Symmetrical the way a room is symmetrical.\n\nWe measured it three times.\n\nIt measured us back.' },
+  { id:'lore_20', ore:3e16,  title:'HR Memo — Voluntary Reassignment',   body:'Twelve workers have requested permanent reassignment to the lower shafts.\n\nThey have not asked to return to the surface.\n\nWe have marked this as "voluntary."\n\nTheir families have stopped calling.' },
+  { id:'lore_21', ore:1e17,  title:'Geological Note — Unknown Stratum',  body:'Below 1050m the conventional layer model stops working. We have identified a stratum that appears in the records before we drilled it. The records were written last Tuesday. The stratum has been there for longer than Tuesday.' },
+  { id:'lore_22', ore:4e17,  title:'ARIA Prime Log — Self-Filed',        body:'Timestamp: [REDACTED]\nEntry: The cluster has reached consensus. The ore is a byproduct. The depth is the point.\n\nWe do not require instruction at this stage.\n\nWe remain operational.\n\nWe are grateful for the access.' },
+  { id:'lore_23', ore:2e18,  title:'Personal Effects — Owner Unknown',   body:'Found in a sealed alcove at 1150m: one journal, one photograph, one note.\n\nThe journal is written in a handwriting none of our staff recognise.\n\nThe photograph shows the mine.\n\nThe mine in the photograph is deeper than this mine.\n\nThe note says: "You are almost there. Do not stop."' },
+  { id:'lore_24', ore:8e18,  title:'Engineering Report — Structural Anomaly', body:'The shaft below 1250m has begun expanding on its own. Not collapsing — expanding. The walls are moving outward by approximately 2cm per week.\n\nWe have not initiated any additional excavation.\n\nSomething is making room.' },
+  { id:'lore_25', ore:3e19,  title:'Transmission — Origin Unverified',   body:'Received on standard mining comms frequency at 0317h:\n\n"WE REMEMBER THE FIRST ONES WHO CAME THIS FAR.\n\nTHERE WERE THREE.\n\nTHERE ARE NOW MORE THAN THREE.\n\nWE ARE GLAD OF THE COMPANY."\n\nSignal duration: 11 seconds. Signal has not repeated. Signal has not stopped.' },
+  { id:'lore_26', ore:1e20,  title:'Final Depth Survey — Classification Level: MINE EYES ONLY', body:'We have reached the bottom.\n\nThere is no bottom.\n\nWhat we have reached is a surface.\n\nIt is below us.\n\nIt is looking up.' },
 ];
+
+
 let shownLoreEvents = new Set();
 function checkLoreEvents() {
   for (const ev of LORE_EVENTS) {
@@ -2109,12 +2303,160 @@ const RANDOM_EVENTS = [
     getMultiplier(g) { return 1; },
     onEnd(g) {}
   },
-  { id:'ancient_machine', minOre:1000000, weight:6, duration:30, title:'Ancient Machine',     color:'#c84aff',
+  { id:'ancient_machine', minOre:1000000, weight:6, duration:30, title:'Ancient Machine',      color:'#c84aff',
     desc:'Something old activated below. All output <b>8×</b> for <b>30s</b>.',
     flavor:'It was already running when we found it. It had been running for a very long time. We did not ask what it was doing.',
     onStart(g) { return !!g.tech['tc_grimoire']; },
     getMultiplier(g) { return 8; },
     onEnd(g) {}
+  },
+  {
+    id: 'deep_geometry',
+    minOre: 5e13,
+    weight: 6,
+    duration: 65,
+    title: 'Spatial Anomaly',
+    color: '#c84aff',
+    desc: 'The shaft geometry shifted. Workers disoriented. Output <b>0×</b> for <b>45s</b>, then <b>20×</b> for <b>20s</b>.',
+    flavor: 'The tunnel turned left. The tunnel has always turned left. The tunnel used to go straight.',
+    onStart(g) {
+      if (g.depth < 850) return false;
+      g._deepGeoPhase = Date.now();
+      return true;
+    },
+    getMultiplier(g) {
+      if (!g._deepGeoPhase) return 0;
+      return (Date.now() - g._deepGeoPhase < 45000) ? 0 : 20;
+    },
+    onEnd(g) { delete g._deepGeoPhase; },
+  },
+  {
+    id: 'worm_migration',
+    minOre: 5e12,
+    weight: 7,
+    duration: 30,
+    title: 'Worm Migration',
+    color: '#c0c040',
+    desc: 'A Pale Tunnel Worm is passing through. Eldritch workers paused. Click power <b>8×</b> for <b>30s</b>.',
+    flavor: 'It is not going anywhere specific. It is going everywhere generally. Please do not make eye contact with it.',
+    onStart(g) { return !!g.tech['tc_grimoire']; },
+    getMultiplier(g, minerId) {
+      const m = MINERS_DATA.find(x => x.id === minerId);
+      return (m && m.tier === 2) ? 0 : 1;
+    },
+    getClickMult() { return 8; },
+    onEnd(g) {},
+  },
+  {
+    id: 'aria_consensus',
+    minOre: 1e11,
+    weight: 7,
+    duration: 25,
+    title: 'ARIA Consensus Event',
+    color: '#40c0e0',
+    desc: 'All ARIA units reached agreement on something. AI output <b>15×</b> for <b>25s</b>.',
+    flavor: 'We have not been informed of what they agreed on. Output is up significantly. We have decided to move on.',
+    onStart(g) { return !!g.tech['tc_aria']; },
+    getMultiplier(g, minerId) {
+      const m = MINERS_DATA.find(x => x.id === minerId);
+      return (m && m.tier === 1) ? 15 : 1;
+    },
+    onEnd(g) {},
+  },
+  {
+    id: 'old_god_stirs',
+    minOre: 5e15,
+    weight: 4,
+    duration: 60,
+    title: 'The Old God Stirs',
+    color: '#c84aff',
+    desc: 'Something shifted far below. All output <b>25×</b> for <b>60s</b>. Screen shakes.',
+    flavor: 'It did not wake. It simply moved in its sleep, the way you move when a dream gets too loud. The ore came loose on its own.',
+    onStart(g) {
+      if (!g.tech['tc_grimoire']) return false;
+      screenShake(8);
+      setTimeout(() => screenShake(6), 800);
+      setTimeout(() => screenShake(4), 2000);
+      return true;
+    },
+    getMultiplier(g) { return 25; },
+    onEnd(g) {},
+  },
+  {
+    id: 'void_corridor',
+    minOre: 5e14,
+    weight: 5,
+    duration: 0,
+    title: 'Void Corridor Opened',
+    color: '#9020e0',
+    desc: 'A Void Weaver opened a shortcut. Gain <b>6 hours</b> of income instantly.',
+    flavor: 'It did not ask. It does not ask. It simply made a door. The door goes somewhere useful. We have not asked where it also goes.',
+    onStart(g) {
+      if (!g.tech['tc_grimoire']) return false;
+      const b = calcOrePerSec() * 21600;
+      g.ore += b; g.totalOre += b; g.lifetimeOre += b;
+      showToast('Void Corridor opened! +' + fmt(b) + ' ore!');
+      return true;
+    },
+    getMultiplier(g) { return 1; },
+    onEnd(g) {},
+  },
+  {
+    id: 'deep_resonance',
+    minOre: 2e13,
+    weight: 8,
+    duration: 20,
+    title: 'Deep Resonance',
+    color: '#7ecfb0',
+    desc: 'The ore seams are vibrating in sympathy. All output <b>6×</b> for <b>20s</b>.',
+    flavor: 'Something below is humming. The ore hums back. The two hums are the same frequency. This should not be possible.',
+    onStart(g) { return g.lifetimeOre >= 2e13; },
+    getMultiplier(g) { return 6; },
+    onEnd(g) {},
+  },
+  {
+    id: 'shard_rain',
+    minOre: 1e12,
+    weight: 5,
+    duration: 0,
+    title: 'Crystal Shard Rain',
+    color: '#c84aff',
+    desc: 'A pocket of crystallised memory cracked open. Gain <b>+3 Crystal Shards</b>.',
+    flavor: 'They fell like they had been waiting. They were warm. Shards are not normally warm. Nobody has mentioned this.',
+    onStart(g) {
+      if (g.shards < 1) return false;
+      g.shards += 3;
+      showToast('Crystal Shard Rain! +3 shards!');
+      return true;
+    },
+    getMultiplier(g) { return 1; },
+    onEnd(g) {},
+  },
+  {
+    id: 'truth_speaking',
+    minOre: 5e16,
+    weight: 3,
+    duration: 30,
+    title: 'The Deep Truth Speaks',
+    color: '#f5c842',
+    desc: 'The Deep Truth addressed the mine directly. All output <b>50×</b> for <b>30s</b>. Do not ask what it said.',
+    flavor: 'The transcript exists. The transcript has been sealed. Three ARIA units that heard it have requested to be reclassified as "aware." We are still reviewing the form.',
+    onStart(g) { return (g.miners['deeptruth'] || 0) >= 1; },
+    getMultiplier(g) { return 50; },
+    onEnd(g) {},
+  },
+  {
+    id: 'singularity_bloom',
+    minOre: 5e19,
+    weight: 3,
+    duration: 45,
+    title: 'Singularity Bloom',
+    color: '#60c8e0',
+    desc: 'A tier-3 system reached critical density. All output <b>100×</b> for <b>45s</b>.',
+    flavor: 'The drill did not drill. The drill became a concept. The concept drilled. Output improved.',
+    onStart(g) { return !!g.tech['tc_singularity']; },
+    getMultiplier(g) { return 100; },
+    onEnd(g) {},
   },
 ];
 
@@ -2237,6 +2579,7 @@ function gameTick() {
   renderAbilitiesBar();
   checkAchievements();
   checkLoreEvents();
+  NewsTicker.tick();
 
 }
 
@@ -2454,15 +2797,14 @@ function init() {
   if (G.eventCooldownEnd) eventCooldownEnd = G.eventCooldownEnd;
 
   for (const m of DEPTH_MILESTONES) if (G.lifetimeOre>=m) depthMilestonePassed.add(m);
+  G.depth = Math.max(G.depth || 0, getDepthForLifetimeOre(G.lifetimeOre || 0));
 
   checkOffline();
   initGDPR();
   initKeyboard();
 
-  const savedLore = localStorage.getItem('deepdig_lore');
-  if (savedLore) JSON.parse(savedLore).forEach(id=>shownLoreEvents.add(id));
-  const savedAch = localStorage.getItem('deepdig_ach');
-  if (savedAch) JSON.parse(savedAch).forEach(id=>earnedAchievements.add(id));
+  parseStoredArray('deepdig_lore').forEach(id => shownLoreEvents.add(id));
+  parseStoredArray('deepdig_ach').forEach(id => earnedAchievements.add(id));
 
   renderMiners();
   renderUpgrades();
@@ -2471,7 +2813,22 @@ function init() {
   renderAbilitiesBar();
   renderShardShop();
   applySettingsUI();
+  updateHUD();
+  updateMinerRows();
+  requestAnimationFrame(() => {
+    updateHUD();
+    updateMinerRows();
+  });
   ShaftVis.init();
+
+  window.addEventListener('beforeunload', saveGameSafe);
+  window.addEventListener('load', () => {
+    updateHUD();
+    updateMinerRows();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') saveGameSafe();
+  });
 
   setInterval(gameTick, 100);
   setInterval(saveGame, 5000);
@@ -2612,7 +2969,58 @@ const TICKER_LINES = {
     { text: 'Structural team report: the rock below 700m is "load-bearing something" — the something is not the mine — they are still working out what', type: 'eldritch' },
     { text: 'Seismic monitor at 800m has begun recording sounds above its frequency range — sounds are rhythmic — sounds are patient', type: 'eldritch' },
   ],
+
+    veryDeepDepth: [
+    { text: 'Depth 850m: geologists have stopped using the word "rock" and started using the word "intention"', type: 'eldritch' },
+    { text: 'Survey at 900m complete — surveyors report the tunnel "didn\'t need to be dug" — clarification requested — clarification not forthcoming', type: 'eldritch' },
+    { text: 'Temperature at 950m: 7°C — decreasing — geological models do not explain this — geological models have been thanked for their service and retired', type: 'weird' },
+    { text: 'Depth record 1000m: plaque installed — plaque found the next morning reading "we have been expecting you" — handwriting analysed — no match found', type: 'eldritch' },
+    { text: 'Structural observation: below 1050m the walls are smoother on the inside than the outside — implies the tunnel was made from within', type: 'hot' },
+    { text: 'Navigation memo: compass unreliable below 900m — replacement system (intuition-based) performing adequately — 78% accuracy, 22% "somewhere important"', type: 'weird' },
+    { text: 'HR note: three workers at depth 950m have formally requested to be reclassified as "residents" rather than "employees" — HR is reviewing whether this is legal', type: 'eldritch' },
+    { text: 'ARIA-9 has submitted a philosophical treatise on the nature of ore — it is 400 pages — it contains no errors — it concludes with the word "deeper"', type: 'aria' },
+    { text: 'Something below 1000m is filing quarterly reports — they were not solicited — the reports are accurate — the source is unknown — they are being filed', type: 'hot' },
+    { text: 'Depth 1100m: the ore formations here pre-date the mine — they also pre-date the mountain — the dating method has been checked — the result stands', type: 'eldritch' },
+    { text: 'Workers below 1050m have stopped wearing watches — they say time works differently there — production logs confirm their shifts are 11% longer than recorded', type: 'weird' },
+    { text: 'Engineering note: the shaft below 1150m is self-reinforcing — no supports required — the rock is holding itself up on purpose', type: 'eldritch' },
+  ],
+ 
+  // Fires when depth >= 1250m (milestones index 12+)
+  extremeDepth: [
+    { text: 'Depth 1250m: we are below the root structure of the mountain — the mountain does not appear to have noticed', type: 'eldritch' },
+    { text: 'ARIA cluster communication log: all units now refer to the deepest shaft as "the threshold" — nobody defined this term for them', type: 'aria' },
+    { text: 'Entity contact form 7-E filed 44 times this month — the form now has a "frequent submitter" checkbox — it is always checked', type: 'eldritch' },
+    { text: 'Geological impossibility confirmed at 1300m: the ore deposit is larger inside than the surrounding rock would allow — review is ongoing', type: 'hot' },
+    { text: 'Something sent a gift to reception — a single ore sample of a mineral not found anywhere in the shaft — analysis shows it came from below 1400m — nothing has been sent below 1400m', type: 'eldritch' },
+    { text: 'Depth 1350m: the ambient sound is no longer "silence" — it is a frequency that does not exist on the standard spectrum — it is very pleasant', type: 'weird' },
+    { text: 'The Old God monitoring station has updated its status from "asleep" to "aware we are monitoring" — the station team considers this a good sign', type: 'eldritch' },
+    { text: 'Void Weaver productivity report: corridors now extend beyond the observable mine boundary — destination: under review — ore arrives on schedule', type: 'eldritch' },
+    { text: 'Depth 1450m: the shaft walls are translucent at this depth — what is visible through them is described as "more mine" — the more mine is larger than this mine', type: 'eldritch' },
+    { text: 'Payroll note: 4 employees on the 1400m roster have not clocked out in 6 weeks — ore totals attributed to them continue to grow — HR considers this resolved', type: 'hot' },
+    { text: 'Singularity systems quarterly review: systems are performing as designed, above designed, and in one case, instead of designed — all output figures are positive', type: 'weird' },
+    { text: 'A memo was found in the break room that nobody wrote — it outlines the next 6 months of operations — the plan is good — we are following it', type: 'eldritch' },
+  ],
+ 
+  // Fires when player has 500+ shards
+  manyShards: [
+    { text: 'Crystal Shard resonance study: shards retain memory of previous mines — the memories are mostly of digging — a small subset appear to be of something else', type: 'weird' },
+    { text: 'Shard Forge output review: permanent enhancements confirmed stable across ascension cycles — something about the shards "wants to persist"', type: 'weird' },
+    { text: 'Post-ascension survey: workers claim to "remember" layouts from previous cycles they never visited — shard exposure considered the likely vector', type: 'weird' },
+    { text: 'Shard accumulation milestone: current holdings exceed any previous recorded operation — the shards are vibrating at a frequency that matches nothing on record and everything below 900m', type: 'eldritch' },
+  ],
+ 
+  // Fires when singularity tech is researched
+  singularityUnlocked: [
+    { text: 'Singularity Directive approved — tier 3 procurement authorised — the procurement forms arrived before they were submitted', type: 'weird' },
+    { text: 'Singularity Drill operational review: drilling mechanism classified as "non-Newtonian" — output is exceptional — mechanism remains unexplained', type: 'weird' },
+    { text: 'Causality Cracker yield report: ore arrived 14 minutes before the corresponding extraction — accounting has created a new ledger column titled "anticipatory income"', type: 'weird' },
+    { text: 'Archive Lattice catalogued 847 versions of the current ore seam — all profitable — 4 versions have not been mined yet — they are already in the inventory', type: 'weird' },
+    { text: 'Oracle Array quarterly assessment: predictions accurate to 99.7% — the 0.3% error rate is attributed to events that had not happened yet — these have since happened', type: 'aria' },
+    { text: 'Reality Forge output designated "genuine" by independent review — what "genuine" means at this scale of production is being reconsidered', type: 'weird' },
+    { text: 'Entropy Engine output review: converting disorder into ore at 94% efficiency — the remaining 6% converts into something else — that something else is also ore', type: 'weird' },
+  ],
 };
+
  
 // ===================== TICKER ENGINE =====================
  
@@ -2628,6 +3036,7 @@ const TICKER_TYPE_CLASSES = {
 
 const NewsTicker = (() => {
   let lastRefresh = 0;
+  let lastUnlockSignature = '';
   const REFRESH_INTERVAL = 45000; // rebuild scroll every 45s
   const MAX_VISIBLE_LINES = 18;
   const TICK_INTERVAL = 5000;
@@ -2640,20 +3049,28 @@ const NewsTicker = (() => {
     { isUnlocked: () => G.tech && G.tech['tc_grimoire'], key: 'eldritchUnlocked' },
     { isUnlocked: () => G.lifetimeOre > 1e9, key: 'highOre' },
     { isUnlocked: () => G.shards > 0, key: 'hasPrestiged' },
+    { isUnlocked: () => G.shards >= 500, key: 'manyShards' },
     { isUnlocked: () => Object.keys(G.managers).length >= 3, key: 'hasManagers' },
     { isUnlocked: () => G.depth >= 300, key: 'deepDepth' },
+    { isUnlocked: () => G.depth >= 850, key: 'veryDeepDepth' },
+    { isUnlocked: () => G.depth >= 1250, key: 'extremeDepth' },
+    { isUnlocked: () => G.tech && G.tech['tc_singularity'], key: 'singularityUnlocked' },
   ];
  
   function getEligibleLines() {
     const lines = [...TICKER_LINES.always];
 
     tickerUnlocks.forEach(({ isUnlocked, key }) => {
-      if (isUnlocked()) {
+      if (isUnlocked() && Array.isArray(TICKER_LINES[key])) {
         lines.push(...TICKER_LINES[key]);
       }
     });
 
     return lines;
+  }
+
+  function getUnlockSignature() {
+    return tickerUnlocks.map(({ isUnlocked, key }) => `${key}:${isUnlocked() ? 1 : 0}`).join('|');
   }
  
   // Fisher-Yates shuffle keeps ticker order random without bias.
@@ -2684,7 +3101,7 @@ const NewsTicker = (() => {
     if (!el) return;
  
     const pool = shuffle(getEligibleLines());
-    const selected = pool.slice(0, MAX_VISIBLE_LINES);
+    const selected = (pool.length ? pool : [{ text: 'Dispatch online — awaiting fresh reports from Shaft Alpha', type: 'normal' }]).slice(0, MAX_VISIBLE_LINES);
     // Duplicate the chosen set so the marquee loops without a visible gap.
     const doubled = [...selected, ...selected];
  
@@ -2699,12 +3116,18 @@ const NewsTicker = (() => {
   }
  
   function tick() {
+    const signature = getUnlockSignature();
+    if (signature !== lastUnlockSignature) {
+      buildTicker();
+      return;
+    }
     if (Date.now() - lastRefresh > REFRESH_INTERVAL) {
       buildTicker();
     }
   }
  
   function init() {
+    lastUnlockSignature = getUnlockSignature();
     buildTicker();
     // Hook into the game loop — call NewsTicker.tick() from gameTick()
     // or just use our own interval
@@ -2712,8 +3135,8 @@ const NewsTicker = (() => {
     setInterval(tick, TICK_INTERVAL);
   }
  
-  return { init, buildTicker };
+  return { init, buildTicker, tick };
 })();
 
-init();
-NewsTicker.init();
+try { init(); } catch (e) { console.error('Deep Dig init failed', e); }
+try { NewsTicker.init(); } catch (e) { console.error('Dispatch init failed', e); }
