@@ -41,3 +41,5 @@ And more to come....
 The game can be played at itch.io
 
 https://coffeetimerz.itch.io/deep-dig
+
+NOTE the github version and the itch.io versions might not be the same
