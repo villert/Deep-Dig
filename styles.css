@@ -768,3 +768,170 @@
 
 #click-btn .mine-btn-main-label { text-align: center; white-space: normal; word-break: break-word; max-width: 100%; font-size: 16px !important; letter-spacing: 2px !important; line-height: 1.1; }
 #click-btn .mine-btn-sub-label { text-align: center; white-space: normal; word-break: break-word; max-width: 100%; font-size: 10px !important; opacity: 0.8 !important; margin-top: 4px !important; }
+
+/* Next unlock tracker */
+#nut-panel {
+  background: #0e0c08;
+  border: 1px solid #2a2418;
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin: 0 0 14px 0;
+  font-family: 'IBM Plex Mono', monospace;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s;
+  min-height: 68px;
+}
+#nut-panel.nut-glow-gold { border-color: #6a5020; box-shadow: 0 0 12px #f5c84218; }
+#nut-panel.nut-glow-ore { border-color: #3a6040; box-shadow: 0 0 12px #7ecfb018; }
+#nut-panel.nut-glow-shard { border-color: #4a1060; box-shadow: 0 0 12px #c84aff18; }
+#nut-panel.nut-glow-depth { border-color: #204050; box-shadow: 0 0 12px #40c0e018; }
+#nut-panel.nut-glow-event { border-color: #602010; box-shadow: 0 0 12px #e0503018; }
+#nut-eyebrow {
+  font-family: 'Oswald', sans-serif;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: #4a4030;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#nut-eyebrow-badge {
+  font-size: 7px;
+  letter-spacing: 2px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: #1a1610;
+  border: 1px solid #2a2418;
+  color: #6a5a40;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+#nut-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #c8b080;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.4s;
+}
+#nut-sublabel {
+  font-size: 9px;
+  color: #5a5040;
+  margin-bottom: 7px;
+  line-height: 1.5;
+  min-height: 13px;
+  transition: color 0.4s;
+}
+#nut-track {
+  height: 4px;
+  background: #1a1610;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 5px;
+}
+#nut-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.35s cubic-bezier(.25,.8,.25,1), background 0.4s;
+  position: relative;
+}
+#nut-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  animation: nutShimmer 1.4s ease-in-out infinite;
+}
+@keyframes nutShimmer {
+  0% { opacity: 0; transform: translateX(-20px); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(4px); }
+}
+#nut-amounts {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 9px;
+  color: #4a4030;
+}
+#nut-have { transition: color 0.4s; }
+#nut-need {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  transition: color 0.4s;
+}
+#nut-pct {
+  font-size: 8px;
+  color: #3a3025;
+  transition: color 0.4s;
+}
+@keyframes nutUnlocked {
+  0% { opacity: 0; transform: scale(0.85); }
+  20% { opacity: 1; transform: scale(1.05); }
+  80% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+#nut-unlocked-flash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  letter-spacing: 4px;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(10,9,6,0.80);
+  border-radius: 4px;
+}
+#nut-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.06) 3px,
+    rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  border-radius: 4px;
+}
+
+/* Depth record badge */
+#depth-record-badge {
+  display: inline-block;
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #7ecfb0;
+  background: #0a1210;
+  border: 1px solid #2a4a3a;
+  border-radius: 3px;
+  padding: 2px 7px;
+  margin-left: 6px;
+  vertical-align: middle;
+  cursor: default;
+  transition: color 0.4s, border-color 0.4s, background 0.4s, box-shadow 0.4s;
+  user-select: none;
+}
+@keyframes depthRecordPulse {
+  0% { box-shadow: 0 0 0 #7ecfb000; color: #7ecfb0; }
+  15% { box-shadow: 0 0 18px #7ecfb0cc; color: #ffffff; border-color: #7ecfb0; background: #0d2018; }
+  50% { box-shadow: 0 0 10px #7ecfb066; }
+  100% { box-shadow: 0 0 0 #7ecfb000; color: #7ecfb0; }
+}
+#depth-record-badge.new-record {
+  animation: depthRecordPulse 1.8s ease-out forwards;
+}

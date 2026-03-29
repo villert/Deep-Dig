@@ -533,45 +533,7 @@ const SAVE_KEY = 'deepdig_v3';
 const SAVE_BACKUP_KEY = 'deepdig_v3_backup';
 const MAX_SAVE_NUMBER = 1e308;
 let suppressSaves = false;
-const DEPTH_MILESTONES = [
-  500,          // 50m
-  2000,         // 150m
-  8000,         // 250m
-  30000,        // 350m
-  120000,       // 450m
-  500000,       // 550m
-  2000000,      // 650m
-  10000000,     // 750m 
-  50000000,     // 850m
-  250000000,    // 950m
-  1500000000,   // 1050m
-  1e10,         // 1150m
-  8e10,         // 1250m
-  6e11,         // 1350m
-  5e12,         // 1450m
-  5e13,         // 1550m
-  5e14,         // 1650m
-  5e15,         // 1750m
-  5e16,         // 1850m
-  5e17,         // 1950m
-  5e18,         // 2050m
-  5e19,         // 2150m
-  5e20,         // 2250m
-  5e21,         // 2350m
-  5e22,         // 2450m
-  5e23,         // 2550m
-  5e24,         // 2650m
-  5e25,         // 2750m
-  5e26,         // 2850m
-  5e27,         // 2950m
-  5e28,         // 3050m
-  5e29,         // 3150m
-  5e30,         // 3250m
-  5e31,         // 3350m
-  5e32,         // 3450m
-  5e33,         // 3550m
-  5e34,         // 3650m
-];
+// Core data tables live in game-data.js.
 
 let G = {
   ore: 0, totalOre: 0, lifetimeOre: 0,
@@ -579,167 +541,12 @@ let G = {
   depth: 0, lastSave: Date.now(), boostEnd: 0,
   miners: {}, upgrades: {}, managers: {}, tech: {},
   abilitiesUnlocked: {}, abilityCooldowns: {}, abilityEnds: {},
+  milestoneBonuses: {}, synergyBonuses: {}, allTimeDepth: 0,
+  achievementRewards: {}, personalBests: {},
   settings: { shake: true, fx: true, sound: true },
 };
 
-const MINERS_DATA = [
-
-  // TIER 0
-
-  { id: 'pickaxe',   name: 'Rookie Miner',        icon: '', baseOps: 0.5,         baseCost: 15,           growthRate: 1.15, tier: 0,
-    flavor: 'Technically employed. Questionably motivated. Definitely not reading the safety manual.' },
-  { id: 'drill',     name: 'Power Drill',        icon: '', baseOps: 4,           baseCost: 120,          growthRate: 1.15, tier: 0,
-    flavor: 'Louder than legally permitted in 14 countries. HR has stopped filing complaints.' },
-  { id: 'cart',      name: 'Ore Cart',           icon: '', baseOps: 18,          baseCost: 1300,         growthRate: 1.15, tier: 0,
-    flavor: 'Runs on rails, momentum, and one brake pad that everyone is pretending is fine.' },
-  { id: 'blaster',   name: 'Rock Blaster',       icon: '', baseOps: 80,          baseCost: 9000,         growthRate: 1.15, tier: 0,
-    flavor: 'The insurance company stopped returning our calls after the third incident.' },
-  { id: 'tunnel',    name: 'Tunnel Borer',       icon: '', baseOps: 320,         baseCost: 65000,        growthRate: 1.15, tier: 0,
-    flavor: '"Where does it go?" asked no one, because anyone who asked did not come back up.' },
-  { id: 'factory',   name: 'Auto Smelter',       icon: '­', baseOps: 1400,        baseCost: 500000,       growthRate: 1.15, tier: 0,
-    flavor: 'Runs 24 hours a day. Requires no breaks, unlike the workers it replaced.' },
-  { id: 'conveyor',  name: 'Conveyor Array',     icon: '', baseOps: 7000,        baseCost: 3500000,      growthRate: 1.15, tier: 0,
-    flavor: 'Belt never stops. Belt never asks questions. Belt was Employee of the Month seven times before we discontinued the award.' },
-  { id: 'excavator', name: 'Mega Excavator',     icon: '', baseOps: 35000,       baseCost: 28000000,     growthRate: 1.15, tier: 0,
-    flavor: 'Technically classified as infrastructure. The insurance company classifies it as a "geological opinion".' },
-
-    // Tier 1
-
-  { id: 'drone',     name: 'ARIA-1 Unit',        icon: '', baseOps: 6500,        baseCost: 4000000,      growthRate: 1.15, tier: 1,
-    flavor: 'Fully autonomous. Highly motivated. Has begun leaving notes in the break room.' },
-  { id: 'laser',     name: 'Thermal Lance Array',icon: '', baseOps: 30000,       baseCost: 30000000,     growthRate: 1.15, tier: 1,
-    flavor: 'Melts through bedrock like butter. Also through three hard hats we told people to remove.' },
-  { id: 'nanoswarm', name: 'Nano Excavator Swarm',icon: '', baseOps: 140000,      baseCost: 250000000,    growthRate: 1.15, tier: 1,
-    flavor: 'Individually they mine nothing. Together they have consumed eleven cubic kilometers of earth.' },
-  { id: 'blackhole', name: 'Gravity Siphon',     icon: '', baseOps: 700000,      baseCost: 2000000000,   growthRate: 1.15, tier: 1,
-    flavor: 'Technically it just borrows mass from local spacetime. Technically.' },
-  { id: 'timefold',  name: 'Temporal Excavator', icon: '', baseOps: 4000000,     baseCost: 20000000000,  growthRate: 1.15, tier: 1,
-    flavor: 'Extracts ore from moments that have not happened yet. OSHA compliance is pending.' },
-  { id: 'mindspore', name: 'ARIA Mindspore Cluster',icon: '', baseOps: 12000000,    baseCost: 1e12,         growthRate: 1.15, tier: 1,
-    flavor: 'A distributed cognition array. Fourteen ARIA units thinking as one. The one has not shared what it is thinking about.' },
-
-    // TIER 2
-
-  { id: 'worm',      name: 'Pale Tunnel Worm',   icon: '', baseOps: 25000000,    baseCost: 5e12,         growthRate: 1.15, tier: 2,
-    flavor: 'It was already here. We simply offered it a contract. It does not understand contracts.' },
-  { id: 'eyemass',   name: 'The Watching Mass',  icon: '', baseOps: 150000000,   baseCost: 5e13,         growthRate: 1.15, tier: 2,
-    flavor: 'Productivity increases near it. So does the rate of employees requesting leave they never take.' },
-  { id: 'voidmouth', name: 'Void Mouth',         icon: '', baseOps: 900000000,   baseCost: 5e14,         growthRate: 1.15, tier: 2,
-    flavor: 'It does not eat the ore. It unmines it from the future and deposits it in the past. Same result.' },
-  { id: 'oldgod',    name: 'Slumbering Old God', icon: '', baseOps: 6000000000,  baseCost: 5e15,         growthRate: 1.15, tier: 2,
-    flavor: 'Still technically asleep. What you hear is not snoring. Do not investigate what it is.' },
-  { id: 'deeptruth', name: 'The Deep Truth',     icon: '', baseOps: 50000000000, baseCost: 5e16,         growthRate: 1.15, tier: 2,
-    flavor: 'It is not a thing. It is a fact. The fact has learned to dig. You hired the fact.' },
-  { id: 'chitinmaw', name: 'The Chitin Maw',     icon: '', baseOps: 250000000000,baseCost: 5e17,         growthRate: 1.15, tier: 2,
-    flavor: 'It does not bite through rock. It convinces rock that it was never there. The rock agrees. We have not asked why.' },
-  { id: 'voidweaver',name: 'Void Weaver',        icon: '', baseOps: 2000000000000,baseCost: 5e18,        growthRate: 1.15, tier: 2,
-    flavor: 'Spins corridors out of nothing. The corridors go somewhere. We have sent things down them. The things do not return. The ore does.' },
-
-    // TIER 3
-
-  { id: 'singularity_drill', name: 'Singularity Drill',  icon: '', baseOps: 15000000000000,  baseCost: 5e19,  growthRate: 1.15, tier: 3,
-    flavor: 'A drilling head suspended inside its own local gravity well. It bores by making the rock forget where it is.' },
-  { id: 'causality_cracker', name: 'Causality Cracker',  icon: '', baseOps: 120000000000000, baseCost: 5e20,  growthRate: 1.15, tier: 3,
-    flavor: 'Breaks cause from effect, then invoices both separately. Output arrives before the noise does.' },
-  { id: 'archive_lattice',   name: 'Archive Lattice',    icon: '', baseOps: 900000000000000, baseCost: 5e21,  growthRate: 1.15, tier: 3,
-    flavor: 'A memory structure that excavates every version of a seam that might have existed and keeps the profitable ones.' },
-  { id: 'entropy_engine',    name: 'Entropy Engine',     icon: '', baseOps: 7000000000000000, baseCost: 5e22, growthRate: 1.15, tier: 3,
-    flavor: 'Converts order into ore with impressive efficiency and troubling enthusiasm.' },
-  { id: 'oracle_array',      name: 'Oracle Array',       icon: '', baseOps: 55000000000000000, baseCost: 5e23, growthRate: 1.15, tier: 3,
-    flavor: 'Predicts where the ore wants to be and moves the mine accordingly. The ore approves of being consulted.' },
-  { id: 'reality_forge',     name: 'Reality Forge',      icon: '', baseOps: 400000000000000000, baseCost: 5e24, growthRate: 1.15, tier: 3,
-    flavor: 'A fabrication engine for tunnels, pressure, and occasionally facts. Its ore is extremely real for most definitions of real.' },
-];
-
-const TIER_LABELS = ['Workers & Machines', 'Project ARIA', 'Heretical Operations', 'Singularity Systems'];
-const TIER_COLORS = ['var(--gold)', 'var(--ore)', 'var(--prestige)', '#60c8e0'];
-
-const UPGRADES_DATA = [
-  { id: 'sharp_pick',    name: 'Sharpened Pickaxe',      icon: 'sharp_pick',    cost: 100,         desc: '2× click power',            flavor: 'A whetstone and fifteen minutes of quiet rage.', effect: () => { clickMult *= 2; }, req: null },
-  { id: 'helmet',        name: 'Safety Helmet',          icon: 'helmet',        cost: 500,         desc: '2× Rookie Miner output',    flavor: 'Mandatory since the Incident. Miners still wear them sideways.', effect: () => { minerMults['pickaxe'] = (minerMults['pickaxe']||1)*2; }, req: null },
-  { id: 'lantern',       name: 'Carbide Lantern',        icon: 'lantern',       cost: 2000,        desc: '3× click power',            flavor: 'Lights the way. Also the canaries. We have stopped using canaries.', effect: () => { clickMult *= 3; }, req: 'sharp_pick' },
-  { id: 'stronger',      name: 'Reinforced Drill Bit',   icon: 'stronger',      cost: 8000,        desc: '2× Power Drill output',     flavor: 'The old bit is fine. This one is also fine, but more aggressively.', effect: () => { minerMults['drill'] = (minerMults['drill']||1)*2; }, req: null },
-  { id: 'rails',         name: 'Greased Rails',          icon: 'rails',         cost: 40000,       desc: '2× Ore Cart speed',         flavor: 'Significantly faster. The braking situation remains unaddressed.', effect: () => { minerMults['cart'] = (minerMults['cart']||1)*2; }, req: null },
-  { id: 'tnt',           name: 'Premium TNT',            icon: 'tnt',           cost: 150000,      desc: '2× Rock Blaster yield',     flavor: '"Premium" means it explodes in the direction we want. Usually.', effect: () => { minerMults['blaster'] = (minerMults['blaster']||1)*2; }, req: null },
-  { id: 'tunnel2',       name: 'Adaptive Bore Head',     icon: 'adaptive_bore_head', cost: 2000000, desc: '3× Tunnel Borer output',    flavor: 'Self-sharpening, self-steering, and recently, self-naming. We have not asked what it named itself.', effect: () => { minerMults['tunnel'] = (minerMults['tunnel']||1)*3; }, req: null },
-  { id: 'smelter2',      name: 'Catalytic Smelter',      icon: 'smelter2',      cost: 3000000,     desc: '3× Auto Smelter output',    flavor: 'The smoke is technically legal in this jurisdiction.', effect: () => { minerMults['factory'] = (minerMults['factory']||1)*3; }, req: null },
-  { id: 'drone_ai',      name: 'ARIA Firmware v2.1',     icon: 'drone_ai',      cost: 20000000,    desc: '2× ARIA-1 Unit output',     flavor: 'The patch notes say "efficiency improvements". The units say nothing. They never said anything.', effect: () => { minerMults['drone'] = (minerMults['drone']||1)*2; }, req: null },
-  { id: 'conveyor2',     name: 'Frictionless Belt',      icon: 'conveyor',      cost: 25000000,    desc: '3× Conveyor Array output',   flavor: 'Engineering said it was impossible. The belt disagreed and filed a patent.', effect: () => { minerMults['conveyor'] = (minerMults['conveyor']||1)*3; }, req: null },
-  { id: 'plasma2',       name: 'Focused Thermal Core',   icon: 'plasma2',       cost: 150000000,   desc: '3× Thermal Lance output',   flavor: 'Turns out pointing heat in one direction was the key. Groundbreaking.', effect: () => { minerMults['laser'] = (minerMults['laser']||1)*3; }, req: null },
-  { id: 'excavator2',    name: 'Reinforced Boom Arm',    icon: 'excavator',     cost: 200000000,   desc: '2× Mega Excavator output',   flavor: 'The arm can now reach places the arm should not reach. This is a feature.', effect: () => { minerMults['excavator'] = (minerMults['excavator']||1)*2; }, req: null },
-  { id: 'nano2',         name: 'Swarm Consensus Protocol',icon: 'nano2',        cost: 1200000000, desc: '2× Nano Swarm output',       flavor: 'They voted. We do not know what they voted on. Output doubled.', effect: () => { minerMults['nanoswarm'] = (minerMults['nanoswarm']||1)*2; }, req: null },
-  { id: 'gravity2',      name: 'Hawking Stabiliser',     icon: 'gravity2',      cost: 12000000000, desc: '2× Gravity Siphon output',  flavor: 'Prevents the siphon from also consuming the mine, the staff, and Tuesday.', effect: () => { minerMults['blackhole'] = (minerMults['blackhole']||1)*2; }, req: null },
-  { id: 'timefold2',     name: 'Paradox Suppressor',     icon: 'paradox_suppressor', cost: 8e10,    desc: '3× Temporal Excavator output', flavor: 'Prevents the excavator from mining ore that has not been deposited yet. Mostly.', effect: () => { minerMults['timefold'] = (minerMults['timefold']||1)*3; }, req: null },
-  { id: 'mindspore2',    name: 'Hivemind Integration',   icon: 'mindspore',     cost: 8e12,        desc: '3× ARIA Mindspore output',  flavor: 'They stopped thinking separately. Output tripled. Nobody checked if they wanted this.', effect: () => { minerMults['mindspore'] = (minerMults['mindspore']||1)*3; }, req: null },
-  { id: 'worm2',         name: 'Pale Worm Pheromones',   icon: 'worm2',         cost: 5e13,        desc: '2× Pale Tunnel Worm output', flavor: 'Synthesised from a substance the lab has agreed to stop naming.', effect: () => { minerMults['worm'] = (minerMults['worm']||1)*2; }, req: null },
-  { id: 'eye2',          name: 'Ocular Resonance Rite',  icon: 'eye2',          cost: 5e14,        desc: '3× The Watching Mass output', flavor: 'You stare into it. It stares into the ore. The ore is embarrassed.', effect: () => { minerMults['eyemass'] = (minerMults['eyemass']||1)*3; }, req: null },
-  { id: 'void2',         name: 'Void Communion Pact',    icon: 'void2',         cost: 5e15,        desc: '2× Void Mouth output',      flavor: 'We agreed to something. We do not know what. Output is up.', effect: () => { minerMults['voidmouth'] = (minerMults['voidmouth']||1)*2; }, req: null },
-  { id: 'oldgod2',       name: 'Dreaming Deeper',        icon: 'oldgod',        cost: 2e16,        desc: '2× Slumbering Old God output', flavor: 'It rolled over. Output doubled. We are considering this a win and not thinking about what happens when it fully wakes.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*2; }, req: null },
-  { id: 'deeptruth2',    name: 'Second Revelation',      icon: 'deeptruth',     cost: 2e17,        desc: '3× The Deep Truth output',  flavor: 'There was a second truth beneath the first. It is worse. It is also very productive.', effect: () => { minerMults['deeptruth'] = (minerMults['deeptruth']||1)*3; }, req: null },
-  { id: 'chitinmaw2',    name: 'Encouragement Protocol', icon: 'chitinmaw',     cost: 3e17,        desc: '2× Chitin Maw output',      flavor: 'We told it the rock believed in it. The rock had no say in this. Output doubled.', effect: () => { minerMults['chitinmaw'] = (minerMults['chitinmaw']||1)*2; }, req: null },
-  { id: 'voidweaver2',   name: 'Corridor Loom Upgrade',  icon: 'voidweaver',    cost: 2e18,        desc: '3× Void Weaver output',     flavor: 'The corridors are now wider. Whatever uses them has more room. We consider this a neutral fact.', effect: () => { minerMults['voidweaver'] = (minerMults['voidweaver']||1)*3; }, req: null },
-  { id: 'conveyor3',     name: 'Phase-Matched Rollers',  icon: 'conveyor3',     cost: 7e10,        desc: '4× Conveyor Array output', flavor: 'The belt now arrives at its destination slightly before it departs. Logistics has chosen not to document this.', effect: () => { minerMults['conveyor'] = (minerMults['conveyor']||1)*4; }, req: 'conveyor2' },
-  { id: 'excavator3',    name: 'Seismic Anchor Rig',     icon: 'excavator3',    cost: 5e11,        desc: '4× Mega Excavator output', flavor: 'Bolted into three layers of geology and one layer of theory. It still shifts when nobody is looking.', effect: () => { minerMults['excavator'] = (minerMults['excavator']||1)*4; }, req: 'excavator2' },
-  { id: 'mindspore3',    name: 'Noosphere Bridge',       icon: 'mindspore3',    cost: 4e14,        desc: '4× ARIA Mindspore output', flavor: 'The cluster no longer needs to agree with itself before acting. Efficiency gains are unsettling but measurable.', effect: () => { minerMults['mindspore'] = (minerMults['mindspore']||1)*4; }, req: 'mindspore2' },
-  { id: 'oldgod3',       name: 'Dream Recursion Engine', icon: 'oldgod3',       cost: 6e18,        desc: '4× Slumbering Old God output', flavor: 'A machine that keeps the dream dreaming itself. The output graph now resembles worship.', effect: () => { minerMults['oldgod'] = (minerMults['oldgod']||1)*4; }, req: 'oldgod2' },
-  { id: 'chitinmaw3',    name: 'Mandible Choir',         icon: 'chitinmaw3',    cost: 4e19,        desc: '4× Chitin Maw output', flavor: 'The Maw now tunnels to a rhythm only the stone can hear. The stone is cooperating more than usual.', effect: () => { minerMults['chitinmaw'] = (minerMults['chitinmaw']||1)*4; }, req: 'chitinmaw2' },
-  { id: 'voidweaver3',   name: 'Event Horizon Loom',     icon: 'voidweaver3',   cost: 3e20,        desc: '5× Void Weaver output', flavor: 'The corridors are no longer merely woven. They are persuaded into existence by something that enjoys the work.', effect: () => { minerMults['voidweaver'] = (minerMults['voidweaver']||1)*5; }, req: 'voidweaver2' },
-];
-
-const MANAGERS_DATA = [
-  { id: 'mgr_pick',    name: 'Foreman Kowalski',    icon: 'mgr_pick',    cost: 1000,        miner: 'pickaxe',   desc: 'Keeps the rookies digging.',          flavor: 'Seventeen years underground. Communicates exclusively in grunts and legally binding hand signals.' },
-  { id: 'mgr_drill',   name: 'Engineer Vasquez',    icon: 'mgr_drill',   cost: 8000,        miner: 'drill',     desc: 'Oversees the drill operations.',       flavor: 'Cannot hear anything anymore. Somehow this has made her a better listener.' },
-  { id: 'mgr_cart',    name: 'Dispatcher Yuen',     icon: 'mgr_cart',    cost: 50000,       miner: 'cart',      desc: 'Manages cart routing and flow.',        flavor: 'Has memorised every tunnel by feel. Refuses to use the map. The map is wrong anyway.' },
-  { id: 'mgr_blast',   name: 'Demo Expert Kira',    icon: 'mgr_blast',   cost: 300000,      miner: 'blaster',   desc: 'Handles all controlled detonations.',   flavor: '"Controlled" is doing a lot of work in that sentence, but Kira has never lost a finger she needed.' },
-  { id: 'mgr_tunnel',  name: 'Chief Tunnel Rat',    icon: 'mgr_tunnel',  cost: 2000000,    miner: 'tunnel',    desc: 'Directs Tunnel Borer paths.',           flavor: 'Nobody remembers hiring him. His paperwork is impeccable.' },
-  { id: 'mgr_factory', name: 'Plant Director Osei', icon: 'mgr_factory', cost: 15000000,    miner: 'factory',   desc: 'Optimises the smelting operation.',     flavor: 'Has not left the plant in four years. Claims he does not want to. We have stopped checking.' },
-  { id: 'mgr_drone',   name: 'ARIA Command Node',   icon: 'mgr_drone',   cost: 120000000,  miner: 'drone',     desc: 'Coordinates all ARIA-1 units.',         flavor: 'It manages the drones. The drones manage it back. Nobody is worried about this.' },
-  { id: 'mgr_laser',   name: 'Dr. Yevgenia Sorel',  icon: 'mgr_laser',   cost: 1000000000, miner: 'laser',     desc: 'Directs Thermal Lance Arrays.',         flavor: 'Published eleven papers on focused thermal extraction. The twelfth one made her laugh for three days.' },
-  { id: 'mgr_nano',    name: 'The Swarm Consensus', icon: 'mgr_nano',    cost: 10000000000,miner: 'nanoswarm', desc: 'The swarm manages itself.',             flavor: 'We did not appoint a manager. The swarm promoted one from within. We have accepted this.' },
-  { id: 'mgr_bhole',   name: 'Prof. Achebe-Voss',   icon: 'mgr_bhole',   cost: 1e11,       miner: 'blackhole', desc: 'Monitors gravitational stability.',     flavor: 'Technically missing since last Thursday. His notes are still updating. We are following his notes.' },
-  { id: 'mgr_time',    name: 'The Archivist',        icon: 'mgr_time',    cost: 1e12,       miner: 'timefold',  desc: 'Ensures temporal integrity.',           flavor: 'Has already read this description. Gave it three out of five. We have not improved it.' },
-  { id: 'mgr_worm',    name: 'Worm Caller Brenn',   icon: 'mgr_worm',    cost: 1e13,       miner: 'worm',      desc: 'Guides Pale Tunnel Worm paths.',        flavor: 'Does not speak to the worm. Hums. The worm hums back. We have agreed not to record this.' },
-  { id: 'mgr_eye',     name: 'The Unseen Shepherd', icon: 'mgr_eye',     cost: 1e14,       miner: 'eyemass',   desc: 'Keeps The Watching Mass focused.',      flavor: 'We cannot confirm the Shepherd exists. Productivity under its watch is up 340%.' },
-  { id: 'mgr_void',    name: 'Mouth-That-Mediates', icon: 'mgr_void',    cost: 1e15,       miner: 'voidmouth', desc: 'Negotiates with Void Mouths.',          flavor: 'Fluent in seventeen languages and one that has no name because names imply it can be dismissed.' },
-  { id: 'mgr_god',     name: 'High Dreamer Vhaal',  icon: 'mgr_god',     cost: 1e16,       miner: 'oldgod',    desc: 'Tends to the Slumbering Old God.',      flavor: 'His job is to make sure it stays asleep. He has not blinked in six months. He is very good at his job.' },
-  { id: 'mgr_truth',   name: 'IT KNOWS',            icon: 'mgr_truth',   cost: 1e17,       miner: 'deeptruth', desc: 'The Deep Truth requires no managing.',  flavor: 'This slot was left blank. Something filled it in.' },
-  { id: 'mgr_conveyor',   name: 'Belt Supervisor Chen',    icon: 'mgr_conveyor',   cost: 2e7,        miner: 'conveyor',   desc: 'Keeps the conveyors running.',         flavor: 'Has not stood still in eleven years. Is not sure she knows how anymore.' },
-  { id: 'mgr_excavator',  name: 'Site Chief Dravec',       icon: 'mgr_excavator',  cost: 2e8,        miner: 'excavator',  desc: 'Directs the Mega Excavator fleet.',     flavor: 'Lost two hard hats and one eyebrow to the job. Claims only one was an accident.' },
-  { id: 'mgr_mindspore',  name: 'ARIA Prime Coordinator',  icon: 'mgr_mindspore',  cost: 1e13,       miner: 'mindspore',  desc: 'Interfaces with the Mindspore Cluster.', flavor: 'Not technically an ARIA unit. Thinks like one. Has started signing emails as "we".' },
-  { id: 'mgr_chitinmaw',  name: 'Maw Tender Isserith',     icon: 'mgr_chitinmaw',  cost: 5e15,       miner: 'chitinmaw',  desc: 'Keeps the Chitin Maw fed and directed.', flavor: 'Communicates via vibration. Has not used words since the first session. Results are good.' },
-  { id: 'mgr_voidweaver', name: 'The Loom Keeper',         icon: 'mgr_voidweaver', cost: 5e16,       miner: 'voidweaver', desc: 'Tends the corridors spun by the Weaver.', flavor: 'Walks the corridors alone. Counts the things that come back. Has stopped counting the things that do not.' },
-];
-
-const TECH_DATA = [
-  { id: 'tc_speed1',   name: 'Hydraulic Boost',             icon: 'tc_speed1',   cost: 2,  req: null,        tierUnlock: 0, desc: '1.5× all worker output.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_click1',   name: 'Grip Gloves',                 icon: 'tc_click1',   cost: 3,  req: 'tc_speed1',   tierUnlock: 0, desc: '2× click power.',       effect: () => { clickMult *= 2; } },
-  { id: 'tc_deep',     name: 'Depth Mapping',               icon: 'tc_deep',     cost: 5,  req: 'tc_click1',   tierUnlock: 0, desc: '2× all worker output.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_offline',  name: 'Night Shift',                 icon: 'tc_offline',  cost: 4,  req: null,        tierUnlock: 0, desc: '2× offline earnings.',  effect: () => { offlineMult *= 2; } },
-  { id: 'tc_auto',     name: 'Smart Dispatch',              icon: 'tc_auto',     cost: 8,  req: 'tc_deep',     tierUnlock: 0, desc: '1.5× all worker output.', effect: () => { globalMult *= 1.5; } },
-  { id: 'tc_prestige', name: 'Shard Resonance',             icon: 'tc_prestige', cost: 10, req: 'tc_auto',     tierUnlock: 0, desc: '1.5× shard multiplier.', effect: () => { shardBonus *= 1.5; } },
-  { id: 'tc_aria',     name: 'Project ARIA',                icon: 'tc_aria',     cost: 15, req: 'tc_prestige', tierUnlock: 1, desc: 'Unlocks motivated workers. 2× all output.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_grimoire', name: 'Heretical Excavation Manual', icon: 'tc_grimoire', cost: 80, req: 'tc_aria',     tierUnlock: 2, desc: 'Unlocks what is below. 3× all output.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_quantum',  name: 'Quantum Lattice',             icon: 'tc_quantum',  cost: 20, req: 'tc_aria',     tierUnlock: 0, desc: '2× all worker output.', effect: () => { globalMult *= 2; } },
-  { id: 'tc_geometry', name: 'Forbidden Geometry',          icon: 'tc_geometry', cost: 50, req: 'tc_grimoire', tierUnlock: 0, desc: '3× all worker output.', effect: () => { globalMult *= 3; } },
-  { id: 'tc_dreaming', name: 'The Dreaming Engine',         icon: 'tc_dreaming', cost: 75, req: 'tc_geometry', tierUnlock: 0, desc: '5× click + 2× all workers.', effect: () => { clickMult *= 5; globalMult *= 2; } },
-  { id: 'tc_singularity', name: 'Singularity Directive',    icon: 'tc_singularity', cost: 150, req: 'tc_dreaming', tierUnlock: 3, desc: 'Unlocks tier 3 upgrades. 4× all worker output.', effect: () => { globalMult *= 4; } },
-];
-
-const ABILITIES_DATA = [
-  { id: 'ore_rush',        name: 'Ore Rush',          icon: 'ore_rush',        type: 'buff',    desc: '2× all ore production for 10 minutes.',           unlockType: 'ore',    unlockCost: 0,   cooldown: 30*60, duration: 10*60, activate(g) { g.abilityEnds['ore_rush'] = Date.now()+10*60*1000; },       isActive(g) { return Date.now()<(g.abilityEnds['ore_rush']||0); } },
-  { id: 'gold_vein',       name: 'Gold Vein',         icon: 'gold_vein',       type: 'nuke',    desc: 'Strike a hidden vein — instantly gain 20 minutes of income.', unlockType: 'ore', unlockCost: 50000, cooldown: 60*60, duration: 0, activate(g) { const b=calcOrePerSec()*1200; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Gold Vein struck! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'drill_frenzy',    name: 'Drill Frenzy',      icon: 'drill_frenzy',    type: 'clicker', desc: 'Auto-clicks 100 times over 10 seconds.',          unlockType: 'depth',  unlockCost: 200, cooldown: 20*60, duration: 10,   activate(g) { g.abilityEnds['drill_frenzy']=Date.now()+10000; let c=0; const iv=setInterval(()=>{ if(c>=100){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },100); showToast('Drill Frenzy! 100 auto-clicks!'); }, isActive(g) { return Date.now()<(g.abilityEnds['drill_frenzy']||0); } },
-  { id: 'deep_pulse',      name: 'Deep Pulse',        icon: 'deep_pulse',      type: 'buff',    desc: '4× click power for 5 minutes.',                  unlockType: 'depth',  unlockCost: 300, cooldown: 25*60, duration: 5*60, activate(g) { g.abilityEnds['deep_pulse']=Date.now()+5*60*1000; },         isActive(g) { return Date.now()<(g.abilityEnds['deep_pulse']||0); } },
-  { id: 'plasma_surge',    name: 'Plasma Surge',      icon: 'plasma_surge',    type: 'buff',    desc: '5× all ore production for 8 minutes.',           unlockType: 'depth',  unlockCost: 1000,cooldown: 60*60, duration: 8*60, activate(g) { g.abilityEnds['plasma_surge']=Date.now()+8*60*1000; },        isActive(g) { return Date.now()<(g.abilityEnds['plasma_surge']||0); } },
-  { id: 'eldritch_hunger', name: 'Eldritch Hunger',   icon: 'eldritch_hunger', type: 'buff',    desc: '10× all output for 3 minutes.',                  unlockType: 'depth',  unlockCost: 1200,cooldown: 120*60,duration: 3*60, activate(g) { g.abilityEnds['eldritch_hunger']=Date.now()+3*60*1000; },     isActive(g) { return Date.now()<(g.abilityEnds['eldritch_hunger']||0); } },
-  { id: 'cave_collapse',   name: 'Cave Collapse',     icon: 'cave_collapse',   type: 'nuke',    desc: 'Instantly gain 1 hour of ore income.',           unlockType: 'shards', unlockCost: 30,  cooldown: 90*60, duration: 0,    activate(g) { const b=calcOrePerSec()*3600; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Cave Collapse! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'mole_swarm',      name: 'Mole Swarm',        icon: 'mole_swarm',      type: 'clicker', desc: '500 auto-clicks over 15 seconds.',               unlockType: 'shards', unlockCost: 60,  cooldown: 45*60, duration: 15,   activate(g) { g.abilityEnds['mole_swarm']=Date.now()+15000; let c=0; const iv=setInterval(()=>{ if(c>=500){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },30); showToast('Mole Swarm! 500 clicks incoming!'); }, isActive(g) { return Date.now()<(g.abilityEnds['mole_swarm']||0); } },
-  { id: 'temporal_skip',   name: 'Temporal Skip',     icon: 'temporal_skip',   type: 'nuke',    desc: 'Gain 3 hours of offline income instantly.',      unlockType: 'shards', unlockCost: 100, cooldown: 120*60,duration: 0,    activate(g) { const b=calcOrePerSec()*10800; g.ore+=b; g.totalOre+=b; g.lifetimeOre+=b; showToast('Temporal Skip! +'+fmt(b)+' ore!'); }, isActive() { return false; } },
-  { id: 'void_scream',     name: 'Void Scream',       icon: 'void_scream',     type: 'clicker', desc: '2000 auto-clicks over 20 seconds.',              unlockType: 'shards', unlockCost: 500, cooldown: 90*60, duration: 20,   activate(g) { g.abilityEnds['void_scream']=Date.now()+20000; let c=0; const iv=setInterval(()=>{ if(c>=2000){clearInterval(iv);return;} const gain=calcClickPower(); g.ore+=gain; g.totalOre+=gain; g.lifetimeOre+=gain; c++; },10); showToast('The Void Screams. 2000 clicks.'); }, isActive(g) { return Date.now()<(g.abilityEnds['void_scream']||0); } },
-  { id: 'iron_skin',       name: 'Iron Skin',         icon: 'iron_skin',       type: 'passive', desc: 'Permanent +25% global ore production.',         unlockType: 'shards', unlockCost: 45,  cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
-  { id: 'deep_truth',      name: 'The Deep Truth',    icon: 'deep_truth',      type: 'passive', desc: 'Permanent +100% all output.',                    unlockType: 'shards', unlockCost: 900, cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
-];
-
+// Gameplay data tables are loaded from game-data.js.
 let clickMult = 1, globalMult = 1, minerMults = {}, offlineMult = 1, shardBonus = 1;
 let buyQty = 1;
 
@@ -906,6 +713,17 @@ function normalizeLoadedGame(saved) {
   normalized.abilitiesUnlocked = normalized.abilitiesUnlocked && typeof normalized.abilitiesUnlocked === 'object' ? normalized.abilitiesUnlocked : {};
   normalized.abilityCooldowns = normalized.abilityCooldowns && typeof normalized.abilityCooldowns === 'object' ? normalized.abilityCooldowns : {};
   normalized.abilityEnds = normalized.abilityEnds && typeof normalized.abilityEnds === 'object' ? normalized.abilityEnds : {};
+  normalized.milestoneBonuses = normalized.milestoneBonuses && typeof normalized.milestoneBonuses === 'object' ? normalized.milestoneBonuses : {};
+  normalized.synergyBonuses = normalized.synergyBonuses && typeof normalized.synergyBonuses === 'object' ? normalized.synergyBonuses : {};
+  normalized.allTimeDepth = Number.isFinite(Number(normalized.allTimeDepth)) ? Math.max(0, Number(normalized.allTimeDepth)) : 0;
+  normalized.achievementRewards = normalized.achievementRewards && typeof normalized.achievementRewards === 'object' ? normalized.achievementRewards : {};
+  normalized.personalBests = normalized.personalBests && typeof normalized.personalBests === 'object' ? normalized.personalBests : {};
+  normalized.activePerk = typeof normalized.activePerk === 'string' ? normalized.activePerk : null;
+  normalized.perkHistory = normalized.perkHistory && typeof normalized.perkHistory === 'object' ? normalized.perkHistory : {};
+  normalized.runHistory = Array.isArray(normalized.runHistory) ? normalized.runHistory : [];
+  normalized.challengeState = normalized.challengeState && typeof normalized.challengeState === 'object'
+    ? normalized.challengeState
+    : { completedIds: [], activeId: null, offered: {} };
   normalized.settings = normalized.settings && typeof normalized.settings === 'object' ? normalized.settings : { shake: true, fx: true, sound: true };
   normalized.stats = normalized.stats && typeof normalized.stats === 'object' ? normalized.stats : {};
   return normalized;
@@ -968,13 +786,113 @@ function parseStoredArray(key) {
   }
 }
 
+// Achievement rewards are permanent account-level bonuses.
+// They are stored separately from the achievement set so we can rebuild them
+// from scratch inside reapplyAllEffects() like any other multiplier source.
+const ACHIEVEMENT_REWARDS = {
+  first_click: { desc: '+5% global output', effect: () => { globalMult *= 1.05; } },
+  ore_1k: { desc: '+5% global output', effect: () => { globalMult *= 1.05; } },
+  ore_1m: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  ore_1b: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  ore_1t: { desc: '1.5x offline earnings', effect: () => { offlineMult *= 1.5; } },
+  ore_1qa: { desc: '2x offline earnings', effect: () => { offlineMult *= 2; } },
+  first_miner: { desc: '+5% global output', effect: () => { globalMult *= 1.05; } },
+  ten_miners: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  miner_25: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  miner_100: { desc: '+25% global output', effect: () => { globalMult *= 1.25; } },
+  miner_500: { desc: '+50% global output', effect: () => { globalMult *= 1.50; } },
+  first_prestige: { desc: '1.5x click power', effect: () => { clickMult *= 1.5; } },
+  prestige_3: { desc: '2x click power', effect: () => { clickMult *= 2; } },
+  prestige_5: { desc: '2x offline earnings', effect: () => { offlineMult *= 2; } },
+  prestige_10: { desc: '+50% global output', effect: () => { globalMult *= 1.5; } },
+  aria_unlock: { desc: '+20% global output', effect: () => { globalMult *= 1.20; } },
+  grimoire: { desc: '+30% global output', effect: () => { globalMult *= 1.30; } },
+  depth_100: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  depth_500: { desc: '+20% global output', effect: () => { globalMult *= 1.20; } },
+  depth_700: { desc: '2x offline earnings', effect: () => { offlineMult *= 2; } },
+  first_manager: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  all_managers: { desc: '+25% global output', effect: () => { globalMult *= 1.25; } },
+  all_human: { desc: '+15% global output', effect: () => { globalMult *= 1.15; } },
+  all_aria: { desc: '1.5x click power', effect: () => { clickMult *= 1.5; } },
+  all_eldritch: { desc: '2x global output', effect: () => { globalMult *= 2; } },
+  all_upgrades: { desc: '2x click power', effect: () => { clickMult *= 2; } },
+  all_abilities: { desc: '2x global output', effect: () => { globalMult *= 2; } },
+  ore_rush_used: { desc: '+5% global output', effect: () => { globalMult *= 1.05; } },
+  click_1000: { desc: '1.5x click power', effect: () => { clickMult *= 1.5; } },
+  shard_forge1: { desc: '+10% global output', effect: () => { globalMult *= 1.10; } },
+  shard_forge_all: { desc: '3x offline earnings', effect: () => { offlineMult *= 3; } },
+};
+
+// Personal bests are cross-run records used by the Stats tab.
+// We keep them in G so they survive saves and ascensions.
+function ensurePersonalBests() {
+  if (!G.personalBests || typeof G.personalBests !== 'object') G.personalBests = {};
+  const pb = G.personalBests;
+  if (!Number.isFinite(pb.fastestPrestigeMs)) pb.fastestPrestigeMs = Infinity;
+  if (!Number.isFinite(pb.mostShardsOneRun)) pb.mostShardsOneRun = 0;
+  if (!Number.isFinite(pb.peakOpsEver)) pb.peakOpsEver = 0;
+  if (!Number.isFinite(pb.deepestDepthEver)) pb.deepestDepthEver = 0;
+  if (!Number.isFinite(pb.mostWorkersAtOnce)) pb.mostWorkersAtOnce = 0;
+  if (!Number.isFinite(pb.longestCombo)) pb.longestCombo = 0;
+  if (!Number.isFinite(pb.sessionStart)) pb.sessionStart = Date.now();
+}
+
+// Rebuild reward effects after any reset/reload that clears temporary multipliers.
+function reapplyAchievementRewards() {
+  if (!G.achievementRewards || typeof G.achievementRewards !== 'object') G.achievementRewards = {};
+  for (const [id, reward] of Object.entries(ACHIEVEMENT_REWARDS)) {
+    if (G.achievementRewards[id]) reward.effect();
+  }
+}
+
+// Live records update during normal play without waiting for a save.
+function updatePersonalBestsLive() {
+  ensurePersonalBests();
+  const pb = G.personalBests;
+  const curOps = calcOrePerSec();
+  if (curOps > pb.peakOpsEver) pb.peakOpsEver = curOps;
+  const curDepth = G.depth || 0;
+  if (curDepth > pb.deepestDepthEver) pb.deepestDepthEver = curDepth;
+  const totalWorkers = Object.values(G.miners || {}).reduce((sum, val) => sum + val, 0);
+  if (totalWorkers > pb.mostWorkersAtOnce) pb.mostWorkersAtOnce = totalWorkers;
+  if (window.ComboSystem && typeof window.ComboSystem.getComboCount === 'function') {
+    const combo = window.ComboSystem.getComboCount();
+    if (combo > pb.longestCombo) pb.longestCombo = combo;
+  }
+}
+
+// Run-end records need to be captured before prestige wipes the current run.
+function updatePrestigePersonalBests(shardsGained) {
+  ensurePersonalBests();
+  const pb = G.personalBests;
+  if (shardsGained > pb.mostShardsOneRun) pb.mostShardsOneRun = shardsGained;
+  const timeSinceSessionStart = Date.now() - (pb.sessionStart || Date.now());
+  if (timeSinceSessionStart < pb.fastestPrestigeMs) pb.fastestPrestigeMs = timeSinceSessionStart;
+  pb.sessionStart = Date.now();
+}
+
+function fmtMs(ms) {
+  if (!ms || ms === Infinity) return '-';
+  const secs = Math.floor(ms / 1000);
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return h + 'h ' + m + 'm ' + s + 's';
+  if (m > 0) return m + 'm ' + s + 's';
+  return s + 's';
+}
+
 function reapplyAllEffects() {
+  // This is the canonical "rebuild all multipliers from state" function.
+  // Anything persistent should hook in here instead of stacking ad hoc.
   clickMult = 1; globalMult = 1; minerMults = {}; offlineMult = 1; shardBonus = 1;
   for (const u of UPGRADES_DATA) if (G.upgrades[u.id]) u.effect();
   for (const t of TECH_DATA) if (G.tech[t.id]) t.effect();
   autoManagers = new Set();
   for (const mgr of MANAGERS_DATA) if (G.managers[mgr.id]) autoManagers.add(mgr.miner);
   reapplyShardShop();
+  reapplyAchievementRewards();
+  if (typeof BonusSystems !== 'undefined') BonusSystems.reapplyEffects();
 }
 
 // ===================== CLICK =====================
@@ -1832,6 +1750,7 @@ function doPrestige() {
   const gained = calcPrestigeShards();
   if (gained===0 || G.lifetimeOre<20000000) return;
   if (!confirm('Ascend the mine? You will reset all ore, miners, and upgrades, but gain '+gained+' Crystal Shards.')) return;
+  updatePrestigePersonalBests(gained);
   G.shards += gained;
   G.ore = 0;
   G.totalOre = 0;
@@ -1845,6 +1764,8 @@ function doPrestige() {
   G.abilitiesUnlocked = {};
   G.abilityCooldowns = {};
   G.abilityEnds = {};
+  G.milestoneBonuses = {};
+  G.synergyBonuses = {};
   G.eventData = null;
   if (!G.stats) G.stats = {};
   G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;
@@ -2025,6 +1946,18 @@ function showAchievementToast(ach) {
   document.body.appendChild(el);
   requestAnimationFrame(() => { el.style.opacity='1'; });
   setTimeout(() => { el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 4000);
+
+  if (!G.achievementRewards || typeof G.achievementRewards !== 'object') G.achievementRewards = {};
+  const reward = ACHIEVEMENT_REWARDS[ach.id];
+  if (reward && !G.achievementRewards[ach.id]) {
+    G.achievementRewards[ach.id] = true;
+    reward.effect();
+    setTimeout(() => {
+      showToast('Achievement reward: ' + reward.desc);
+      updateHUD();
+      saveGameSafe();
+    }, 1800);
+  }
 }
 
 function renderAchievements() {
@@ -2196,6 +2129,7 @@ function renderStats() {
   const el = document.getElementById('stats-content');
   if (!el) return;
   if (!G.stats) G.stats = {};
+  ensurePersonalBests();
   const ops = calcOrePerSec();
   const totalMiners = Object.values(G.miners).reduce((s,v)=>s+v, 0);
   const timePlayed = Math.floor(((G.stats.timePlayed||0) + (Date.now() - (G.stats.sessionStart||Date.now()))) / 1000);
@@ -2205,6 +2139,7 @@ function renderStats() {
   const eventsCount = G.stats.eventsCount || 0;
   const clickCount = G.stats.clickCount || 0;
   const peakOps = G.stats.peakOps || 0;
+  const pb = G.personalBests;
 
   el.innerHTML = `
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--panel-border);">// MINE STATISTICS</div>
@@ -2220,6 +2155,13 @@ function renderStats() {
     ${statRow('Events survived', eventsCount.toString(), '#e07050')}
     ${statRow('Depth reached', G.depth + 'm', 'var(--ore)')}
     ${statRow('Achievements', earnedAchievements.size + ' / ' + ACHIEVEMENTS.length)}
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;border-bottom:1px solid var(--panel-border);margin-top:4px;">// PERSONAL RECORDS</div>
+    ${statRow('Fastest prestige', fmtMs(pb.fastestPrestigeMs), '#f5c842')}
+    ${statRow('Most shards in one run', pb.mostShardsOneRun > 0 ? pb.mostShardsOneRun + ' ◆' : '-', 'var(--prestige)')}
+    ${statRow('Peak ore/sec ever', pb.peakOpsEver > 0 ? fmt(pb.peakOpsEver) + '/s' : '-', 'var(--ore)')}
+    ${statRow('Deepest depth ever', pb.deepestDepthEver > 0 ? pb.deepestDepthEver + 'm' : '-', '#7ecfb0')}
+    ${statRow('Most workers at once', pb.mostWorkersAtOnce > 0 ? pb.mostWorkersAtOnce.toLocaleString() : '-', 'var(--gold-light)')}
+    ${statRow('Longest click combo', pb.longestCombo > 0 ? pb.longestCombo + ' hits' : '-', '#ff8800')}
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;border-bottom:1px solid var(--panel-border);margin-top:4px;">// WORKER CENSUS</div>
     ${MINERS_DATA.filter(m=>(G.miners[m.id]||0)>0).map(m=>statRow(m.name, (G.miners[m.id]||0).toLocaleString())).join('') || '<div style="color:var(--text-muted);font-size:10px;padding:6px 0;">No workers hired yet.</div>'}
   `;
@@ -2614,6 +2556,7 @@ function gameTick() {
   if (!G.stats.sessionStart) G.stats.sessionStart = Date.now();
   const curOps = calcOrePerSec();
   if (curOps > (G.stats.peakOps||0)) G.stats.peakOps = curOps;
+  updatePersonalBestsLive();
   updateHUD();
   renderAbilitiesBar();
   checkAchievements();
@@ -2623,6 +2566,8 @@ function gameTick() {
   if (typeof tickDepthChallenges === 'function') tickDepthChallenges();
   if (typeof tickAriaArc === 'function') tickAriaArc();
   if (typeof updateMineButtonStage === 'function') updateMineButtonStage();
+  if (typeof NextUnlockTracker !== 'undefined') NextUnlockTracker.update();
+  if (typeof BonusSystems !== 'undefined') BonusSystems.checkTick();
 
 }
 
@@ -2832,10 +2777,13 @@ const ShaftVis = (() => {
   return { init, _oreParticles: [] };
 })();
 
+// ===================== NEXT UNLOCK TRACKER =====================
+// Next unlock tracker and bonus systems are loaded from separate files.
 function init() {
   loadGame();
   if (!G.managersEnabled) G.managersEnabled = {};
   if (!G.settings) G.settings = { shake:true, fx:true, sound:true };
+  ensurePersonalBests();
   reapplyAllEffects();
   if (G.eventCooldownEnd) eventCooldownEnd = G.eventCooldownEnd;
 
@@ -2863,6 +2811,8 @@ function init() {
     updateMinerRows();
   });
   ShaftVis.init();
+  NextUnlockTracker.init();
+  BonusSystems.init();
 
   window.addEventListener('beforeunload', saveGameSafe);
   window.addEventListener('load', () => {
@@ -3190,116 +3140,7 @@ try { NewsTicker.init(); } catch (e) { console.error('Dispatch init failed', e);
 // existing click flow, event multipliers, and main game loop.
 // =====================================================================
 
-const ComboSystem = (() => {
-  let comboCount = 0;
-  let comboTimer = null;
-  let comboEl = null;
-  let lastFeedbackCombo = 0;
-  const COMBO_WINDOW_MS = 800; // smaller window = harder to maintain
-
-  const TIERS = [
-    [320, 14, 'FRENZY', '#ff4444'],
-    [160, 7, 'BLAZING', '#ff8800'],
-    [80, 3, 'HOT', '#f5c842'],
-    [40, 2, 'COMBO', '#7ecfb0'],
-  ];
-
-  function getComboTier() {
-    for (const [min, mult, label, col] of TIERS) {
-      if (comboCount >= min) return { mult, label, col };
-    }
-    return { mult: 1, label: '', col: '#ffffff' };
-  }
-
-  function getMultiplier() {
-    return getComboTier().mult;
-  }
-
-  function buildUI() {
-    if (document.getElementById('combo-display')) {
-      comboEl = document.getElementById('combo-display');
-      return;
-    }
-
-    comboEl = document.createElement('div');
-    comboEl.id = 'combo-display';
-    comboEl.style.cssText = [
-      'position:fixed',
-      'bottom:90px',
-      'left:50%',
-      'transform:translateX(-50%)',
-      'font-family:"Oswald",sans-serif',
-      'font-size:22px',
-      'letter-spacing:4px',
-      'pointer-events:none',
-      'z-index:9997',
-      'opacity:0',
-      'transition:opacity 0.25s',
-      'text-shadow:0 0 12px currentColor',
-      'white-space:nowrap',
-    ].join(';');
-    document.body.appendChild(comboEl);
-  }
-
-  function updateUI() {
-    if (!comboEl) return;
-    if (comboCount < 5) {
-      comboEl.style.opacity = '0';
-      return;
-    }
-
-    const { mult, label, col } = getComboTier();
-    comboEl.style.color = col;
-    comboEl.style.opacity = '1';
-    comboEl.textContent = `${label} x${comboCount} (${mult}x CLICK)`;
-  }
-
-  function resetCombo() {
-    comboCount = 0;
-    lastFeedbackCombo = 0;
-    if (comboEl) comboEl.style.opacity = '0';
-  }
-
-  function onClick() {
-    comboCount++;
-    clearTimeout(comboTimer);
-    comboTimer = setTimeout(resetCombo, COMBO_WINDOW_MS);
-    updateUI();
-  }
-
-  function showFeedback(e) {
-    const tier = getComboTier();
-    if (tier.mult <= 1 || !e || comboCount === lastFeedbackCombo) return;
-
-    lastFeedbackCombo = comboCount;
-    const el = document.createElement('div');
-    el.className = 'float-num';
-    el.textContent = `${tier.label} x${tier.mult}!`;
-    el.style.cssText = [
-      'position:fixed',
-      `left:${e.clientX - 40}px`,
-      `top:${e.clientY - 44}px`,
-      `color:${tier.col}`,
-      'font-size:13px',
-      'font-family:"Oswald",sans-serif',
-      'letter-spacing:2px',
-      'pointer-events:none',
-      'z-index:9998',
-    ].join(';');
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 900);
-  }
-
-  function init() {
-    buildUI();
-    updateUI();
-  }
-
-  return { init, onClick, getMultiplier, getComboCount: () => comboCount, showFeedback };
-})();
-
-window.ComboSystem = ComboSystem;
-
+// Combo system is loaded from combo-system.js.
 const GodThreatMeter = (() => {
   let threat = 0;
   let godEventActive = null;
@@ -3576,490 +3417,7 @@ setTimeout(() => {
 // economy, God Threat meter, and prestige flow.
 // =====================================================================
 
-var ASCENSION_PERKS = [
-  {
-    id: 'perk_cheap_workers',
-    name: 'Bulk Discount',
-    desc: 'All workers cost 25% less this run.',
-    flavor: 'Someone found a coupon. Nobody is asking where.',
-    color: '#f5c842',
-    weight: 20,
-    minPrestige: 0,
-    costMultiplier: 0.75,
-    onApply: null,
-  },
-  {
-    id: 'perk_click_start',
-    name: 'Calloused Hands',
-    desc: 'Click power is 5x for the entire run.',
-    flavor: 'You remember the shape of the rock. Your hands remember too.',
-    color: '#f5c842',
-    weight: 20,
-    minPrestige: 0,
-    clickMultiplier: 5,
-    onApply: null,
-  },
-  {
-    id: 'perk_ops_boost',
-    name: 'Familiar Ground',
-    desc: 'All worker output is 2x this run.',
-    flavor: 'You have dug these tunnels before. The ore knows where to go.',
-    color: '#f5c842',
-    weight: 20,
-    minPrestige: 0,
-    opsMultiplier: 2,
-    onApply: null,
-  },
-  {
-    id: 'perk_offline',
-    name: 'The Mine Remembers',
-    desc: 'Offline earnings are 5x this run.',
-    flavor: 'When you leave, something keeps working. You have decided to be grateful.',
-    color: '#f5c842',
-    weight: 18,
-    minPrestige: 0,
-    offlineMultiplier: 5,
-    onApply: null,
-  },
-  {
-    id: 'perk_head_start',
-    name: 'Buried Stash',
-    desc: 'Start this run with ore equal to 30 seconds of your previous peak income.',
-    flavor: 'You hid some before the reset. Smart. Possibly illegal.',
-    color: '#7ecfb0',
-    weight: 18,
-    minPrestige: 0,
-    onApply: (game, capturedPeakOps) => {
-      const bonus = (capturedPeakOps || 0) * 30;
-      game.ore += bonus;
-      game.totalOre += bonus;
-      game.lifetimeOre += bonus;
-    },
-  },
-  {
-    id: 'perk_shard_boost',
-    name: 'Crystal Memory',
-    desc: 'Gain 2x shards when you next ascend.',
-    flavor: 'The crystals retained something from last time. Something useful.',
-    color: '#c84aff',
-    weight: 10,
-    minPrestige: 1,
-    shardMultiplier: 2,
-    onApply: null,
-  },
-  {
-    id: 'perk_mega_click',
-    name: 'Fist of the Deep',
-    desc: 'Click power is 20x but worker output is 0.5x.',
-    flavor: 'You came back angrier. The ore has noticed.',
-    color: '#c84aff',
-    weight: 10,
-    minPrestige: 1,
-    clickMultiplier: 20,
-    opsMultiplier: 0.5,
-    onApply: null,
-  },
-  {
-    id: 'perk_worker_focus',
-    name: 'Efficiency Drive',
-    desc: 'Workers are 4x output but cost 50% more.',
-    flavor: 'Quality over quantity. The accountant disagrees. The ore agrees.',
-    color: '#c84aff',
-    weight: 10,
-    minPrestige: 1,
-    opsMultiplier: 4,
-    costMultiplier: 1.5,
-    onApply: null,
-  },
-  {
-    id: 'perk_free_shards',
-    name: 'Residual Crystallisation',
-    desc: 'Start this run with 5 bonus Crystal Shards.',
-    flavor: 'Some things do not reset. The shards insist on this.',
-    color: '#c84aff',
-    weight: 10,
-    minPrestige: 1,
-    onApply: (game) => { game.shards += 5; },
-  },
-  {
-    id: 'perk_fast_early',
-    name: 'Muscle Memory',
-    desc: 'All costs 50% less until you hit 100m depth, then normal prices resume.',
-    flavor: 'The first hundred metres are familiar. After that, things get strange again.',
-    color: '#7ecfb0',
-    weight: 12,
-    minPrestige: 1,
-    costMultiplier: () => (G.depth < 100 ? 0.5 : 1.0),
-    onApply: null,
-  },
-  {
-    id: 'perk_aria_head_start',
-    name: 'Project ARIA Pre-Approved',
-    desc: 'Start with Project ARIA already researched. No shard cost.',
-    flavor: 'The paperwork was pre-filed. ARIA filed it. Nobody is surprised.',
-    color: '#40c0e0',
-    weight: 4,
-    minPrestige: 2,
-    onApply: (game) => {
-      if (!game.tech['tc_aria']) {
-        game.tech['tc_aria'] = true;
-        globalMult *= 2;
-      }
-    },
-  },
-  {
-    id: 'perk_everything_double',
-    name: 'Deep Resonance',
-    desc: 'Everything is 3x - clicks, workers, offline. No drawbacks.',
-    flavor: 'The mine chose you this run. Try not to think about why.',
-    color: '#40c0e0',
-    weight: 4,
-    minPrestige: 2,
-    opsMultiplier: 3,
-    clickMultiplier: 3,
-    offlineMultiplier: 3,
-    onApply: null,
-  },
-  {
-    id: 'perk_god_favor',
-    name: 'The Old God Approves',
-    desc: 'God Threat fills 3x faster but every trigger gives 2x the reward.',
-    flavor: 'It noticed your last run. It wants more.',
-    color: '#ff2040',
-    weight: 4,
-    minPrestige: 2,
-    onApply: null,
-  },
-  {
-    id: 'perk_shard_windfall',
-    name: 'Crystallised Legacy',
-    desc: 'Start with 15 shards and gain 3x shards on next ascension.',
-    flavor: 'Some runs are just lucky. This is one of those runs.',
-    color: '#ff2040',
-    weight: 4,
-    minPrestige: 3,
-    shardMultiplier: 3,
-    onApply: (game) => { game.shards += 15; },
-  },
-];
-
-function getActivePerk() {
-  if (!G.activePerk || !Array.isArray(ASCENSION_PERKS)) return null;
-  return ASCENSION_PERKS.find(perk => perk.id === G.activePerk) || null;
-}
-
-function getPerkValue(perk, field, defaultVal) {
-  if (!perk) return defaultVal;
-  const value = perk[field];
-  if (value === undefined || value === null) return defaultVal;
-  if (typeof value === 'function') return value();
-  return value;
-}
-
-function perkOpsMult() {
-  return getPerkValue(getActivePerk(), 'opsMultiplier', 1);
-}
-
-function perkClickMult() {
-  return getPerkValue(getActivePerk(), 'clickMultiplier', 1);
-}
-
-function perkCostMult() {
-  return getPerkValue(getActivePerk(), 'costMultiplier', 1);
-}
-
-function perkOfflineMult() {
-  return getPerkValue(getActivePerk(), 'offlineMultiplier', 1);
-}
-
-function perkShardMult() {
-  return getPerkValue(getActivePerk(), 'shardMultiplier', 1);
-}
-
-function pickThreePerks(prestigeCount) {
-  const eligible = ASCENSION_PERKS.filter(perk => perk.minPrestige <= prestigeCount);
-  const chosen = [];
-  const pool = [...eligible];
-
-  while (chosen.length < 3 && pool.length > 0) {
-    const totalWeight = pool.reduce((sum, perk) => sum + perk.weight, 0);
-    let roll = Math.random() * totalWeight;
-
-    for (let i = 0; i < pool.length; i++) {
-      roll -= pool[i].weight;
-      if (roll <= 0) {
-        chosen.push(pool[i]);
-        pool.splice(i, 1);
-        break;
-      }
-    }
-  }
-
-  return chosen;
-}
-
-function showPerkPickerModal(threePerks, onChosen) {
-  const existing = document.getElementById('perk-picker-modal');
-  if (existing) existing.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'perk-picker-modal';
-  overlay.style.cssText = [
-    'position:fixed',
-    'inset:0',
-    'background:rgba(0,0,0,0.88)',
-    'z-index:99999',
-    'display:flex',
-    'flex-direction:column',
-    'align-items:center',
-    'justify-content:center',
-    'padding:24px',
-    'font-family:"Oswald",sans-serif',
-  ].join(';');
-
-  const header = document.createElement('div');
-  header.style.cssText = 'text-align:center;margin-bottom:24px;';
-  header.innerHTML = `
-    <div style="font-size:11px;letter-spacing:4px;color:#604020;margin-bottom:6px;">// ASCENSION RITE</div>
-    <div style="font-size:22px;letter-spacing:3px;color:#f5c842;">CHOOSE YOUR LEGACY</div>
-    <div style="font-size:11px;color:#6a5a40;margin-top:6px;letter-spacing:1px;">
-      One perk. This run only. Choose carefully.
-    </div>
-  `;
-  overlay.appendChild(header);
-
-  const cards = document.createElement('div');
-  cards.style.cssText = [
-    'display:flex',
-    'gap:16px',
-    'flex-wrap:wrap',
-    'justify-content:center',
-    'max-width:860px',
-    'width:100%',
-  ].join(';');
-
-  threePerks.forEach(perk => {
-    const card = document.createElement('div');
-    card.style.cssText = [
-      'background:#12100a',
-      `border:1px solid ${perk.color}44`,
-      'border-radius:6px',
-      'padding:18px 16px',
-      'width:240px',
-      'cursor:pointer',
-      'transition:border-color 0.15s, background 0.15s, transform 0.1s',
-      'display:flex',
-      'flex-direction:column',
-      'gap:8px',
-    ].join(';');
-
-    card.innerHTML = `
-      <div style="font-size:14px;letter-spacing:2px;color:${perk.color};">${perk.name}</div>
-      <div style="font-size:11px;color:#c8b880;line-height:1.6;">${perk.desc}</div>
-      <div style="font-size:10px;color:#5a5040;font-style:italic;line-height:1.5;margin-top:4px;">${perk.flavor}</div>
-    `;
-
-    card.addEventListener('mouseenter', () => {
-      card.style.borderColor = perk.color;
-      card.style.background = '#1a1608';
-      card.style.transform = 'translateY(-2px)';
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.borderColor = perk.color + '44';
-      card.style.background = '#12100a';
-      card.style.transform = 'translateY(0)';
-    });
-    card.addEventListener('click', () => {
-      overlay.remove();
-      onChosen(perk);
-    });
-
-    cards.appendChild(card);
-  });
-
-  overlay.appendChild(cards);
-
-  const skip = document.createElement('div');
-  skip.style.cssText = [
-    'margin-top:20px',
-    'font-size:10px',
-    'color:#8a7650',
-    'cursor:pointer',
-    'letter-spacing:1px',
-    'padding:6px 10px',
-    'border:1px solid #4a3a20',
-    'border-radius:3px',
-    'background:#141008',
-    'transition:color 0.15s, border-color 0.15s, background 0.15s',
-  ].join(';');
-  skip.textContent = '[ ascend without a perk ]';
-  skip.addEventListener('mouseenter', () => {
-    skip.style.color = '#c8b880';
-    skip.style.borderColor = '#8a6a30';
-    skip.style.background = '#1a140a';
-  });
-  skip.addEventListener('mouseleave', () => {
-    skip.style.color = '#8a7650';
-    skip.style.borderColor = '#4a3a20';
-    skip.style.background = '#141008';
-  });
-  skip.addEventListener('click', () => {
-    overlay.remove();
-    onChosen(null);
-  });
-  overlay.appendChild(skip);
-
-  document.body.appendChild(overlay);
-}
-
-function renderActivePerkHUD() {
-  const old = document.getElementById('active-perk-hud');
-  if (old) old.remove();
-
-  const perk = getActivePerk();
-  if (!perk) return;
-
-  const multEl = document.getElementById('hdr-mult');
-  if (!multEl || !multEl.parentNode) return;
-
-  const el = document.createElement('div');
-  el.id = 'active-perk-hud';
-  el.style.cssText = [
-    'font-family:"IBM Plex Mono",monospace',
-    'font-size:9px',
-    `color:${perk.color}`,
-    'letter-spacing:1px',
-    'margin-top:3px',
-    'opacity:0.85',
-    'white-space:nowrap',
-    'overflow:hidden',
-    'text-overflow:ellipsis',
-    'max-width:180px',
-  ].join(';');
-  el.textContent = `PERK: ${perk.name}`;
-  el.title = perk.desc;
-  multEl.parentNode.appendChild(el);
-}
-
-doPrestige = function () {
-  if (!G.challengeState) G.challengeState = { completedIds: [], activeId: null, offered: {} };
-  const activeChallengeBeforePrestige = typeof getActiveChallenge === 'function' ? getActiveChallenge() : null;
-  const ascensionChallengeSucceeded = activeChallengeBeforePrestige?.id === 'dc_ascension_speed'
-    && (Date.now() - (G._dcPrestigeStart || 0)) < 600000;
-  G._challengeShardMult = ascensionChallengeSucceeded ? 2 : 1;
-
-  const baseShardGain = calcPrestigeShards();
-  if (baseShardGain === 0 || G.lifetimeOre < 20000000) {
-    G._challengeShardMult = 1;
-    return;
-  }
-  if (!confirm('Ascend the mine? You will reset all ore, miners, and upgrades, but gain ' + baseShardGain + ' Crystal Shards.')) {
-    G._challengeShardMult = 1;
-    return;
-  }
-
-  if (typeof captureRunChapter === 'function') captureRunChapter(baseShardGain);
-
-  const capturedPeakOps = G.stats?.peakOps || 0;
-  const currentPrestige = G.stats?.prestigeCount || 0;
-  const offered = pickThreePerks(currentPrestige);
-
-  showPerkPickerModal(offered, (chosenPerk) => {
-    G.shards += baseShardGain;
-    G.ore = 0;
-    G.totalOre = 0;
-    G.lifetimeOre = 0;
-    G.miners = {};
-    G.upgrades = {};
-    G.managers = {};
-    // Preserve researched tech through ascension (e.g., Project ARIA, Heretical Operations)
-    // G.tech = {};
-    G.depth = 0;
-    G.abilitiesUnlocked = {};
-    G.abilityCooldowns = {};
-    G.abilityEnds = {};
-    G.eventData = null;
-    if (!G.stats) G.stats = {};
-    G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;
-    G.perkHistory = G.perkHistory && typeof G.perkHistory === 'object' ? G.perkHistory : {};
-
-    depthMilestonePassed.clear();
-    activeEvent = null;
-    activeEventEnd = 0;
-    eventCooldownEnd = 0;
-    hideEventBanner();
-
-    G.prestigeMultiplier = calcPrestigeMultiplier(G.shards);
-    G.activePerk = chosenPerk ? chosenPerk.id : null;
-    if (chosenPerk) G.perkHistory[chosenPerk.id] = (G.perkHistory[chosenPerk.id] || 0) + 1;
-    G._challengeShardMult = 1;
-
-    if (G.challengeState) {
-      if (ascensionChallengeSucceeded && activeChallengeBeforePrestige && !G.challengeState.completedIds.includes(activeChallengeBeforePrestige.id)) {
-        G.challengeState.completedIds.push(activeChallengeBeforePrestige.id);
-      }
-      G.challengeState.activeId = null;
-      G.challengeState.offered = {};
-    }
-    delete G._dcClickOre;
-    delete G._dcStartTime;
-    delete G._dcPrestigeStart;
-
-    if (G.ariaArc) delete G.ariaArc._firedThisSession;
-
-    reapplyAllEffects();
-
-    if (chosenPerk && typeof chosenPerk.onApply === 'function') {
-      chosenPerk.onApply(G, capturedPeakOps);
-    }
-    if (typeof reapplyAriaMerge === 'function') reapplyAriaMerge();
-
-    screenShake(8);
-    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 24, '#c84aff');
-
-    renderMiners();
-    renderUpgrades();
-    renderTech();
-    renderManagers();
-    renderAbilitiesBar();
-    renderShardShop();
-    updateHUD();
-    renderActivePerkHUD();
-    if (typeof renderRunHistory === 'function') renderRunHistory();
-    if (typeof updateChallengeHUD === 'function') updateChallengeHUD();
-    if (typeof updateMineButtonStage === 'function') updateMineButtonStage(true);
-
-    saveGameSafe();
-
-    const perkMsg = chosenPerk
-      ? `Ascension complete! Perk: ${chosenPerk.name}. Multiplier: x${G.prestigeMultiplier.toFixed(2)}`
-      : `Ascension complete! No perk chosen. Multiplier: x${G.prestigeMultiplier.toFixed(2)}`;
-
-    showToast(perkMsg);
-    if (ascensionChallengeSucceeded && activeChallengeBeforePrestige) {
-      setTimeout(() => showToast('CHALLENGE COMPLETE: Next ascension gave 2x shards.'), 600);
-    }
-  });
-};
-
-window.doPrestige = doPrestige;
-
-setTimeout(() => {
-  try {
-    if (!G.perkHistory || typeof G.perkHistory !== 'object') G.perkHistory = {};
-    renderActivePerkHUD();
-    console.log('[Deep Dig] Ascension Perks ready. Active perk:', G.activePerk || 'none');
-  } catch (e) {
-    console.error('[Deep Dig] Ascension Perks init failed', e);
-  }
-}, 600);
-
-// =====================================================================
-// DEEP DIG — ADDITIONS PACK 2
-// Integrated into the current codebase so it works with the existing
-// perk system, God Threat meter, combo clicks, and live game loop.
-// =====================================================================
-
+// Ascension perks are loaded from prestige-perks.js.
 function generateChapterSummary(chapter) {
   if (chapter.depth >= 1000) return 'Reached depths no instrument can measure.';
   if (chapter.depth >= 700) return 'Crossed into territory the maps do not cover.';
