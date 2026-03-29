@@ -4234,6 +4234,7 @@ const DEPTH_CHALLENGES = [
     failDepth: 9999,
     color: '#ff8800',
     goalDesc: 'Ascend within 5 minutes of accepting (must have 20M lifetime ore to start).',
+    startCondition: (game) => (game.lifetimeOre || 0) >= 20000000,
     goal: () => false,
     onActivate: (game) => { game._dcPrestigeStart = Date.now(); },
     rewardDesc: 'Next ascension gives 2x shards.',
@@ -4380,6 +4381,7 @@ function tickDepthChallenges() {
     for (const challenge of DEPTH_CHALLENGES) {
       if (state.offered[challenge.id]) continue;
       if (state.completedIds.includes(challenge.id)) continue;
+      if (challenge.startCondition && !challenge.startCondition(G)) continue;
       if (G.depth >= challenge.triggerDepth) {
         state.offered[challenge.id] = true;
         showChallengeOffer(challenge);

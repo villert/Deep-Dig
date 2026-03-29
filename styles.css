@@ -120,10 +120,10 @@
   }
 
   #click-btn {
-    width: 184px;
-    height: 184px;
-    min-width: 184px;
-    min-height: 184px;
+    width: 220px;
+    height: 220px;
+    min-width: 220px;
+    min-height: 220px;
     border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #6a5c40, #3a3020, #1e1810);
     border: 3px solid var(--gold-dark);
@@ -137,10 +137,29 @@
     flex-direction: column;
     gap: 4px;
     box-shadow: 0 4px 20px #00000088, inset 0 2px 4px #ffffff11;
-    font-family: ''Oswald'', sans-serif;
+    font-family: 'Oswald', sans-serif;
     color: var(--gold-light);
     font-size: 14px;
     letter-spacing: 1px;
+  }
+
+  #click-btn .mine-btn-main-label,
+  #click-btn .mine-btn-sub-label {
+    max-width: 84%;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  #click-btn .mine-btn-main-label {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  #click-btn .mine-btn-sub-label {
+    font-size: 11px;
+    opacity: 0.95;
   }
   #click-btn:hover { border-color: var(--gold); transform: scale(1.03); }
   #click-btn:active { transform: scale(0.97); }
