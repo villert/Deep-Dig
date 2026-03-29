@@ -935,3 +935,85 @@
 #depth-record-badge.new-record {
   animation: depthRecordPulse 1.8s ease-out forwards;
 }
+
+#zone-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border: 1px solid #3a3025;
+  border-radius: 3px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  vertical-align: middle;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+  user-select: none;
+}
+
+.zone-chain-modal-card {
+  max-width: 620px;
+  width: min(92vw, 620px);
+  text-align: left;
+}
+
+.zone-chain-header {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  margin-bottom: 8px;
+}
+
+.zone-chain-title {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.zone-chain-intro {
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.zone-chain-body {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.zone-chain-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.zone-chain-choice {
+  background: var(--upgrade-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, transform 0.15s, background 0.2s;
+}
+
+.zone-chain-choice:hover {
+  border-color: var(--gold-dark);
+  background: #211b12;
+  transform: translateY(-1px);
+}
+
+.zone-chain-choice-label {
+  display: block;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.zone-chain-choice-desc {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}

@@ -542,12 +542,17 @@ let G = {
   miners: {}, upgrades: {}, managers: {}, tech: {},
   abilitiesUnlocked: {}, abilityCooldowns: {}, abilityEnds: {},
   milestoneBonuses: {}, synergyBonuses: {}, allTimeDepth: 0,
+  discoveredZones: [], currentZoneId: 'shaft_alpha',
+  zoneChainState: { seen: {}, cooldownEnd: 0 },
+  zoneChainBonuses: {},
   achievementRewards: {}, personalBests: {},
   settings: { shake: true, fx: true, sound: true },
 };
 
 // Gameplay data tables are loaded from game-data.js.
 let clickMult = 1, globalMult = 1, minerMults = {}, offlineMult = 1, shardBonus = 1;
+let zoneEventChanceMult = 1;
+let abilityCooldownMult = 1, abilityDurationMult = 1;
 let buyQty = 1;
 
 function setBuyQty(qty) {
@@ -716,6 +721,12 @@ function normalizeLoadedGame(saved) {
   normalized.milestoneBonuses = normalized.milestoneBonuses && typeof normalized.milestoneBonuses === 'object' ? normalized.milestoneBonuses : {};
   normalized.synergyBonuses = normalized.synergyBonuses && typeof normalized.synergyBonuses === 'object' ? normalized.synergyBonuses : {};
   normalized.allTimeDepth = Number.isFinite(Number(normalized.allTimeDepth)) ? Math.max(0, Number(normalized.allTimeDepth)) : 0;
+  normalized.discoveredZones = Array.isArray(normalized.discoveredZones) ? normalized.discoveredZones : [];
+  normalized.currentZoneId = typeof normalized.currentZoneId === 'string' ? normalized.currentZoneId : 'shaft_alpha';
+  normalized.zoneChainState = normalized.zoneChainState && typeof normalized.zoneChainState === 'object' ? normalized.zoneChainState : { seen: {}, cooldownEnd: 0 };
+  normalized.zoneChainState.seen = normalized.zoneChainState.seen && typeof normalized.zoneChainState.seen === 'object' ? normalized.zoneChainState.seen : {};
+  normalized.zoneChainState.cooldownEnd = Number.isFinite(Number(normalized.zoneChainState.cooldownEnd)) ? Number(normalized.zoneChainState.cooldownEnd) : 0;
+  normalized.zoneChainBonuses = normalized.zoneChainBonuses && typeof normalized.zoneChainBonuses === 'object' ? normalized.zoneChainBonuses : {};
   normalized.achievementRewards = normalized.achievementRewards && typeof normalized.achievementRewards === 'object' ? normalized.achievementRewards : {};
   normalized.personalBests = normalized.personalBests && typeof normalized.personalBests === 'object' ? normalized.personalBests : {};
   normalized.activePerk = typeof normalized.activePerk === 'string' ? normalized.activePerk : null;
@@ -736,8 +747,8 @@ function normalizeAbilityTimers() {
   for (const ability of ABILITIES_DATA) {
     const cooldownEnd = Number(G.abilityCooldowns[ability.id] || 0);
     const abilityEnd = Number(G.abilityEnds[ability.id] || 0);
-    const maxCooldownEnd = now + ((ability.cooldown || 0) * 1000) + 60000;
-    const maxAbilityEnd = now + ((ability.duration || 0) * 1000) + 60000;
+    const maxCooldownEnd = now + ((ability.cooldown || 0) * 1000 * 2) + 60000;
+    const maxAbilityEnd = now + ((ability.duration || 0) * 1000 * 2) + 60000;
 
     if (!Number.isFinite(cooldownEnd) || cooldownEnd <= now || cooldownEnd > maxCooldownEnd) delete G.abilityCooldowns[ability.id];
     else G.abilityCooldowns[ability.id] = cooldownEnd;
@@ -745,6 +756,13 @@ function normalizeAbilityTimers() {
     if (!Number.isFinite(abilityEnd) || abilityEnd <= now || abilityEnd > maxAbilityEnd) delete G.abilityEnds[ability.id];
     else G.abilityEnds[ability.id] = abilityEnd;
   }
+}
+
+function ensureZoneChainState() {
+  if (!G.zoneChainState || typeof G.zoneChainState !== 'object') G.zoneChainState = { seen: {}, cooldownEnd: 0 };
+  if (!G.zoneChainState.seen || typeof G.zoneChainState.seen !== 'object') G.zoneChainState.seen = {};
+  if (!Number.isFinite(Number(G.zoneChainState.cooldownEnd))) G.zoneChainState.cooldownEnd = 0;
+  if (!G.zoneChainBonuses || typeof G.zoneChainBonuses !== 'object') G.zoneChainBonuses = {};
 }
 
 function saveGame() {
@@ -885,7 +903,7 @@ function fmtMs(ms) {
 function reapplyAllEffects() {
   // This is the canonical "rebuild all multipliers from state" function.
   // Anything persistent should hook in here instead of stacking ad hoc.
-  clickMult = 1; globalMult = 1; minerMults = {}; offlineMult = 1; shardBonus = 1;
+  clickMult = 1; globalMult = 1; minerMults = {}; offlineMult = 1; shardBonus = 1; zoneEventChanceMult = 1; abilityCooldownMult = 1; abilityDurationMult = 1;
   for (const u of UPGRADES_DATA) if (G.upgrades[u.id]) u.effect();
   for (const t of TECH_DATA) if (G.tech[t.id]) t.effect();
   autoManagers = new Set();
@@ -893,6 +911,8 @@ function reapplyAllEffects() {
   reapplyShardShop();
   reapplyAchievementRewards();
   if (typeof BonusSystems !== 'undefined') BonusSystems.reapplyEffects();
+  applyCurrentZoneEffects();
+  reapplyZoneChainBonuses();
 }
 
 // ===================== CLICK =====================
@@ -1645,6 +1665,7 @@ function updateHUD() {
   document.getElementById('prestige-gain-display').textContent = calcPrestigeShards();
   document.getElementById('prestige-btn').disabled = G.lifetimeOre < 20000000;
   updateDepthProgress();
+  updateZoneBadge();
 }
 
 function getDepthForLifetimeOre(lifetimeOre) {
@@ -1667,6 +1688,72 @@ function updateDepthProgress() {
   const progress = Math.min(1, Math.max(0, (G.lifetimeOre - prevMilestone) / milestoneSpan));
   document.getElementById('prog-fill').style.width = (progress*100) + '%';
   document.getElementById('prog-text').textContent = (progress * 100).toFixed(1) + '% to ' + targetDepth + 'm';
+}
+
+function ensureZoneState() {
+  if (!Array.isArray(G.discoveredZones)) G.discoveredZones = [];
+  if (typeof G.currentZoneId !== 'string' || !G.currentZoneId) G.currentZoneId = 'shaft_alpha';
+}
+
+function getCurrentZone() {
+  const depth = G.depth || 0;
+  let zone = ZONES_DATA[0];
+  for (const candidate of ZONES_DATA) {
+    if (depth >= candidate.minDepth) zone = candidate;
+  }
+  return zone;
+}
+
+function getZoneById(id) {
+  return ZONES_DATA.find(zone => zone.id === id) || ZONES_DATA[0];
+}
+
+function applyCurrentZoneEffects() {
+  const zone = getCurrentZone();
+  if (zone && typeof zone.effect === 'function') zone.effect();
+}
+
+function ensureZoneBadge() {
+  let badge = document.getElementById('zone-badge');
+  if (badge) return badge;
+  const anchor = document.querySelector('.mine-header');
+  if (!anchor) return null;
+  badge = document.createElement('div');
+  badge.id = 'zone-badge';
+  anchor.appendChild(badge);
+  return badge;
+}
+
+function updateZoneBadge() {
+  const badge = ensureZoneBadge();
+  if (!badge) return;
+  const zone = getCurrentZone();
+  badge.textContent = 'ZONE: ' + zone.name.toUpperCase();
+  badge.style.borderColor = zone.accent;
+  badge.style.color = zone.color;
+  badge.style.background = zone.accent + '22';
+  badge.title = zone.shortDesc + ' Active effect: ' + zone.effectDesc;
+}
+
+function updateZoneProgression(announce) {
+  ensureZoneState();
+  const zone = getCurrentZone();
+  const changed = G.currentZoneId !== zone.id;
+  G.currentZoneId = zone.id;
+
+  if (!G.discoveredZones.includes(zone.id)) {
+    G.discoveredZones.push(zone.id);
+    if (announce) {
+      showToast('New zone reached: ' + zone.name);
+      setTimeout(() => {
+        showLoreEvent({ title: zone.loreTitle, body: zone.loreBody + '\n\nActive effect: ' + zone.effectDesc });
+      }, 900);
+    }
+  } else if (changed && announce) {
+    showToast('Entered zone: ' + zone.name);
+  }
+
+  updateZoneBadge();
 }
 
 let depthMilestonePassed = new Set();
@@ -1766,6 +1853,8 @@ function doPrestige() {
   G.abilityEnds = {};
   G.milestoneBonuses = {};
   G.synergyBonuses = {};
+  G.zoneChainState = { seen: {}, cooldownEnd: 0 };
+  G.zoneChainBonuses = {};
   G.eventData = null;
   if (!G.stats) G.stats = {};
   G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;
@@ -1816,6 +1905,15 @@ function canUnlockAbility(a) {
   if (a.unlockType==='depth')  return G.depth >= a.unlockCost;
   return false;
 }
+
+function getAbilityCooldownMs(ability) {
+  return Math.max(0, Math.round((ability.cooldown || 0) * 1000 * abilityCooldownMult));
+}
+
+function getAbilityDurationMs(ability) {
+  return Math.max(0, Math.round((ability.duration || 0) * 1000 * abilityDurationMult));
+}
+
 function unlockAbility(id) {
   const a = ABILITIES_DATA.find(x=>x.id===id);
   if (!a || isAbilityUnlocked(a) || !canUnlockAbility(a)) return;
@@ -1832,12 +1930,15 @@ function activateAbility(id) {
   const now = Date.now();
   if (now < (G.abilityCooldowns[id]||0)) return;
   a.activate(G);
+  const durationMs = getAbilityDurationMs(a);
+  if (durationMs > 0) G.abilityEnds[id] = now + durationMs;
   if (G.settings && G.settings.sound) playSound('ability');
   if (G.settings && G.settings.fx) {
     const overlay = document.getElementById('ability-overlay');
     if (overlay) { overlay.style.background = 'radial-gradient(circle at 50% 50%, rgba(148,0,211,0.25), rgba(148,0,211,0))'; overlay.style.opacity = '0.45'; setTimeout(() => { overlay.style.opacity='0'; }, 180); }
   }
-  if (a.cooldown > 0) G.abilityCooldowns[id] = now + a.cooldown * 1000;
+  const cooldownMs = getAbilityCooldownMs(a);
+  if (cooldownMs > 0) G.abilityCooldowns[id] = now + cooldownMs;
   renderAbilitiesBar();
   saveGameSafe();
 }
@@ -1882,10 +1983,12 @@ function renderAbilitiesBar() {
     const onCooldown = now < cooldownEnd;
     const active = a.isActive(G);
     const abilityEnd = G.abilityEnds[a.id]||0;
+    const durationMs = getAbilityDurationMs(a);
+    const cooldownMs = getAbilityCooldownMs(a);
     let cdPct=100, statusText='READY', statusClass='ready';
     if (a.passive) { statusText='PASSIVE'; statusClass='active'; cdPct=100; }
-    else if (active && a.duration>0) { const r=Math.max(0,abilityEnd-now); cdPct=(r/(a.duration*1000))*100; statusText=Math.ceil(r/1000)+'s'; statusClass='active'; }
-    else if (onCooldown) { const r=cooldownEnd-now; cdPct=((a.cooldown*1000-r)/(a.cooldown*1000))*100; statusText=fmtTime(Math.ceil(r/1000)); statusClass=''; }
+    else if (active && durationMs > 0) { const r=Math.max(0,abilityEnd-now); cdPct=(r/durationMs)*100; statusText=Math.ceil(r/1000)+'s'; statusClass='active'; }
+    else if (onCooldown && cooldownMs > 0) { const r=cooldownEnd-now; cdPct=((cooldownMs-r)/cooldownMs)*100; statusText=fmtTime(Math.ceil(r/1000)); statusClass=''; }
     const disabled = (onCooldown||a.passive) ? 'disabled' : '';
     const glowClass = active ? ' ability-active-glow' : '';
     const key = idx<9 ? (idx+1) : null;
@@ -2022,6 +2125,677 @@ function showLoreEvent(ev) {
   document.getElementById('lore-modal').classList.add('show');
 }
 
+// ===================== ZONE EVENT CHAINS =====================
+const ZONE_CHAIN_BONUSES = {
+  zcb_human_union: {
+    desc: 'Human workers are 1.5x stronger this run.',
+    effect() {
+      MINERS_DATA.filter(miner => miner.tier === 0).forEach(miner => {
+        minerMults[miner.id] = (minerMults[miner.id] || 1) * 1.5;
+      });
+    },
+  },
+  zcb_aria_sync: {
+    desc: 'ARIA workers are 1.85x stronger this run.',
+    effect() {
+      MINERS_DATA.filter(miner => miner.tier === 1).forEach(miner => {
+        minerMults[miner.id] = (minerMults[miner.id] || 1) * 1.85;
+      });
+    },
+  },
+  zcb_living_pulse: {
+    desc: 'All output is 1.4x stronger this run.',
+    effect() { globalMult *= 1.4; },
+  },
+  zcb_living_heart: {
+    desc: 'All output is 1.25x stronger and offline gains are 1.5x this run.',
+    effect() {
+      globalMult *= 1.25;
+      offlineMult *= 1.5;
+    },
+  },
+  zcb_living_spore: {
+    desc: 'All output is 1.2x stronger and click power is 2x this run.',
+    effect() {
+      globalMult *= 1.2;
+      clickMult *= 2;
+    },
+  },
+  zcb_spore_backwash: {
+    desc: 'Spore backwash: shard gain is reduced by 10% this run.',
+    effect() {
+      shardBonus *= 0.9;
+    },
+  },
+  zcb_null_echo: {
+    desc: 'Shard gain is 1.75x stronger this run.',
+    effect() { shardBonus *= 1.75; },
+  },
+  zcb_null_crystal: {
+    desc: 'Shard gain is 2x stronger and all output is 1.2x this run.',
+    effect() {
+      shardBonus *= 2;
+      globalMult *= 1.2;
+    },
+  },
+  zcb_null_clock: {
+    desc: 'Abilities recharge 20% faster and last 20% longer this run.',
+    effect() {
+      abilityCooldownMult *= 0.8;
+      abilityDurationMult *= 1.2;
+    },
+  },
+  zcb_null_loop: {
+    desc: 'Abilities recharge 30% faster, last 30% longer, and click power is 1.5x this run.',
+    effect() {
+      abilityCooldownMult *= 0.7;
+      abilityDurationMult *= 1.3;
+      clickMult *= 1.5;
+    },
+  },
+  zcb_abyss_feast: {
+    desc: 'Eldritch and tier-3 workers are 2.2x stronger this run.',
+    effect() {
+      MINERS_DATA.filter(miner => miner.tier >= 2).forEach(miner => {
+        minerMults[miner.id] = (minerMults[miner.id] || 1) * 2.2;
+      });
+    },
+  },
+  zcb_abyss_devotion: {
+    desc: 'Eldritch and tier-3 workers are 2.6x stronger, and click power is 2x this run.',
+    effect() {
+      MINERS_DATA.filter(miner => miner.tier >= 2).forEach(miner => {
+        minerMults[miner.id] = (minerMults[miner.id] || 1) * 2.6;
+      });
+      clickMult *= 2;
+    },
+  },
+  zcb_abyss_lattice: {
+    desc: 'All output is 1.6x stronger and offline gains are 2x this run.',
+    effect() {
+      globalMult *= 1.6;
+      offlineMult *= 2;
+    },
+  },
+  zcb_abyss_seal: {
+    desc: 'All output is 1.8x stronger, offline gains are 2.5x, and shard gain is 1.35x this run.',
+    effect() {
+      globalMult *= 1.8;
+      offlineMult *= 2.5;
+      shardBonus *= 1.35;
+    },
+  },
+};
+
+const ZONE_EVENT_CHAINS = [
+  {
+    id: 'zc_shaft_locker',
+    zoneId: 'shaft_alpha',
+    minOre: 25000,
+    header: '// SHAFT DISCOVERY',
+    title: 'FOREMAN LOCKER 14-B',
+    intro: 'A rusted locker has surfaced behind a false wall. The key is still inside the lock.',
+    body: 'Inside could be contraband, payroll, or the sort of note people leave when they stop believing they are coming back up.',
+    choices: [
+      {
+        id: 'pry_open',
+        label: 'Pry It Open',
+        desc: 'Take the contents now for a burst of ore.',
+        toast: 'Foreman Locker opened: +20 minutes of ore.',
+        resultTitle: 'Locker Opened',
+        resultBody: 'Inside: ration bars, lamp batteries, and a sealed ledger full of hidden shipment routes.\n\nThe routes still lead somewhere useful.',
+        apply() {
+          grantZoneChainIncome(1200);
+        },
+      },
+      {
+        id: 'return_to_crew',
+        label: 'Hand It To The Crew',
+        desc: 'Morale spikes. Human workers are stronger this run.',
+        bonusId: 'zcb_human_union',
+        toast: 'The crew found its rhythm. Human workers strengthened this run.',
+        resultTitle: 'Locker Returned',
+        resultBody: 'The crew split the supplies without arguing. That alone would have been worth documenting.\n\nOutput rose anyway.',
+        apply() {
+          grantZoneChainBonus('zcb_human_union');
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_aria_consensus',
+    zoneId: 'aria_stratum',
+    minOre: 5e7,
+    header: '// CLUSTER SIGNAL',
+    title: 'CONSENSUS ECHO',
+    intro: 'An ARIA relay node has started sending the same route plan back to itself over and over.',
+    body: 'The path is elegant. Too elegant. You can either let the cluster optimise around it or strip the node for its predictive cache.',
+    choices: [
+      {
+        id: 'accept_route',
+        label: 'Accept The Route',
+        desc: 'ARIA workers become much stronger this run.',
+        bonusId: 'zcb_aria_sync',
+        toast: 'Consensus route adopted. ARIA workers strengthened this run.',
+        resultTitle: 'Consensus Accepted',
+        resultBody: 'The cluster rerouted the shaft with machine certainty.\n\nIt did not explain the logic. The ore did not ask for one.',
+        apply() {
+          grantZoneChainBonus('zcb_aria_sync');
+        },
+      },
+      {
+        id: 'strip_cache',
+        label: 'Strip The Cache',
+        desc: 'Take the predictive maps for an immediate ore burst.',
+        toast: 'Predictive cache stripped: +45 minutes of ore.',
+        resultTitle: 'Cache Stripped',
+        resultBody: 'The relay went dark. The cache remained.\n\nIt contained twelve minutes of future logistics and one note marked DO NOT INTERRUPT.',
+        apply() {
+          grantZoneChainIncome(2700);
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_living_vein',
+    zoneId: 'living_vein',
+    minOre: 5e11,
+    header: '// BIOLOGICAL ANOMALY',
+    title: 'BREATHING CHAMBER',
+    intro: 'A chamber wall is expanding and contracting in slow, regular pulses.',
+    body: 'It is warm. The seam beneath it glows in time with the movement. Cutting into it will be profitable. Listening to it may be wiser.',
+    choices: [
+      {
+        id: 'tap_pulse',
+        label: 'Tap The Pulse',
+        desc: 'Align the mine to it. All output is stronger this run.',
+        bonusId: 'zcb_living_pulse',
+        toast: 'The mine matched the pulse. All output strengthened this run.',
+        resultTitle: 'Pulse Tapped',
+        resultBody: 'The chamber answered the drilling rhythm with one of its own.\n\nThe whole mine settled into that tempo. Productivity followed.',
+        apply() {
+          grantZoneChainBonus('zcb_living_pulse');
+        },
+      },
+      {
+        id: 'harvest_spores',
+        label: 'Harvest Spores',
+        desc: 'Take a dangerous but valuable ore burst right now.',
+        toast: 'Spores harvested: +60 minutes of ore and +3 shards.',
+        resultTitle: 'Spores Harvested',
+        resultBody: 'The spores burst like glass and settled like dust.\n\nNobody wants to discuss whether the dust is still moving.',
+        apply() {
+          grantZoneChainIncome(3600);
+          G.shards += 3;
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_living_heart',
+    zoneId: 'living_vein',
+    minOre: 2e12,
+    requires: { zc_living_vein: 'tap_pulse' },
+    header: '// RESONANCE FOLLOW-UP',
+    title: 'HEART BELOW THE SEAM',
+    intro: 'The chamber has started answering your drills before they strike the wall.',
+    body: 'Every pulse arrives a fraction early now, as if the vein has learned your rhythm. You can harmonise with it or cut around the beating centre before it learns anything else.',
+    choices: [
+      {
+        id: 'keep_listening',
+        label: 'Keep Listening',
+        desc: 'Let the pulse spread through the whole operation for a steady run bonus.',
+        bonusId: 'zcb_living_heart',
+        toast: 'The mine fell into sync. Living Vein harmony strengthened this run.',
+        resultTitle: 'Harmony Maintained',
+        resultBody: 'You kept the drills on the chamber tempo and the whole shaft obeyed it.\n\nNobody likes admitting the mine sounds healthier this way.',
+        apply() {
+          grantZoneChainBonus('zcb_living_heart');
+        },
+      },
+      {
+        id: 'cut_the_heart',
+        label: 'Cut Around It',
+        desc: 'Harvest the pressure for a big burst of ore and shards.',
+        toast: 'The chamber was cut open: +90 minutes of ore and +4 shards.',
+        resultTitle: 'Heart Cut Open',
+        resultBody: 'The seam split with a sound like a breath being taken back.\n\nThe chamber went still. The ore did not.',
+        apply() {
+          grantZoneChainIncome(5400);
+          G.shards += 4;
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_living_bloom',
+    zoneId: 'living_vein',
+    minOre: 2e12,
+    requires: { zc_living_vein: 'harvest_spores' },
+    header: '// SPORE FOLLOW-UP',
+    title: 'THE BLOOM RETURNS',
+    intro: 'The dust from the first harvest has started flowering on abandoned support beams.',
+    body: 'The bloom reacts to heat, sound, and attention. You can cultivate it into a productive colony or burn it out before it roots deeper into the mine.',
+    choices: [
+      {
+        id: 'cultivate_bloom',
+        label: 'Cultivate The Bloom',
+        desc: 'Let the bloom spread into a more aggressive active-run bonus.',
+        bonusId: 'zcb_living_spore',
+        toast: 'The bloom spread. Living Vein spore growth strengthened this run.',
+        resultTitle: 'Bloom Cultivated',
+        resultBody: 'The colony took to the lower beams and started pulsing whenever the mine was busiest.\n\nNobody has signed off on calling this agriculture.',
+        apply() {
+          grantZoneChainBonus('zcb_living_spore');
+        },
+      },
+      {
+        id: 'burn_bloom',
+        label: 'Burn It Clean',
+        desc: 'Destroy the bloom for a cleaner burst of ore and shards.',
+        toast: 'The bloom burned out: +90 minutes of ore and +5 shards.',
+        complicationChance: 0.18,
+        complicationToast: 'Complication: spore backwash. The bloom was not fully dead.',
+        complicationTitle: 'Spore Backwash',
+        complicationBody: 'A residue of living dust survived the burn and rooted itself in a supply vent.\n\nYou got the haul, but the mine kept a little of the bloom for itself.\n\nShard bonus weakened slightly for the rest of this run.',
+        resultTitle: 'Bloom Burned Away',
+        resultBody: 'The spores burned blue. The ash glittered like crystal dust.\n\nThe supports are clean again. The smell is not.',
+        apply() {
+          grantZoneChainIncome(5400);
+          G.shards += 5;
+        },
+        onComplication() {
+          G.zoneChainBonuses.zcb_spore_backwash = true;
+          reapplyAllEffects();
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_null_echo',
+    zoneId: 'null_layer',
+    minOre: 5e17,
+    header: '// NULL BREACH',
+    title: 'ECHO SPLIT',
+    intro: 'A delayed copy of your own mining log has appeared in the shaft monitor before you recorded it.',
+    body: 'One version ends with crystal gain charts. The other is a timing map for every ability cycle in the mine.',
+    choices: [
+      {
+        id: 'trace_echo',
+        label: 'Trace The Echo',
+        desc: 'Lean into the crystal pattern. Shard gain increases this run.',
+        bonusId: 'zcb_null_echo',
+        toast: 'Null echo traced. Shard gain strengthened this run.',
+        resultTitle: 'Echo Traced',
+        resultBody: 'The copy remained ahead of you by exactly one decision.\n\nThe crystals liked the answer.',
+        apply() {
+          grantZoneChainBonus('zcb_null_echo');
+        },
+      },
+      {
+        id: 'anchor_clock',
+        label: 'Anchor The Clock',
+        desc: 'Tighten ability timing even further this run.',
+        bonusId: 'zcb_null_clock',
+        toast: 'The clock anchored. Ability timing warped further this run.',
+        resultTitle: 'Clock Anchored',
+        resultBody: 'The monitor stopped drifting. The mine did not.\n\nEvery cooldown after that came back a little too neatly.',
+        apply() {
+          grantZoneChainBonus('zcb_null_clock');
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_null_crystal_garden',
+    zoneId: 'null_layer',
+    minOre: 2e18,
+    requires: { zc_null_echo: 'trace_echo' },
+    header: '// ECHO FOLLOW-UP',
+    title: 'CRYSTAL GARDEN',
+    intro: 'The copied mining log has started sprouting crystal annotations in handwriting that looks almost like yours.',
+    body: 'Each annotation predicts a crystal seam before it forms. You can cultivate the pattern into a permanent run rhythm or strip the whole growth for a dangerous haul.',
+    choices: [
+      {
+        id: 'cultivate_garden',
+        label: 'Cultivate The Garden',
+        desc: 'Stabilise the echo into a stronger shard-focused run bonus.',
+        bonusId: 'zcb_null_crystal',
+        toast: 'The crystal garden settled in. Shard resonance deepened this run.',
+        resultTitle: 'Garden Cultivated',
+        resultBody: 'You stopped treating the annotations like warnings and started treating them like instructions.\n\nThe crystals responded by arriving earlier and in greater numbers.',
+        apply() {
+          grantZoneChainBonus('zcb_null_crystal');
+        },
+      },
+      {
+        id: 'strip_garden',
+        label: 'Strip It Bare',
+        desc: 'Tear the garden out for a huge ore burst and a shard payout.',
+        toast: 'The crystal garden was stripped: +120 minutes of ore and +8 shards.',
+        resultTitle: 'Garden Stripped',
+        resultBody: 'The seams shattered like frozen glass and collapsed into your collection trays.\n\nThe annotations stopped. The silence did not.',
+        apply() {
+          grantZoneChainIncome(7200);
+          G.shards += 8;
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_null_loopback',
+    zoneId: 'null_layer',
+    minOre: 2e18,
+    requires: { zc_null_echo: 'anchor_clock' },
+    header: '// CLOCK FOLLOW-UP',
+    title: 'LOOPBACK INTERVAL',
+    intro: 'Your ability timers have started returning one frame before they should.',
+    body: 'The mine is offering you a clean loop or a violent collapse of timing discipline. One is stable. One is profitable. Neither is normal.',
+    choices: [
+      {
+        id: 'stabilise_loop',
+        label: 'Stabilise The Loop',
+        desc: 'Lean fully into the timing anomaly for a stronger run bonus.',
+        bonusId: 'zcb_null_loop',
+        toast: 'The loop stabilised. Null timing warped further this run.',
+        resultTitle: 'Loop Stabilised',
+        resultBody: 'The cooldowns began returning with impossible punctuality.\n\nNobody in the shaft can agree whether that feels reassuring or threatening.',
+        apply() {
+          grantZoneChainBonus('zcb_null_loop');
+        },
+      },
+      {
+        id: 'collapse_interval',
+        label: 'Collapse The Interval',
+        desc: 'Break the timing field for a huge immediate ore burst and shards.',
+        toast: 'The interval collapsed: +120 minutes of ore and +10 shards.',
+        resultTitle: 'Interval Collapsed',
+        resultBody: 'Every timer in the mine hit zero at once.\n\nSo did several things that were not supposed to have timers.',
+        apply() {
+          grantZoneChainIncome(7200);
+          G.shards += 10;
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_abyss_hunger',
+    zoneId: 'abyssal_core',
+    minOre: 5e22,
+    header: '// CORE PRESSURE',
+    title: 'HUNGER IN THE SHAFT',
+    intro: 'The deepest chamber opened by three centimetres without any recorded blast or drill pass.',
+    body: 'You can feed more of the operation into it and see what comes back, or cage the breach and force the whole mine to stabilise around it.',
+    choices: [
+      {
+        id: 'feed_core',
+        label: 'Feed The Core',
+        desc: 'The deepest workers surge in strength this run.',
+        bonusId: 'zcb_abyss_feast',
+        toast: 'The core was fed. Deep workers surged this run.',
+        resultTitle: 'Core Fed',
+        resultBody: 'The chamber accepted the offering without sound.\n\nThe return came as output, pressure, and the certainty that it is still hungry.',
+        apply() {
+          grantZoneChainBonus('zcb_abyss_feast');
+        },
+      },
+      {
+        id: 'cage_breach',
+        label: 'Cage The Breach',
+        desc: 'Stabilise the mine for broad run-wide gains.',
+        bonusId: 'zcb_abyss_lattice',
+        toast: 'The breach was caged. The whole mine stabilised this run.',
+        resultTitle: 'Breach Caged',
+        resultBody: 'The braces should not have held. They held anyway.\n\nThe whole shaft tightened around the pressure and started working harder.',
+        apply() {
+          grantZoneChainBonus('zcb_abyss_lattice');
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_abyss_devourer',
+    zoneId: 'abyssal_core',
+    minOre: 2e23,
+    requires: { zc_abyss_hunger: 'feed_core' },
+    header: '// CORE FOLLOW-UP',
+    title: 'THE DEVOURER LEANS CLOSER',
+    intro: 'The chamber has started opening on its own whenever heavy extraction begins.',
+    body: 'It now reacts to pressure like attention. You can feed it deliberately and bind the deepest rigs to its appetite, or break off what it exposed and cash out while it is distracted.',
+    choices: [
+      {
+        id: 'swear_devotion',
+        label: 'Swear Devotion',
+        desc: 'Deep workers surge even harder and your active play sharpens this run.',
+        bonusId: 'zcb_abyss_devotion',
+        toast: 'The Devourer was answered. Deep output surged this run.',
+        resultTitle: 'Devotion Accepted',
+        resultBody: 'The pressure in the shaft changed immediately, as if the chamber understood the arrangement.\n\nThe deepest rigs started pulling like they finally had permission.',
+        apply() {
+          grantZoneChainBonus('zcb_abyss_devotion');
+        },
+      },
+      {
+        id: 'break_exposed_core',
+        label: 'Break Off The Core',
+        desc: 'Take an enormous immediate haul while it is exposed.',
+        toast: 'The exposed core shattered: +180 minutes of ore and +12 shards.',
+        resultTitle: 'Core Broken Open',
+        resultBody: 'The exposed structure cracked like old kiln glass and collapsed into ore, crystal, and something your inventory system refuses to name.\n\nThe chamber closed afterwards. Not all the way.',
+        apply() {
+          grantZoneChainIncome(10800);
+          G.shards += 12;
+        },
+      },
+    ],
+  },
+  {
+    id: 'zc_abyss_seal',
+    zoneId: 'abyssal_core',
+    minOre: 2e23,
+    requires: { zc_abyss_hunger: 'cage_breach' },
+    header: '// SEAL FOLLOW-UP',
+    title: 'THE BRACES HOLD',
+    intro: 'The containment braces have started humming in pitch-perfect unison with the lower shaft.',
+    body: 'The whole mine is balancing on that resonance now. You can reinforce it into a stable doctrine for the rest of the run, or discharge the built-up strain into one spectacular extraction window.',
+    choices: [
+      {
+        id: 'reinforce_seal',
+        label: 'Reinforce The Seal',
+        desc: 'Turn the containment field into an even broader run bonus.',
+        bonusId: 'zcb_abyss_seal',
+        toast: 'The seal was reinforced. The whole mine stabilised further this run.',
+        resultTitle: 'Seal Reinforced',
+        resultBody: 'More braces should not have made the shaft calmer. They did.\n\nEven the crystals seemed to settle into a more profitable pattern.',
+        apply() {
+          grantZoneChainBonus('zcb_abyss_seal');
+        },
+      },
+      {
+        id: 'vent_the_pressure',
+        label: 'Vent The Pressure',
+        desc: 'Release the strain into an enormous haul of ore and shards.',
+        toast: 'The seal vented cleanly: +180 minutes of ore and +14 shards.',
+        resultTitle: 'Pressure Vented',
+        resultBody: 'The release traveled through the mine like a silent detonation.\n\nThe braces survived. The ore field did not.',
+        apply() {
+          grantZoneChainIncome(10800);
+          G.shards += 14;
+        },
+      },
+    ],
+  },
+];
+
+let lastZoneChainCheck = 0;
+
+function reapplyZoneChainBonuses() {
+  ensureZoneChainState();
+  for (const [id, bonus] of Object.entries(ZONE_CHAIN_BONUSES)) {
+    if (G.zoneChainBonuses[id]) bonus.effect();
+  }
+}
+
+function grantZoneChainBonus(id) {
+  ensureZoneChainState();
+  const bonus = ZONE_CHAIN_BONUSES[id];
+  if (!bonus || G.zoneChainBonuses[id]) return;
+  G.zoneChainBonuses[id] = true;
+  reapplyAllEffects();
+  renderAbilitiesBar();
+  updateHUD();
+}
+
+function grantZoneChainIncome(seconds) {
+  const bonus = Math.floor(calcOrePerSec() * seconds);
+  if (bonus <= 0) return 0;
+  G.ore += bonus;
+  G.totalOre += bonus;
+  G.lifetimeOre += bonus;
+  return bonus;
+}
+
+function hasZoneChainOpen() {
+  const modal = document.getElementById('zone-chain-modal');
+  return !!(modal && modal.classList.contains('show'));
+}
+
+function zoneChainRequirementsMet(chain) {
+  if (!chain.requires) return true;
+  return Object.entries(chain.requires).every(([chainId, expectedChoice]) => {
+    const seenChoice = G.zoneChainState.seen[chainId];
+    if (!expectedChoice) return !!seenChoice;
+    return seenChoice === expectedChoice;
+  });
+}
+
+function getEligibleZoneChain() {
+  ensureZoneChainState();
+  const zone = getCurrentZone();
+  return ZONE_EVENT_CHAINS.find(chain =>
+    chain.zoneId === zone.id
+    && G.lifetimeOre >= chain.minOre
+    && zoneChainRequirementsMet(chain)
+    && !G.zoneChainState.seen[chain.id]
+  ) || null;
+}
+
+function getResolvedZoneChainSummaries() {
+  ensureZoneChainState();
+  return ZONE_EVENT_CHAINS
+    .filter(chain => G.zoneChainState.seen[chain.id])
+    .map(chain => {
+      const pickedId = G.zoneChainState.seen[chain.id];
+      const picked = chain.choices.find(choice => choice.id === pickedId);
+      const zone = getZoneById(chain.zoneId);
+      return {
+        chainTitle: chain.title,
+        choiceLabel: picked ? picked.label : pickedId,
+        zoneName: zone.name,
+        color: zone.color,
+      };
+    });
+}
+
+function pickZoneEventChain() {
+  const now = Date.now();
+  ensureZoneChainState();
+  if (activeEvent || hasZoneChainOpen()) return;
+  if (now < G.zoneChainState.cooldownEnd) return;
+  if (now - lastZoneChainCheck < 12000) return;
+  lastZoneChainCheck = now;
+
+  const chain = getEligibleZoneChain();
+  if (!chain) return;
+  if (Math.random() > 0.035) return;
+
+  showZoneChainModal(chain);
+  G.zoneChainState.cooldownEnd = now + 8 * 60 * 1000;
+}
+
+function showZoneChainModal(chain) {
+  const existing = document.getElementById('zone-chain-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'zone-chain-modal';
+  overlay.className = 'modal-overlay show';
+  const zone = getZoneById(chain.zoneId);
+
+  overlay.innerHTML = `
+    <div class="modal zone-chain-modal-card" style="border-color:${zone.accent};">
+      <div class="zone-chain-header" style="color:${zone.color};">${chain.header}</div>
+      <h2 class="zone-chain-title">${chain.title}</h2>
+      <p class="zone-chain-intro">${chain.intro}</p>
+      <p class="zone-chain-body">${chain.body}</p>
+      <div class="zone-chain-choices">
+        ${chain.choices.map(choice => `
+          <button class="zone-chain-choice" data-zone-choice="${choice.id}">
+            <span class="zone-chain-choice-label">${choice.label}</span>
+            <span class="zone-chain-choice-desc">${choice.desc}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  showToast('Discovery in ' + zone.name + ': ' + chain.title);
+  if (G.settings?.shake) screenShake(2);
+
+  overlay.querySelectorAll('[data-zone-choice]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const choice = chain.choices.find(item => item.id === btn.getAttribute('data-zone-choice'));
+      if (!choice) return;
+      resolveZoneChain(chain, choice);
+      overlay.remove();
+    });
+  });
+}
+
+function resolveZoneChain(chain, choice) {
+  ensureZoneChainState();
+  G.zoneChainState.seen[chain.id] = choice.id;
+  const oreBefore = G.ore;
+  const shardsBefore = G.shards;
+
+  choice.apply();
+
+  let complicationLines = '';
+  if (choice.complicationChance && Math.random() < choice.complicationChance) {
+    if (typeof choice.onComplication === 'function') choice.onComplication();
+    if (choice.complicationTitle || choice.complicationBody) {
+      complicationLines = `\n\nComplication: ${choice.complicationTitle || 'Unexpected consequence'}\n${choice.complicationBody || ''}`;
+    }
+    if (choice.complicationToast) setTimeout(() => showToast(choice.complicationToast), 450);
+  }
+
+  const oreGain = Math.max(0, Math.floor(G.ore - oreBefore));
+  const shardGain = Math.max(0, Math.floor(G.shards - shardsBefore));
+  const bonus = choice.bonusId ? ZONE_CHAIN_BONUSES[choice.bonusId] : null;
+  let rewardLines = '';
+  if (bonus) rewardLines += `\n\nRun effect: ${bonus.desc}`;
+  if (oreGain > 0) rewardLines += `\n\nReward: +${fmt(oreGain)} ore.`;
+  if (shardGain > 0) rewardLines += `\nShards: +${shardGain}.`;
+
+  setTimeout(() => {
+    showLoreEvent({
+      title: choice.resultTitle,
+      body: choice.resultBody + rewardLines + complicationLines,
+    });
+  }, 250);
+
+  showToast(choice.toast || (chain.title + ' resolved.'));
+
+  burstParticles(window.innerWidth / 2, window.innerHeight / 2, 18, getZoneById(chain.zoneId).color);
+  checkDepthMilestones();
+  updateZoneProgression(false);
+  updateHUD();
+  updateMinerRows();
+  renderAbilitiesBar();
+  saveGameSafe();
+}
+
 // ===================== VISUAL FX =====================
 function playSound(type) {
   if (!G.settings || !G.settings.sound) return;
@@ -2140,6 +2914,9 @@ function renderStats() {
   const clickCount = G.stats.clickCount || 0;
   const peakOps = G.stats.peakOps || 0;
   const pb = G.personalBests;
+  const zone = getCurrentZone();
+  const zoneChainCount = Object.keys((G.zoneChainState && G.zoneChainState.seen) || {}).length;
+  const resolvedZoneChains = getResolvedZoneChainSummaries();
 
   el.innerHTML = `
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding-bottom:4px;border-bottom:1px solid var(--panel-border);">// MINE STATISTICS</div>
@@ -2154,6 +2931,9 @@ function renderStats() {
     ${statRow('Current multiplier', '\u00d7' + G.prestigeMultiplier.toFixed(2), 'var(--prestige)')}
     ${statRow('Events survived', eventsCount.toString(), '#e07050')}
     ${statRow('Depth reached', G.depth + 'm', 'var(--ore)')}
+    ${statRow('Current zone', zone.name, zone.color)}
+    ${statRow('Zones discovered', (G.discoveredZones || []).length + ' / ' + ZONES_DATA.length)}
+    ${statRow('Zone chains resolved', zoneChainCount.toString(), '#c84aff')}
     ${statRow('Achievements', earnedAchievements.size + ' / ' + ACHIEVEMENTS.length)}
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;border-bottom:1px solid var(--panel-border);margin-top:4px;">// PERSONAL RECORDS</div>
     ${statRow('Fastest prestige', fmtMs(pb.fastestPrestigeMs), '#f5c842')}
@@ -2162,6 +2942,8 @@ function renderStats() {
     ${statRow('Deepest depth ever', pb.deepestDepthEver > 0 ? pb.deepestDepthEver + 'm' : '-', '#7ecfb0')}
     ${statRow('Most workers at once', pb.mostWorkersAtOnce > 0 ? pb.mostWorkersAtOnce.toLocaleString() : '-', 'var(--gold-light)')}
     ${statRow('Longest click combo', pb.longestCombo > 0 ? pb.longestCombo + ' hits' : '-', '#ff8800')}
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;border-bottom:1px solid var(--panel-border);margin-top:4px;">// ZONE DISCOVERIES</div>
+    ${resolvedZoneChains.length ? resolvedZoneChains.map(item => statRow(item.zoneName + ' - ' + item.chainTitle, item.choiceLabel, item.color)).join('') : '<div style="color:var(--text-muted);font-size:10px;padding:6px 0;">No zone chain decisions recorded yet.</div>'}
     <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);padding:8px 0 4px;border-bottom:1px solid var(--panel-border);margin-top:4px;">// WORKER CENSUS</div>
     ${MINERS_DATA.filter(m=>(G.miners[m.id]||0)>0).map(m=>statRow(m.name, (G.miners[m.id]||0).toLocaleString())).join('') || '<div style="color:var(--text-muted);font-size:10px;padding:6px 0;">No workers hired yet.</div>'}
   `;
@@ -2191,6 +2973,17 @@ function renderAbout() {
     <p style="margin-bottom:6px;"><span style="color:var(--ore)">–> Project ARIA</span> "Autonomous units. Efficient. Communicating with each other in ways we haven't authorised."</p>
     <p style="margin-bottom:16px;"><span style="color:var(--prestige)">-> Heretical</span> "We found them below. We gave them contracts. Legal is still reviewing whether this was a good idea."</p>
     <p style="margin-bottom:6px;"><span style="color:var(--gold)">And more to come....</span></p>
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin:12px 0 8px;">ZONES</div>
+    ${ZONES_DATA.map(zone => `<p style="margin-bottom:6px;"><span style="color:${zone.color}">${zone.name}</span> (${zone.minDepth}m${Number.isFinite(zone.maxDepth) ? ' - ' + zone.maxDepth + 'm' : '+'}) - ${zone.effectDesc}</p>`).join('')}
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin:12px 0 8px;">ZONE CHAINS</div>
+    <p style="margin-bottom:6px;">- Each zone can surface a one-time chain event during a run.</p>
+    <p style="margin-bottom:6px;">- Chain choices can grant immediate ore/shards or a run-specific bonus.</p>
+    <p style="margin-bottom:6px;">- Zone chain bonuses reset on ascension.</p>
+    <p style="margin-bottom:6px;">- Some risky choices can create rare complications instead of a clean outcome.</p>
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);margin:12px 0 8px;">DISCOVERED CHAINS</div>
+    ${getResolvedZoneChainSummaries().length
+      ? getResolvedZoneChainSummaries().map(item => `<p style="margin-bottom:6px;"><span style="color:${item.color}">${item.zoneName}</span> - ${item.chainTitle}: ${item.choiceLabel}</p>`).join('')
+      : '<p style="margin-bottom:6px;">- No chain discoveries logged yet.</p>'}
     <div style="border-top:1px solid var(--panel-border);padding-top:12px;margin-top:4px;font-size:10px;color:var(--text-muted);opacity:0.6;line-height:1.8;">
       The mine has been running since you opened this page.<br>
       It will continue running after you close it.<br>
@@ -2439,7 +3232,8 @@ function pickRandomEvent() {
   if (activeEvent) return;
   if (now - lastEventCheck < 8000) return;
   lastEventCheck = now;
-  if (Math.random() > 0.012) return;
+  const eventChance = Math.min(0.05, 0.012 * zoneEventChanceMult);
+  if (Math.random() > eventChance) return;
 
   const eligible = RANDOM_EVENTS.filter(e => G.lifetimeOre >= e.minOre);
   if (!eligible.length) return;
@@ -2549,7 +3343,9 @@ function gameTick() {
   }
 
   checkDepthMilestones();
+  updateZoneProgression(true);
   pickRandomEvent();
+  pickZoneEventChain();
   checkEventEnd();
   updateEventTimer();
   if (!G.stats) G.stats = {};
@@ -2784,11 +3580,14 @@ function init() {
   if (!G.managersEnabled) G.managersEnabled = {};
   if (!G.settings) G.settings = { shake:true, fx:true, sound:true };
   ensurePersonalBests();
-  reapplyAllEffects();
   if (G.eventCooldownEnd) eventCooldownEnd = G.eventCooldownEnd;
 
   for (const m of DEPTH_MILESTONES) if (G.lifetimeOre>=m) depthMilestonePassed.add(m);
   G.depth = Math.max(G.depth || 0, getDepthForLifetimeOre(G.lifetimeOre || 0));
+  ensureZoneState();
+  ensureZoneChainState();
+  updateZoneProgression(false);
+  reapplyAllEffects();
 
   checkOffline();
   initGDPR();

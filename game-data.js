@@ -196,3 +196,82 @@ const ABILITIES_DATA = [
   { id: 'deep_truth',      name: 'The Deep Truth',    icon: 'deep_truth',      type: 'passive', desc: 'Permanent +100% all output.',                    unlockType: 'shards', unlockCost: 900, cooldown: 0, duration: 0, activate() {}, isActive() { return false; }, passive: true },
 ];
 
+const ZONES_DATA = [
+  {
+    id: 'shaft_alpha',
+    name: 'Shaft Alpha',
+    minDepth: 0,
+    maxDepth: 199,
+    color: '#f5c842',
+    accent: '#6a5020',
+    shortDesc: 'Industrial starter shaft. Manual digging is unusually effective here.',
+    effectDesc: '2x click power.',
+    loreTitle: 'Zone Reached - Shaft Alpha',
+    loreBody: 'The upper shaft is still familiar: dust, rust, payroll forms, and the illusion that this is a normal mine.\n\nThe rock gives way to effort here. Your hands still matter.',
+    effect() { clickMult *= 2; },
+  },
+  {
+    id: 'aria_stratum',
+    name: 'ARIA Stratum',
+    minDepth: 200,
+    maxDepth: 599,
+    color: '#40c0e0',
+    accent: '#204060',
+    shortDesc: 'A colder, cleaner layer where automation settles into the walls.',
+    effectDesc: '1.75x ARIA worker output.',
+    loreTitle: 'Zone Reached - ARIA Stratum',
+    loreBody: 'The mine changes texture here. Less dust. More hum.\n\nARIA units move through this layer like they have seen it in simulation a thousand times already.',
+    effect() {
+      ['drone', 'laser', 'nanoswarm', 'blackhole', 'timefold', 'mindspore'].forEach(id => {
+        minerMults[id] = (minerMults[id] || 1) * 1.75;
+      });
+    },
+  },
+  {
+    id: 'living_vein',
+    name: 'Living Vein',
+    minDepth: 600,
+    maxDepth: 1199,
+    color: '#7ecfb0',
+    accent: '#2a4a3a',
+    shortDesc: 'The stone looks organic and the mine starts answering back.',
+    effectDesc: '1.75x random event frequency.',
+    loreTitle: 'Zone Reached - Living Vein',
+    loreBody: 'The ore seams pulse in uneven rhythms. Cracks close when nobody is looking.\n\nThe deeper crew have stopped calling this geology. Nobody has proposed a better word.',
+    effect() { zoneEventChanceMult *= 1.75; },
+  },
+  {
+    id: 'null_layer',
+    name: 'Null Layer',
+    minDepth: 1200,
+    maxDepth: 2199,
+    color: '#c84aff',
+    accent: '#4a1060',
+    shortDesc: 'A reality-thin layer where the crystals multiply strangely.',
+    effectDesc: 'Abilities last 25% longer and recharge 25% faster.',
+    loreTitle: 'Zone Reached - Null Layer',
+    loreBody: 'Distances stop agreeing with themselves here. The shaft map looks different depending on who prints it.\n\nThe crystals resonate harder in this layer, as if they recognise the place.',
+    effect() {
+      abilityCooldownMult *= 0.75;
+      abilityDurationMult *= 1.25;
+    },
+  },
+  {
+    id: 'abyssal_core',
+    name: 'Abyssal Core',
+    minDepth: 2200,
+    maxDepth: Infinity,
+    color: '#ff8860',
+    accent: '#5a2418',
+    shortDesc: 'The deepest industrial horror. Eldritch and singularity rigs thrive here.',
+    effectDesc: '2x eldritch and tier-3 worker output.',
+    loreTitle: 'Zone Reached - Abyssal Core',
+    loreBody: 'There should not be an operational layer this far down.\n\nNevertheless, the deepest contracts perform best here. The old things, the impossible things, the machines that should count as theology by now.',
+    effect() {
+      MINERS_DATA.filter(miner => miner.tier >= 2).forEach(miner => {
+        minerMults[miner.id] = (minerMults[miner.id] || 1) * 2;
+      });
+    },
+  },
+];
+
