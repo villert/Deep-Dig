@@ -3093,7 +3093,7 @@ const NewsTicker = (() => {
   function getTickerDuration(lines) {
     const totalChars = lines.reduce((sum, line) => sum + line.text.length + 10, 0);
     const estimatedWidth = totalChars * 6.2;
-    return Math.max(60, estimatedWidth / 90); // ~90px/sec scroll speed
+    return Math.max(90, estimatedWidth / 40); // target a calmer ~40px/sec scroll speed
   }
  
   function buildTicker() {
@@ -3110,7 +3110,7 @@ const NewsTicker = (() => {
       return `<span class="ticker-item ${cls}"><span class="ticker-dot">■</span>${line.text}</span>`;
     }).join('');
  
-    el.style.animationDuration = `${getTickerDuration(doubled)}s`;
+    el.style.animationDuration = `${getTickerDuration(selected)}s`;
  
     lastRefresh = Date.now();
   }
