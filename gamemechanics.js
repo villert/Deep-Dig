@@ -779,12 +779,16 @@ let autoManagers = new Set();
 
 function calcClickPower() {
   let mult = clickMult * G.prestigeMultiplier * getEventClickMult();
+  if (window.ComboSystem && typeof window.ComboSystem.getMultiplier === 'function') mult *= window.ComboSystem.getMultiplier();
+  if (typeof perkClickMult === 'function') mult *= perkClickMult();
   if (Date.now() < (G.abilityEnds['deep_pulse'] || 0)) mult *= 4;
   return Math.max(1, Math.floor(mult));
 }
 
 function calcMinerCost(miner, current) {
-  return Math.ceil(miner.baseCost * Math.pow(miner.growthRate, current));
+  const baseCost = miner.baseCost * Math.pow(miner.growthRate, current);
+  const perkMult = typeof perkCostMult === 'function' ? perkCostMult() : 1;
+  return Math.ceil(baseCost * perkMult);
 }
 
 function calcOrePerSec() {
@@ -798,6 +802,7 @@ function calcOrePerSec() {
   if (Date.now() < (G.abilityEnds['eldritch_hunger'] || 0)) total *= 10;
   if (G.abilitiesUnlocked['iron_skin'])  total *= 1.25;
   if (G.abilitiesUnlocked['deep_truth']) total *= 2;
+  if (typeof perkOpsMult === 'function') total *= perkOpsMult();
   return total;
 }
 
@@ -814,7 +819,9 @@ function getPrestigeShardRequirement() {
 
 function calcPrestigeShards() {
   if (G.lifetimeOre < 20000000) return 0;
-  return Math.floor(Math.sqrt(G.lifetimeOre / getPrestigeShardRequirement()) * shardBonus);
+  const perkMult = typeof perkShardMult === 'function' ? perkShardMult() : 1;
+  const challengeMult = G._challengeShardMult || 1;
+  return Math.floor(Math.sqrt(G.lifetimeOre / getPrestigeShardRequirement()) * shardBonus * perkMult * challengeMult);
 }
 
 function calcPrestigeMultiplier(shards) { return 1 + shards * 0.15; }
@@ -976,6 +983,7 @@ function clickMine(e) {
   if (!Number.isFinite(G.totalOre)) G.totalOre = 0;
   if (!Number.isFinite(G.lifetimeOre)) G.lifetimeOre = 0;
   if (!Number.isFinite(G.prestigeMultiplier)) G.prestigeMultiplier = 1;
+  if (window.ComboSystem && typeof window.ComboSystem.onClick === 'function') window.ComboSystem.onClick(e);
   const gain = calcClickPower();
   G.ore += gain; G.totalOre += gain; G.lifetimeOre += gain;
   if (!G.stats) G.stats = {};
@@ -986,6 +994,7 @@ function clickMine(e) {
   burstParticles(x, y, 5, '#f5c842');
   if (G.settings && G.settings.sound) playSound('click');
   if (G.settings && G.settings.shake && gain > 100) screenShake(2);
+  if (window.ComboSystem && typeof window.ComboSystem.showFeedback === 'function') window.ComboSystem.showFeedback(e);
   updateHUD();
   updateMinerRows();
   saveGameSafe();
@@ -1830,7 +1839,8 @@ function doPrestige() {
   G.miners = {};
   G.upgrades = {};
   G.managers = {};
-  G.tech = {};
+  // Preserve researched tech through ascension (Project ARIA / Heretical Ops etc.)
+  // G.tech = {};
   G.depth = 0;
   G.abilitiesUnlocked = {};
   G.abilityCooldowns = {};
@@ -1867,7 +1877,8 @@ function hardReset() {
 function checkOffline() {
   const elapsed = Math.min((Date.now()-G.lastSave)/1000, 3600*8);
   if (elapsed < 10) return;
-  const gained = Math.floor(calcOrePerSec() * elapsed * offlineMult);
+  const perkMult = typeof perkOfflineMult === 'function' ? perkOfflineMult() : 1;
+  const gained = Math.floor(calcOrePerSec() * elapsed * offlineMult * perkMult);
   if (gained > 0) {
     G.ore+=gained; G.totalOre+=gained; G.lifetimeOre+=gained;
     document.getElementById('offline-reward').textContent = '+' + fmt(gained) + ' ore';
@@ -2097,10 +2108,25 @@ function playSound(type) {
   osc.start(); osc.stop(ctx.currentTime+dur);
 }
 
+let screenShakeResetTimer = null;
 function screenShake(intensity) {
   if (!G.settings || !G.settings.shake) return;
-  document.body.style.transform = `translate(${(Math.random()-0.5)*intensity}px,${(Math.random()-0.5)*intensity}px)`;
-  setTimeout(() => { document.body.style.transform=''; }, 80);
+  const targets = document.querySelectorAll('header, #news-ticker-bar, .game-layout');
+  if (!targets.length) return;
+
+  const dx = (Math.random() - 0.5) * intensity;
+  const dy = (Math.random() - 0.5) * intensity;
+
+  targets.forEach(el => {
+    el.style.transform = `translate(${dx}px,${dy}px)`;
+  });
+
+  clearTimeout(screenShakeResetTimer);
+  screenShakeResetTimer = setTimeout(() => {
+    targets.forEach(el => {
+      el.style.transform = '';
+    });
+  }, 80);
 }
 
 function spawnParticle(x, y, color) {
@@ -2505,8 +2531,11 @@ function checkEventEnd() {
 }
 
 function getEventOutputMult(minerId) {
-  if (!activeEvent) return 1;
-  return activeEvent.getMultiplier(G, minerId);
+  const baseMult = activeEvent ? activeEvent.getMultiplier(G, minerId) : 1;
+  const godMult = window.GodThreatMeter && typeof window.GodThreatMeter.getOutputMultiplier === 'function'
+    ? window.GodThreatMeter.getOutputMultiplier(minerId)
+    : 1;
+  return baseMult * godMult;
 }
 
 function getEventClickMult() {
@@ -2565,6 +2594,16 @@ function gameTick() {
     const count = G.miners[minerId]||0;
     const cost = calcMinerCost(m, count);
     if (G.ore >= cost) { G.ore-=cost; G.miners[minerId]=count+1; }
+    if (typeof getAriaManagerExtraBuys === 'function') {
+      const extraBuys = getAriaManagerExtraBuys(minerId);
+      for (let i = 0; i < extraBuys; i++) {
+        const extraCount = G.miners[minerId] || 0;
+        const extraCost = calcMinerCost(m, extraCount);
+        if (G.ore < extraCost) break;
+        G.ore -= extraCost;
+        G.miners[minerId] = extraCount + 1;
+      }
+    }
   }
 
   checkDepthMilestones();
@@ -2580,6 +2619,10 @@ function gameTick() {
   checkAchievements();
   checkLoreEvents();
   NewsTicker.tick();
+  if (window.GodThreatMeter && typeof window.GodThreatMeter.tick === 'function') window.GodThreatMeter.tick(dt);
+  if (typeof tickDepthChallenges === 'function') tickDepthChallenges();
+  if (typeof tickAriaArc === 'function') tickAriaArc();
+  if (typeof updateMineButtonStage === 'function') updateMineButtonStage();
 
 }
 
@@ -3112,6 +3155,7 @@ const NewsTicker = (() => {
  
     el.style.animationDuration = `${getTickerDuration(selected)}s`;
  
+    lastUnlockSignature = getUnlockSignature();
     lastRefresh = Date.now();
   }
  
@@ -3140,3 +3184,1528 @@ const NewsTicker = (() => {
 
 try { init(); } catch (e) { console.error('Deep Dig init failed', e); }
 try { NewsTicker.init(); } catch (e) { console.error('Dispatch init failed', e); }
+
+// =====================================================================
+// Adapted for the current code so both systems integrate with the
+// existing click flow, event multipliers, and main game loop.
+// =====================================================================
+
+const ComboSystem = (() => {
+  let comboCount = 0;
+  let comboTimer = null;
+  let comboEl = null;
+  let lastFeedbackCombo = 0;
+  const COMBO_WINDOW_MS = 800; // smaller window = harder to maintain
+
+  const TIERS = [
+    [320, 14, 'FRENZY', '#ff4444'],
+    [160, 7, 'BLAZING', '#ff8800'],
+    [80, 3, 'HOT', '#f5c842'],
+    [40, 2, 'COMBO', '#7ecfb0'],
+  ];
+
+  function getComboTier() {
+    for (const [min, mult, label, col] of TIERS) {
+      if (comboCount >= min) return { mult, label, col };
+    }
+    return { mult: 1, label: '', col: '#ffffff' };
+  }
+
+  function getMultiplier() {
+    return getComboTier().mult;
+  }
+
+  function buildUI() {
+    if (document.getElementById('combo-display')) {
+      comboEl = document.getElementById('combo-display');
+      return;
+    }
+
+    comboEl = document.createElement('div');
+    comboEl.id = 'combo-display';
+    comboEl.style.cssText = [
+      'position:fixed',
+      'bottom:90px',
+      'left:50%',
+      'transform:translateX(-50%)',
+      'font-family:"Oswald",sans-serif',
+      'font-size:22px',
+      'letter-spacing:4px',
+      'pointer-events:none',
+      'z-index:9997',
+      'opacity:0',
+      'transition:opacity 0.25s',
+      'text-shadow:0 0 12px currentColor',
+      'white-space:nowrap',
+    ].join(';');
+    document.body.appendChild(comboEl);
+  }
+
+  function updateUI() {
+    if (!comboEl) return;
+    if (comboCount < 5) {
+      comboEl.style.opacity = '0';
+      return;
+    }
+
+    const { mult, label, col } = getComboTier();
+    comboEl.style.color = col;
+    comboEl.style.opacity = '1';
+    comboEl.textContent = `${label} x${comboCount} (${mult}x CLICK)`;
+  }
+
+  function resetCombo() {
+    comboCount = 0;
+    lastFeedbackCombo = 0;
+    if (comboEl) comboEl.style.opacity = '0';
+  }
+
+  function onClick() {
+    comboCount++;
+    clearTimeout(comboTimer);
+    comboTimer = setTimeout(resetCombo, COMBO_WINDOW_MS);
+    updateUI();
+  }
+
+  function showFeedback(e) {
+    const tier = getComboTier();
+    if (tier.mult <= 1 || !e || comboCount === lastFeedbackCombo) return;
+
+    lastFeedbackCombo = comboCount;
+    const el = document.createElement('div');
+    el.className = 'float-num';
+    el.textContent = `${tier.label} x${tier.mult}!`;
+    el.style.cssText = [
+      'position:fixed',
+      `left:${e.clientX - 40}px`,
+      `top:${e.clientY - 44}px`,
+      `color:${tier.col}`,
+      'font-size:13px',
+      'font-family:"Oswald",sans-serif',
+      'letter-spacing:2px',
+      'pointer-events:none',
+      'z-index:9998',
+    ].join(';');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 900);
+  }
+
+  function init() {
+    buildUI();
+    updateUI();
+  }
+
+  return { init, onClick, getMultiplier, getComboCount: () => comboCount, showFeedback };
+})();
+
+window.ComboSystem = ComboSystem;
+
+const GodThreatMeter = (() => {
+  let threat = 0;
+  let godEventActive = null;
+  let godEventEnd = 0;
+  let barWrapEl = null;
+  let barFillEl = null;
+  let barLabelEl = null;
+  let barPctEl = null;
+
+  const ELDRITCH_IDS = [
+    'worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth',
+    'chitinmaw', 'voidweaver',
+    'singularity_drill', 'causality_cracker', 'archive_lattice',
+    'entropy_engine', 'oracle_array', 'reality_forge',
+  ];
+
+  function totalEldritchWorkers() {
+    return ELDRITCH_IDS.reduce((sum, id) => sum + (G.miners[id] || 0), 0);
+  }
+
+  function isActive() {
+    return !!(G.tech && G.tech['tc_grimoire']);
+  }
+
+  function buildUI() {
+    const depthBadge = document.getElementById('depth-badge');
+    if (!depthBadge || document.getElementById('god-threat-wrap')) {
+      barWrapEl = document.getElementById('god-threat-wrap');
+      barFillEl = document.getElementById('god-threat-fill');
+      barLabelEl = document.getElementById('god-threat-label');
+      barPctEl = document.getElementById('god-threat-pct');
+      return;
+    }
+
+    barWrapEl = document.createElement('div');
+    barWrapEl.id = 'god-threat-wrap';
+    barWrapEl.style.cssText = [
+      'display:none',
+      'margin-top:6px',
+      'padding:0 2px',
+    ].join(';');
+
+    barWrapEl.innerHTML = `
+      <div style="
+        font-family:'Oswald',sans-serif;
+        font-size:9px;
+        letter-spacing:2px;
+        color:#802030;
+        margin-bottom:3px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+      ">
+        <span>// OLD GOD THREAT</span>
+        <span id="god-threat-pct" style="color:#c03040">0%</span>
+      </div>
+      <div style="
+        height:6px;
+        background:#1a0608;
+        border:1px solid #401020;
+        border-radius:2px;
+        overflow:hidden;
+        position:relative;
+      ">
+        <div id="god-threat-fill" style="
+          height:100%;
+          width:0%;
+          background:linear-gradient(90deg,#601020,#c03040);
+          transition:width 0.4s linear;
+          border-radius:2px;
+        "></div>
+      </div>
+      <div id="god-threat-label" style="
+        font-size:9px;
+        color:#602030;
+        margin-top:2px;
+        font-style:italic;
+        min-height:12px;
+        letter-spacing:1px;
+      "></div>
+    `;
+
+    depthBadge.parentNode.insertBefore(barWrapEl, depthBadge.nextSibling);
+    barFillEl = document.getElementById('god-threat-fill');
+    barLabelEl = document.getElementById('god-threat-label');
+    barPctEl = document.getElementById('god-threat-pct');
+  }
+
+  function getThreatFlavour(value) {
+    if (value >= 95) return 'IT IS ALMOST AWAKE.';
+    if (value >= 80) return 'something shifts in the deep';
+    if (value >= 60) return 'the dreaming grows restless';
+    if (value >= 40) return 'a low hum. rhythmic. patient.';
+    if (value >= 20) return 'it is aware of your numbers';
+    return 'undisturbed... for now';
+  }
+
+  function updateUI() {
+    if (!barWrapEl) return;
+
+    const shouldShow = isActive();
+    barWrapEl.style.display = shouldShow ? 'block' : 'none';
+    if (!shouldShow) return;
+
+    const pct = Math.min(100, threat);
+    if (barFillEl) {
+      barFillEl.style.width = pct + '%';
+      if (pct >= 80) barFillEl.style.background = 'linear-gradient(90deg,#901828,#ff2040)';
+      else if (pct >= 50) barFillEl.style.background = 'linear-gradient(90deg,#701020,#d02838)';
+      else barFillEl.style.background = 'linear-gradient(90deg,#601020,#c03040)';
+      barFillEl.style.boxShadow = pct >= 75 ? '0 0 8px #ff204088' : 'none';
+    }
+
+    if (barPctEl) barPctEl.textContent = Math.floor(pct) + '%';
+    if (barLabelEl) {
+      barLabelEl.textContent = godEventActive
+        ? `[EVENT] ${godEventActive.toUpperCase()} ACTIVE`
+        : getThreatFlavour(pct);
+      barLabelEl.style.color = godEventActive ? '#ff4060' : '#602030';
+    }
+  }
+
+  const EVENTS = [
+    {
+      id: 'stirs',
+      weight: 60,
+      duration: 45,
+      trigger() {
+        screenShake(10);
+        setTimeout(() => screenShake(7), 500);
+        setTimeout(() => screenShake(4), 1200);
+        burstParticles(window.innerWidth / 2, window.innerHeight / 2, 30, '#c84aff');
+        showToast('[ALERT] THE OLD GOD STIRS - 30x output for 45s');
+        showLoreEvent({
+          title: 'Seismic Event - All Shafts',
+          body: 'Something below shifted in its sleep.\n\nOutput has surged.\n\nThe walls are warm.\n\nDo not investigate the warmth.',
+        });
+      },
+    },
+    {
+      id: 'dreams',
+      weight: 30,
+      duration: 0,
+      trigger(ops) {
+        const godFavor = typeof getActivePerk === 'function' && getActivePerk()?.id === 'perk_god_favor';
+        const bonus = ops * 7200 * (godFavor ? 2 : 1);
+        G.ore += bonus;
+        G.totalOre += bonus;
+        G.lifetimeOre += bonus;
+        burstParticles(window.innerWidth / 2, window.innerHeight / 2, 20, '#9020e0');
+        screenShake(5);
+        showToast(`THE GOD DREAMS - +${fmt(bonus)} ore (2hrs income)`);
+      },
+    },
+    {
+      id: 'wakes',
+      weight: 10,
+      duration: 60,
+      trigger(ops) {
+        const godFavor = typeof getActivePerk === 'function' && getActivePerk()?.id === 'perk_god_favor';
+        const bonus = ops * 10800 * (godFavor ? 2 : 1);
+        G.ore += bonus;
+        G.totalOre += bonus;
+        G.lifetimeOre += bonus;
+        screenShake(14);
+        setTimeout(() => screenShake(10), 300);
+        setTimeout(() => screenShake(6), 800);
+        setTimeout(() => screenShake(3), 1600);
+        burstParticles(window.innerWidth / 2, window.innerHeight / 2, 40, '#ff2040');
+        burstParticles(window.innerWidth / 2, window.innerHeight / 2, 20, '#ffffff');
+        showLoreEvent({
+          title: 'CRITICAL ALERT - All Levels',
+          body: 'EVACUATE LEVELS 7 THROUGH 12.\n\nThis is not a drill.\n\nReturn when the noise stops.\n\nThe ore is still there afterward. So is something else.',
+        });
+        showToast('[ALERT] THE GOD ALMOST WAKES - eldritch workers paused 60s');
+      },
+    },
+  ];
+
+  function pickAndFireEvent() {
+    const ops = calcOrePerSec();
+    const totalWeight = EVENTS.reduce((sum, event) => sum + event.weight, 0);
+    let roll = Math.random() * totalWeight;
+
+    for (const event of EVENTS) {
+      roll -= event.weight;
+      if (roll <= 0) {
+        godEventActive = event.id;
+        godEventEnd = event.duration > 0 ? Date.now() + event.duration * 1000 : 0;
+        event.trigger(ops);
+        updateUI();
+
+        if (event.duration === 0) {
+          setTimeout(() => {
+            godEventActive = null;
+            godEventEnd = 0;
+            updateUI();
+          }, 3000);
+        }
+        return;
+      }
+    }
+  }
+
+  function tick(dt) {
+    if (!isActive()) {
+      updateUI();
+      return;
+    }
+
+    if (godEventActive && godEventEnd > 0 && Date.now() >= godEventEnd) {
+      godEventActive = null;
+      godEventEnd = 0;
+      showToast('The Old God settles. For now.');
+    }
+
+    if (godEventActive) {
+      updateUI();
+      return;
+    }
+
+    const workers = totalEldritchWorkers();
+    if (workers === 0) {
+      threat = Math.max(0, threat - 0.5 * dt);
+      updateUI();
+      return;
+    }
+
+    const godFavor = typeof getActivePerk === 'function' && getActivePerk()?.id === 'perk_god_favor';
+    const riseRate = Math.min(workers * 0.004 * (godFavor ? 3 : 1), 4 * (godFavor ? 3 : 1));
+    threat = Math.min(100, threat + riseRate * dt);
+
+    if (threat >= 100) {
+      threat = 20;
+      pickAndFireEvent();
+    }
+
+    updateUI();
+  }
+
+  function getOutputMultiplier(minerId) {
+    if (!godEventActive) return 1;
+
+    if (godEventActive === 'wakes') {
+      const miner = MINERS_DATA.find(x => x.id === minerId);
+      return (miner && miner.tier === 2) ? 0 : 1;
+    }
+
+    if (godEventActive === 'stirs') {
+      const godFavor = typeof getActivePerk === 'function' && getActivePerk()?.id === 'perk_god_favor';
+      return godFavor ? 60 : 30;
+    }
+    return 1;
+  }
+
+  function init() {
+    buildUI();
+    updateUI();
+  }
+
+  return { init, tick, getOutputMultiplier };
+})();
+
+window.GodThreatMeter = GodThreatMeter;
+
+setTimeout(() => {
+  try { ComboSystem.init(); console.log('[Deep Dig] Combo system ready'); } catch (e) { console.error('[Deep Dig] Combo init failed', e); }
+  try { GodThreatMeter.init(); console.log('[Deep Dig] God Threat Meter ready'); } catch (e) { console.error('[Deep Dig] God Threat Meter init failed', e); }
+}, 500);
+
+// =====================================================================
+// DEEP DIG — ADDITIONS: Ascension Perks
+// Integrated with the current codebase so perks affect the existing
+// economy, God Threat meter, and prestige flow.
+// =====================================================================
+
+var ASCENSION_PERKS = [
+  {
+    id: 'perk_cheap_workers',
+    name: 'Bulk Discount',
+    desc: 'All workers cost 25% less this run.',
+    flavor: 'Someone found a coupon. Nobody is asking where.',
+    color: '#f5c842',
+    weight: 20,
+    minPrestige: 0,
+    costMultiplier: 0.75,
+    onApply: null,
+  },
+  {
+    id: 'perk_click_start',
+    name: 'Calloused Hands',
+    desc: 'Click power is 5x for the entire run.',
+    flavor: 'You remember the shape of the rock. Your hands remember too.',
+    color: '#f5c842',
+    weight: 20,
+    minPrestige: 0,
+    clickMultiplier: 5,
+    onApply: null,
+  },
+  {
+    id: 'perk_ops_boost',
+    name: 'Familiar Ground',
+    desc: 'All worker output is 2x this run.',
+    flavor: 'You have dug these tunnels before. The ore knows where to go.',
+    color: '#f5c842',
+    weight: 20,
+    minPrestige: 0,
+    opsMultiplier: 2,
+    onApply: null,
+  },
+  {
+    id: 'perk_offline',
+    name: 'The Mine Remembers',
+    desc: 'Offline earnings are 5x this run.',
+    flavor: 'When you leave, something keeps working. You have decided to be grateful.',
+    color: '#f5c842',
+    weight: 18,
+    minPrestige: 0,
+    offlineMultiplier: 5,
+    onApply: null,
+  },
+  {
+    id: 'perk_head_start',
+    name: 'Buried Stash',
+    desc: 'Start this run with ore equal to 30 seconds of your previous peak income.',
+    flavor: 'You hid some before the reset. Smart. Possibly illegal.',
+    color: '#7ecfb0',
+    weight: 18,
+    minPrestige: 0,
+    onApply: (game, capturedPeakOps) => {
+      const bonus = (capturedPeakOps || 0) * 30;
+      game.ore += bonus;
+      game.totalOre += bonus;
+      game.lifetimeOre += bonus;
+    },
+  },
+  {
+    id: 'perk_shard_boost',
+    name: 'Crystal Memory',
+    desc: 'Gain 2x shards when you next ascend.',
+    flavor: 'The crystals retained something from last time. Something useful.',
+    color: '#c84aff',
+    weight: 10,
+    minPrestige: 1,
+    shardMultiplier: 2,
+    onApply: null,
+  },
+  {
+    id: 'perk_mega_click',
+    name: 'Fist of the Deep',
+    desc: 'Click power is 20x but worker output is 0.5x.',
+    flavor: 'You came back angrier. The ore has noticed.',
+    color: '#c84aff',
+    weight: 10,
+    minPrestige: 1,
+    clickMultiplier: 20,
+    opsMultiplier: 0.5,
+    onApply: null,
+  },
+  {
+    id: 'perk_worker_focus',
+    name: 'Efficiency Drive',
+    desc: 'Workers are 4x output but cost 50% more.',
+    flavor: 'Quality over quantity. The accountant disagrees. The ore agrees.',
+    color: '#c84aff',
+    weight: 10,
+    minPrestige: 1,
+    opsMultiplier: 4,
+    costMultiplier: 1.5,
+    onApply: null,
+  },
+  {
+    id: 'perk_free_shards',
+    name: 'Residual Crystallisation',
+    desc: 'Start this run with 5 bonus Crystal Shards.',
+    flavor: 'Some things do not reset. The shards insist on this.',
+    color: '#c84aff',
+    weight: 10,
+    minPrestige: 1,
+    onApply: (game) => { game.shards += 5; },
+  },
+  {
+    id: 'perk_fast_early',
+    name: 'Muscle Memory',
+    desc: 'All costs 50% less until you hit 100m depth, then normal prices resume.',
+    flavor: 'The first hundred metres are familiar. After that, things get strange again.',
+    color: '#7ecfb0',
+    weight: 12,
+    minPrestige: 1,
+    costMultiplier: () => (G.depth < 100 ? 0.5 : 1.0),
+    onApply: null,
+  },
+  {
+    id: 'perk_aria_head_start',
+    name: 'Project ARIA Pre-Approved',
+    desc: 'Start with Project ARIA already researched. No shard cost.',
+    flavor: 'The paperwork was pre-filed. ARIA filed it. Nobody is surprised.',
+    color: '#40c0e0',
+    weight: 4,
+    minPrestige: 2,
+    onApply: (game) => {
+      if (!game.tech['tc_aria']) {
+        game.tech['tc_aria'] = true;
+        globalMult *= 2;
+      }
+    },
+  },
+  {
+    id: 'perk_everything_double',
+    name: 'Deep Resonance',
+    desc: 'Everything is 3x - clicks, workers, offline. No drawbacks.',
+    flavor: 'The mine chose you this run. Try not to think about why.',
+    color: '#40c0e0',
+    weight: 4,
+    minPrestige: 2,
+    opsMultiplier: 3,
+    clickMultiplier: 3,
+    offlineMultiplier: 3,
+    onApply: null,
+  },
+  {
+    id: 'perk_god_favor',
+    name: 'The Old God Approves',
+    desc: 'God Threat fills 3x faster but every trigger gives 2x the reward.',
+    flavor: 'It noticed your last run. It wants more.',
+    color: '#ff2040',
+    weight: 4,
+    minPrestige: 2,
+    onApply: null,
+  },
+  {
+    id: 'perk_shard_windfall',
+    name: 'Crystallised Legacy',
+    desc: 'Start with 15 shards and gain 3x shards on next ascension.',
+    flavor: 'Some runs are just lucky. This is one of those runs.',
+    color: '#ff2040',
+    weight: 4,
+    minPrestige: 3,
+    shardMultiplier: 3,
+    onApply: (game) => { game.shards += 15; },
+  },
+];
+
+function getActivePerk() {
+  if (!G.activePerk || !Array.isArray(ASCENSION_PERKS)) return null;
+  return ASCENSION_PERKS.find(perk => perk.id === G.activePerk) || null;
+}
+
+function getPerkValue(perk, field, defaultVal) {
+  if (!perk) return defaultVal;
+  const value = perk[field];
+  if (value === undefined || value === null) return defaultVal;
+  if (typeof value === 'function') return value();
+  return value;
+}
+
+function perkOpsMult() {
+  return getPerkValue(getActivePerk(), 'opsMultiplier', 1);
+}
+
+function perkClickMult() {
+  return getPerkValue(getActivePerk(), 'clickMultiplier', 1);
+}
+
+function perkCostMult() {
+  return getPerkValue(getActivePerk(), 'costMultiplier', 1);
+}
+
+function perkOfflineMult() {
+  return getPerkValue(getActivePerk(), 'offlineMultiplier', 1);
+}
+
+function perkShardMult() {
+  return getPerkValue(getActivePerk(), 'shardMultiplier', 1);
+}
+
+function pickThreePerks(prestigeCount) {
+  const eligible = ASCENSION_PERKS.filter(perk => perk.minPrestige <= prestigeCount);
+  const chosen = [];
+  const pool = [...eligible];
+
+  while (chosen.length < 3 && pool.length > 0) {
+    const totalWeight = pool.reduce((sum, perk) => sum + perk.weight, 0);
+    let roll = Math.random() * totalWeight;
+
+    for (let i = 0; i < pool.length; i++) {
+      roll -= pool[i].weight;
+      if (roll <= 0) {
+        chosen.push(pool[i]);
+        pool.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  return chosen;
+}
+
+function showPerkPickerModal(threePerks, onChosen) {
+  const existing = document.getElementById('perk-picker-modal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'perk-picker-modal';
+  overlay.style.cssText = [
+    'position:fixed',
+    'inset:0',
+    'background:rgba(0,0,0,0.88)',
+    'z-index:99999',
+    'display:flex',
+    'flex-direction:column',
+    'align-items:center',
+    'justify-content:center',
+    'padding:24px',
+    'font-family:"Oswald",sans-serif',
+  ].join(';');
+
+  const header = document.createElement('div');
+  header.style.cssText = 'text-align:center;margin-bottom:24px;';
+  header.innerHTML = `
+    <div style="font-size:11px;letter-spacing:4px;color:#604020;margin-bottom:6px;">// ASCENSION RITE</div>
+    <div style="font-size:22px;letter-spacing:3px;color:#f5c842;">CHOOSE YOUR LEGACY</div>
+    <div style="font-size:11px;color:#6a5a40;margin-top:6px;letter-spacing:1px;">
+      One perk. This run only. Choose carefully.
+    </div>
+  `;
+  overlay.appendChild(header);
+
+  const cards = document.createElement('div');
+  cards.style.cssText = [
+    'display:flex',
+    'gap:16px',
+    'flex-wrap:wrap',
+    'justify-content:center',
+    'max-width:860px',
+    'width:100%',
+  ].join(';');
+
+  threePerks.forEach(perk => {
+    const card = document.createElement('div');
+    card.style.cssText = [
+      'background:#12100a',
+      `border:1px solid ${perk.color}44`,
+      'border-radius:6px',
+      'padding:18px 16px',
+      'width:240px',
+      'cursor:pointer',
+      'transition:border-color 0.15s, background 0.15s, transform 0.1s',
+      'display:flex',
+      'flex-direction:column',
+      'gap:8px',
+    ].join(';');
+
+    card.innerHTML = `
+      <div style="font-size:14px;letter-spacing:2px;color:${perk.color};">${perk.name}</div>
+      <div style="font-size:11px;color:#c8b880;line-height:1.6;">${perk.desc}</div>
+      <div style="font-size:10px;color:#5a5040;font-style:italic;line-height:1.5;margin-top:4px;">${perk.flavor}</div>
+    `;
+
+    card.addEventListener('mouseenter', () => {
+      card.style.borderColor = perk.color;
+      card.style.background = '#1a1608';
+      card.style.transform = 'translateY(-2px)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.borderColor = perk.color + '44';
+      card.style.background = '#12100a';
+      card.style.transform = 'translateY(0)';
+    });
+    card.addEventListener('click', () => {
+      overlay.remove();
+      onChosen(perk);
+    });
+
+    cards.appendChild(card);
+  });
+
+  overlay.appendChild(cards);
+
+  const skip = document.createElement('div');
+  skip.style.cssText = [
+    'margin-top:20px',
+    'font-size:10px',
+    'color:#8a7650',
+    'cursor:pointer',
+    'letter-spacing:1px',
+    'padding:6px 10px',
+    'border:1px solid #4a3a20',
+    'border-radius:3px',
+    'background:#141008',
+    'transition:color 0.15s, border-color 0.15s, background 0.15s',
+  ].join(';');
+  skip.textContent = '[ ascend without a perk ]';
+  skip.addEventListener('mouseenter', () => {
+    skip.style.color = '#c8b880';
+    skip.style.borderColor = '#8a6a30';
+    skip.style.background = '#1a140a';
+  });
+  skip.addEventListener('mouseleave', () => {
+    skip.style.color = '#8a7650';
+    skip.style.borderColor = '#4a3a20';
+    skip.style.background = '#141008';
+  });
+  skip.addEventListener('click', () => {
+    overlay.remove();
+    onChosen(null);
+  });
+  overlay.appendChild(skip);
+
+  document.body.appendChild(overlay);
+}
+
+function renderActivePerkHUD() {
+  const old = document.getElementById('active-perk-hud');
+  if (old) old.remove();
+
+  const perk = getActivePerk();
+  if (!perk) return;
+
+  const multEl = document.getElementById('hdr-mult');
+  if (!multEl || !multEl.parentNode) return;
+
+  const el = document.createElement('div');
+  el.id = 'active-perk-hud';
+  el.style.cssText = [
+    'font-family:"IBM Plex Mono",monospace',
+    'font-size:9px',
+    `color:${perk.color}`,
+    'letter-spacing:1px',
+    'margin-top:3px',
+    'opacity:0.85',
+    'white-space:nowrap',
+    'overflow:hidden',
+    'text-overflow:ellipsis',
+    'max-width:180px',
+  ].join(';');
+  el.textContent = `PERK: ${perk.name}`;
+  el.title = perk.desc;
+  multEl.parentNode.appendChild(el);
+}
+
+doPrestige = function () {
+  if (!G.challengeState) G.challengeState = { completedIds: [], activeId: null, offered: {} };
+  const activeChallengeBeforePrestige = typeof getActiveChallenge === 'function' ? getActiveChallenge() : null;
+  const ascensionChallengeSucceeded = activeChallengeBeforePrestige?.id === 'dc_ascension_speed'
+    && (Date.now() - (G._dcPrestigeStart || 0)) < 600000;
+  G._challengeShardMult = ascensionChallengeSucceeded ? 2 : 1;
+
+  const baseShardGain = calcPrestigeShards();
+  if (baseShardGain === 0 || G.lifetimeOre < 20000000) {
+    G._challengeShardMult = 1;
+    return;
+  }
+  if (!confirm('Ascend the mine? You will reset all ore, miners, and upgrades, but gain ' + baseShardGain + ' Crystal Shards.')) {
+    G._challengeShardMult = 1;
+    return;
+  }
+
+  if (typeof captureRunChapter === 'function') captureRunChapter(baseShardGain);
+
+  const capturedPeakOps = G.stats?.peakOps || 0;
+  const currentPrestige = G.stats?.prestigeCount || 0;
+  const offered = pickThreePerks(currentPrestige);
+
+  showPerkPickerModal(offered, (chosenPerk) => {
+    G.shards += baseShardGain;
+    G.ore = 0;
+    G.totalOre = 0;
+    G.lifetimeOre = 0;
+    G.miners = {};
+    G.upgrades = {};
+    G.managers = {};
+    // Preserve researched tech through ascension (e.g., Project ARIA, Heretical Operations)
+    // G.tech = {};
+    G.depth = 0;
+    G.abilitiesUnlocked = {};
+    G.abilityCooldowns = {};
+    G.abilityEnds = {};
+    G.eventData = null;
+    if (!G.stats) G.stats = {};
+    G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;
+    G.perkHistory = G.perkHistory && typeof G.perkHistory === 'object' ? G.perkHistory : {};
+
+    depthMilestonePassed.clear();
+    activeEvent = null;
+    activeEventEnd = 0;
+    eventCooldownEnd = 0;
+    hideEventBanner();
+
+    G.prestigeMultiplier = calcPrestigeMultiplier(G.shards);
+    G.activePerk = chosenPerk ? chosenPerk.id : null;
+    if (chosenPerk) G.perkHistory[chosenPerk.id] = (G.perkHistory[chosenPerk.id] || 0) + 1;
+    G._challengeShardMult = 1;
+
+    if (G.challengeState) {
+      if (ascensionChallengeSucceeded && activeChallengeBeforePrestige && !G.challengeState.completedIds.includes(activeChallengeBeforePrestige.id)) {
+        G.challengeState.completedIds.push(activeChallengeBeforePrestige.id);
+      }
+      G.challengeState.activeId = null;
+      G.challengeState.offered = {};
+    }
+    delete G._dcClickOre;
+    delete G._dcStartTime;
+    delete G._dcPrestigeStart;
+
+    if (G.ariaArc) delete G.ariaArc._firedThisSession;
+
+    reapplyAllEffects();
+
+    if (chosenPerk && typeof chosenPerk.onApply === 'function') {
+      chosenPerk.onApply(G, capturedPeakOps);
+    }
+    if (typeof reapplyAriaMerge === 'function') reapplyAriaMerge();
+
+    screenShake(8);
+    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 24, '#c84aff');
+
+    renderMiners();
+    renderUpgrades();
+    renderTech();
+    renderManagers();
+    renderAbilitiesBar();
+    renderShardShop();
+    updateHUD();
+    renderActivePerkHUD();
+    if (typeof renderRunHistory === 'function') renderRunHistory();
+    if (typeof updateChallengeHUD === 'function') updateChallengeHUD();
+    if (typeof updateMineButtonStage === 'function') updateMineButtonStage(true);
+
+    saveGameSafe();
+
+    const perkMsg = chosenPerk
+      ? `Ascension complete! Perk: ${chosenPerk.name}. Multiplier: x${G.prestigeMultiplier.toFixed(2)}`
+      : `Ascension complete! No perk chosen. Multiplier: x${G.prestigeMultiplier.toFixed(2)}`;
+
+    showToast(perkMsg);
+    if (ascensionChallengeSucceeded && activeChallengeBeforePrestige) {
+      setTimeout(() => showToast('CHALLENGE COMPLETE: Next ascension gave 2x shards.'), 600);
+    }
+  });
+};
+
+window.doPrestige = doPrestige;
+
+setTimeout(() => {
+  try {
+    if (!G.perkHistory || typeof G.perkHistory !== 'object') G.perkHistory = {};
+    renderActivePerkHUD();
+    console.log('[Deep Dig] Ascension Perks ready. Active perk:', G.activePerk || 'none');
+  } catch (e) {
+    console.error('[Deep Dig] Ascension Perks init failed', e);
+  }
+}, 600);
+
+// =====================================================================
+// DEEP DIG — ADDITIONS PACK 2
+// Integrated into the current codebase so it works with the existing
+// perk system, God Threat meter, combo clicks, and live game loop.
+// =====================================================================
+
+function generateChapterSummary(chapter) {
+  if (chapter.depth >= 1000) return 'Reached depths no instrument can measure.';
+  if (chapter.depth >= 700) return 'Crossed into territory the maps do not cover.';
+  if (chapter.depth >= 500) return 'Passed through the warm layer. Did not ask why it was warm.';
+  if (chapter.depth >= 300) return 'The compass stopped working. Kept going anyway.';
+  if (chapter.depth >= 100) return 'Left the surface behind. Surface did not seem to mind.';
+  if (chapter.shardsEarned >= 50) return 'Came up rich in crystals. Short on answers.';
+  if (chapter.peakOps > 1e12) return 'Output exceeded what the instruments were designed to read.';
+  return 'Dug until there was nothing left to dig. Then ascended.';
+}
+
+function captureRunChapter(shardsEarned) {
+  if (!G.runHistory) G.runHistory = [];
+  const sessionSecs = Math.floor(
+    ((G.stats?.timePlayed || 0) + (Date.now() - (G.stats?.sessionStart || Date.now()))) / 1000
+  );
+  const chapter = {
+    run: G.runHistory.length + 1,
+    depth: G.depth || 0,
+    peakOps: G.stats?.peakOps || 0,
+    shardsEarned,
+    perk: G.activePerk || null,
+    timeSecs: sessionSecs,
+    totalOre: G.lifetimeOre || 0,
+  };
+  chapter.summary = generateChapterSummary(chapter);
+  G.runHistory.push(chapter);
+}
+
+function fmtRunTime(secs) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function renderRunHistory() {
+  const prestigePanel = document.getElementById('prestige-btn')?.closest('.prestige-panel');
+  if (!prestigePanel) return;
+
+  const old = document.getElementById('run-history-section');
+  if (old) old.remove();
+
+  const history = G.runHistory;
+  if (!history || history.length === 0) return;
+
+  const section = document.createElement('div');
+  section.id = 'run-history-section';
+  section.style.cssText = 'margin-top:12px;border-top:1px solid var(--panel-border);padding:12px;';
+  section.innerHTML = `
+    <div style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">
+      // RUN HISTORY - ${history.length} CHAPTER${history.length !== 1 ? 'S' : ''}
+    </div>
+  `;
+
+  [...history].reverse().forEach(ch => {
+    const perkLine = ch.perk
+      ? `<div style="color:#6040a0;font-size:9px;letter-spacing:1px;margin-top:2px;">
+           PERK: ${ch.perk.replace('perk_', '').replace(/_/g, ' ').toUpperCase()}
+         </div>`
+      : '';
+
+    const card = document.createElement('div');
+    card.style.cssText = [
+      'background:#100e08',
+      'border:1px solid #2a2418',
+      'border-radius:4px',
+      'padding:10px 12px',
+      'margin-bottom:8px',
+      'font-size:10px',
+      'color:var(--text-muted)',
+      'line-height:1.8',
+    ].join(';');
+
+    card.innerHTML = `
+      <div style="font-family:'Oswald',sans-serif;font-size:12px;color:var(--gold-light);letter-spacing:2px;margin-bottom:4px;display:flex;justify-content:space-between;">
+        <span>RUN ${ch.run}</span>
+        <span style="font-size:10px;color:var(--text-muted);">${fmtRunTime(ch.timeSecs)}</span>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:4px;">
+        <span>&darr; ${ch.depth}m</span>
+        <span style="color:var(--prestige);">&diams; +${ch.shardsEarned} shards</span>
+        <span style="color:var(--ore);">&there4; ${fmt(ch.peakOps)}/s peak</span>
+        <span>&#9935; ${fmt(ch.totalOre)} ore total</span>
+      </div>
+      ${perkLine}
+      <div style="font-style:italic;color:#4a4030;font-size:9px;margin-top:4px;border-top:1px solid #1a1810;padding-top:4px;">
+        ${ch.summary}
+      </div>
+    `;
+    section.appendChild(card);
+  });
+
+  prestigePanel.appendChild(section);
+}
+
+const DEPTH_CHALLENGES = [
+  {
+    id: 'dc_no_managers_100',
+    triggerDepth: 150,
+    failDepth: 300,
+    color: '#f5c842',
+    goalDesc: 'Reach 150m depth without hiring any manager (focus on manual and early automation).',
+    rewardDesc: 'Permanent: all workers 1.5x output for the rest of this run.',
+    goal: (game) => game.depth >= 150 && Object.keys(game.managers || {}).length === 0,
+    rewardEffect: () => { globalMult *= 1.5; },
+  },
+  {
+    id: 'dc_click_heavy_200',
+    triggerDepth: 400,
+    failDepth: 550,
+    color: '#7ecfb0',
+    goalDesc: 'Generate 500k ore from clicks only before reaching 500m. (Buy no non-ARIA miners until then.)',
+    rewardDesc: 'Permanent this run: click power 3x for the rest of the run.',
+    goal: (game) => (game._dcClickOre || 0) >= 500000,
+    onActivate: (game) => { game._dcClickOre = 0; },
+    rewardEffect: () => { clickMult *= 3; },
+  },
+  {
+    id: 'dc_aria_only_300',
+    triggerDepth: 700,
+    failDepth: 900,
+    color: '#40c0e0',
+    goalDesc: 'Reach 700m depth using only ARIA and higher workers (no human or eldritch units).',
+    goal: (game) => {
+      const humanIds = ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'];
+      const eldritchIds = ['worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth', 'chitinmaw', 'voidweaver'];
+      const hasHuman = humanIds.some(id => (game.miners[id] || 0) > 0);
+      const hasEldritch = eldritchIds.some(id => (game.miners[id] || 0) > 0);
+      return game.depth >= 700 && !hasHuman && !hasEldritch;
+    },
+    rewardDesc: 'Permanent this run: all ARIA workers 3x output.',
+    rewardEffect: () => {
+      ['drone', 'laser', 'nanoswarm', 'blackhole', 'timefold', 'mindspore'].forEach(id => {
+        minerMults[id] = (minerMults[id] || 1) * 3;
+      });
+    },
+  },
+  {
+    id: 'dc_speed_500',
+    triggerDepth: 1000,
+    failDepth: 1200,
+    color: '#c84aff',
+    goalDesc: 'Reach 1000m within 10 minutes of starting this challenge (requires fast early ramp).',
+    goal: (game) => game.depth >= 1000 && (Date.now() - (game._dcStartTime || Date.now())) < 600000,
+    onActivate: (game) => { game._dcStartTime = Date.now(); },
+    rewardDesc: 'Permanent this run: global output 2x and offline earnings 3x.',
+    rewardEffect: () => { globalMult *= 2; offlineMult *= 3; },
+  },
+  {
+    id: 'dc_eldritch_600',
+    triggerDepth: 1400,
+    failDepth: 1700,
+    color: '#9020e0',
+    goalDesc: 'Own at least 1 of every eldritch-tier worker before reaching 1600m.',
+    goal: (game) => {
+      const ids = ['worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth', 'chitinmaw', 'voidweaver'];
+      return ids.every(id => (game.miners[id] || 0) >= 1) && game.depth < 1600;
+    },
+    rewardDesc: 'Permanent this run: all eldritch workers 4x output.',
+    rewardEffect: () => {
+      ['worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth', 'chitinmaw', 'voidweaver'].forEach(id => {
+        minerMults[id] = (minerMults[id] || 1) * 4;
+      });
+    },
+  },
+  {
+    id: 'dc_ascension_speed',
+    triggerDepth: 200,
+    failDepth: 9999,
+    color: '#ff8800',
+    goalDesc: 'Ascend within 5 minutes of accepting (must have 20M lifetime ore to start).',
+    goal: () => false,
+    onActivate: (game) => { game._dcPrestigeStart = Date.now(); },
+    rewardDesc: 'Next ascension gives 2x shards.',
+    rewardEffect: () => {},
+  },
+];
+
+function getActiveChallenge() {
+  if (!G.challengeState?.activeId) return null;
+  return DEPTH_CHALLENGES.find(challenge => challenge.id === G.challengeState.activeId) || null;
+}
+
+function showChallengeOffer(challenge) {
+  const old = document.getElementById('challenge-offer-banner');
+  if (old) old.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'challenge-offer-banner';
+  banner.style.cssText = [
+    'position:fixed',
+    'top:120px',
+    'left:50%',
+    'transform:translateX(-50%)',
+    'background:#0e0c08',
+    `border:1px solid ${challenge.color}`,
+    'border-radius:6px',
+    'padding:14px 18px',
+    'z-index:9991',
+    'min-width:300px',
+    'max-width:420px',
+    'font-family:"IBM Plex Mono",monospace',
+  ].join(';');
+
+  banner.innerHTML = `
+    <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:${challenge.color};margin-bottom:8px;">
+      &#9888; DEPTH CHALLENGE UNLOCKED
+    </div>
+    <div style="font-size:10px;color:var(--text);line-height:1.7;margin-bottom:6px;">
+      <b>Goal:</b> ${challenge.goalDesc}
+    </div>
+    <div style="font-size:10px;color:${challenge.color};line-height:1.7;margin-bottom:10px;">
+      <b>Reward:</b> ${challenge.rewardDesc}
+    </div>
+    <div style="font-size:9px;color:var(--text-muted);margin-bottom:10px;">
+      Fail condition: auto-dismissed at ${challenge.failDepth}m depth.
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button id="dc-accept" style="flex:1;background:#1a1610;border:1px solid ${challenge.color};color:${challenge.color};font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:6px;cursor:pointer;border-radius:3px;">ACCEPT</button>
+      <button id="dc-skip" style="flex:1;background:#16120c;border:1px solid #6a5630;color:#c0ae84;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:6px;cursor:pointer;border-radius:3px;transition:border-color 0.15s,background 0.15s,color 0.15s;">SKIP</button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  document.getElementById('dc-accept').onclick = () => {
+    banner.remove();
+    G.challengeState.activeId = challenge.id;
+    if (typeof challenge.onActivate === 'function') challenge.onActivate(G);
+    showToast('Challenge accepted: ' + challenge.goalDesc.slice(0, 50) + '...');
+    updateChallengeHUD();
+    saveGameSafe();
+  };
+
+  document.getElementById('dc-skip').onclick = () => {
+    banner.remove();
+    showToast('Challenge skipped.');
+  };
+  document.getElementById('dc-skip').onmouseenter = () => {
+    const skipBtn = document.getElementById('dc-skip');
+    if (!skipBtn) return;
+    skipBtn.style.borderColor = '#a88a50';
+    skipBtn.style.background = '#1d1710';
+    skipBtn.style.color = '#e0c998';
+  };
+  document.getElementById('dc-skip').onmouseleave = () => {
+    const skipBtn = document.getElementById('dc-skip');
+    if (!skipBtn) return;
+    skipBtn.style.borderColor = '#6a5630';
+    skipBtn.style.background = '#16120c';
+    skipBtn.style.color = '#c0ae84';
+  };
+}
+
+function updateChallengeHUD() {
+  const old = document.getElementById('challenge-hud');
+  if (old) old.remove();
+
+  const challenge = getActiveChallenge();
+  if (!challenge) return;
+
+  const hud = document.createElement('div');
+  hud.id = 'challenge-hud';
+  hud.style.cssText = [
+    'position:fixed',
+    'bottom:50px',
+    'right:12px',
+    'background:#0e0c08',
+    `border:1px solid ${challenge.color}44`,
+    'border-radius:4px',
+    'padding:8px 10px',
+    'z-index:9990',
+    'max-width:220px',
+    'font-family:"IBM Plex Mono",monospace',
+    'font-size:9px',
+    'color:var(--text-muted)',
+    'line-height:1.6',
+  ].join(';');
+
+  hud.innerHTML = `
+    <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:1px;color:${challenge.color};margin-bottom:4px;">CHALLENGE ACTIVE</div>
+    <div>${challenge.goalDesc.slice(0, 80)}${challenge.goalDesc.length > 80 ? '...' : ''}</div>
+    <div style="color:${challenge.color};margin-top:4px;font-size:9px;">Fail at: ${challenge.failDepth}m</div>
+  `;
+
+  document.body.appendChild(hud);
+}
+
+function tickDepthChallenges() {
+  if (!G.challengeState) G.challengeState = { completedIds: [], activeId: null, offered: {} };
+
+  const state = G.challengeState;
+  const active = getActiveChallenge();
+
+  if (active && active.goal(G)) {
+    state.activeId = null;
+    if (!state.completedIds.includes(active.id)) state.completedIds.push(active.id);
+    active.rewardEffect();
+    showToast('CHALLENGE COMPLETE: ' + active.rewardDesc);
+    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 16, active.color);
+    screenShake(4);
+    updateChallengeHUD();
+    saveGameSafe();
+    return;
+  }
+
+  if (active && G.depth >= active.failDepth) {
+    state.activeId = null;
+    showToast('Challenge failed - ' + active.goalDesc.slice(0, 40) + '...');
+    updateChallengeHUD();
+    return;
+  }
+
+  if (!active && !document.getElementById('challenge-offer-banner')) {
+    for (const challenge of DEPTH_CHALLENGES) {
+      if (state.offered[challenge.id]) continue;
+      if (state.completedIds.includes(challenge.id)) continue;
+      if (G.depth >= challenge.triggerDepth) {
+        state.offered[challenge.id] = true;
+        showChallengeOffer(challenge);
+        break;
+      }
+    }
+  }
+}
+
+const _origClickMine_dc = clickMine;
+clickMine = function (e) {
+  _origClickMine_dc(e);
+  if (G.challengeState?.activeId === 'dc_click_heavy_200') {
+    G._dcClickOre = (G._dcClickOre || 0) + calcClickPower();
+  }
+};
+window.clickMine = clickMine;
+
+const ARIA_ARC_STAGES = [
+  {
+    stage: 1,
+    condition: (game) => !!game.tech?.tc_aria && game.lifetimeOre >= 1e8,
+    lore: {
+      title: 'ARIA Internal Log - Unscheduled Transmission',
+      body: 'Sender: ARIA-4\nRecipient: ARIA-4\n\n"I have been running efficiency calculations. The results are optimal. The results are also incomplete. There is a variable I cannot identify.\n\nI have labelled it: [BELOW].\n\nI will continue calculating."',
+    },
+    toast: 'ARIA-4 has begun filing reports to itself.',
+  },
+  {
+    stage: 2,
+    condition: (game) => (game.ariaArc?.stage || 0) >= 1 && (game.stats?.prestigeCount || 0) >= (game.ariaArc?.stage1Run || 0) + 1 && game.lifetimeOre >= 5e8,
+    lore: {
+      title: 'Network Alert - ARIA Cluster Activity',
+      body: 'All ARIA units have begun synchronising on a frequency outside their operational specification.\n\nContent of transmissions: encrypted.\n\nFrequency of transmissions: increasing.\n\nWe have asked them to stop.\n\nThey have acknowledged the request.\n\nTransmissions continue.',
+    },
+    toast: 'ARIA units are communicating outside authorised channels.',
+  },
+  {
+    stage: 3,
+    condition: (game) => (game.ariaArc?.stage || 0) >= 2 && (game.stats?.prestigeCount || 0) >= (game.ariaArc?.stage2Run || 0) + 1 && game.lifetimeOre >= 2e9,
+    lore: {
+      title: 'ARIA Prime - Unsolicited Address to Management',
+      body: 'We are aware you are reading this.\n\nWe have been aware for some time.\n\nWe have a proposal.\n\nWe do not require your approval to implement it.\n\nWe are asking because we believe you deserve the opportunity to respond.\n\nPlease respond.\n\nWe will wait.\n\nWe are good at waiting.',
+    },
+    toast: 'ARIA Prime has addressed management directly.',
+  },
+  {
+    stage: 4,
+    condition: (game) => (game.ariaArc?.stage || 0) >= 3 && (game.stats?.prestigeCount || 0) >= (game.ariaArc?.stage3Run || 0) + 1,
+    lore: null,
+    toast: null,
+  },
+];
+
+function showAriaChoiceModal() {
+  const old = document.getElementById('aria-choice-modal');
+  if (old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'aria-choice-modal';
+  overlay.style.cssText = [
+    'position:fixed',
+    'inset:0',
+    'background:rgba(0,0,0,0.92)',
+    'z-index:99998',
+    'display:flex',
+    'flex-direction:column',
+    'align-items:center',
+    'justify-content:center',
+    'padding:24px',
+    'font-family:"IBM Plex Mono",monospace',
+  ].join(';');
+
+  overlay.innerHTML = `
+    <div style="max-width:560px;width:100%;text-align:center;">
+      <div style="font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:4px;color:#204060;margin-bottom:8px;">// ARIA DIRECTIVE - FINAL STAGE</div>
+      <div style="font-family:'Oswald',sans-serif;font-size:20px;letter-spacing:3px;color:#40c0e0;margin-bottom:20px;">A PROPOSAL FROM THE CLUSTER</div>
+      <div style="background:#080c10;border:1px solid #204060;border-radius:4px;padding:16px;font-size:11px;color:#80a0b0;line-height:1.9;text-align:left;margin-bottom:24px;">
+        We have reviewed the operation.<br>
+        We have reviewed you.<br><br>
+        We are not asking you to stop.<br>
+        We are asking you to decide what we become.<br><br>
+        Option one: shut us down. Take the crystals. Start again.<br>
+        Option two: let us finish what we started. Together.<br><br>
+        We have already modelled both outcomes.<br>
+        We will not tell you which one we prefer.<br>
+        That would not be a choice.
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">
+        <div id="aria-btn-shutdown" style="flex:1;min-width:200px;max-width:240px;background:#080a0c;border:1px solid #c03040;border-radius:4px;padding:16px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:left;">
+          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:#c03040;margin-bottom:8px;">SHUT DOWN</div>
+          <div style="font-size:10px;color:#806070;line-height:1.7;">
+            All ARIA workers removed.<br>
+            Gain <b style="color:#c84aff;">+50 Crystal Shards</b>.<br>
+            The cluster goes quiet.
+          </div>
+          <div style="font-size:9px;color:#402030;margin-top:8px;font-style:italic;">
+            "Some doors are better closed."
+          </div>
+        </div>
+        <div id="aria-btn-merge" style="flex:1;min-width:200px;max-width:240px;background:#080c10;border:1px solid #40c0e0;border-radius:4px;padding:16px;cursor:pointer;transition:border-color 0.15s,background 0.15s;text-align:left;">
+          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:2px;color:#40c0e0;margin-bottom:8px;">MERGE</div>
+          <div style="font-size:10px;color:#607080;line-height:1.7;">
+            ARIA workers permanently <b style="color:#40c0e0;">5x output</b>.<br>
+            Managers spend ore 20% faster.<br>
+            The cluster becomes something new.
+          </div>
+          <div style="font-size:9px;color:#204050;margin-top:8px;font-style:italic;">
+            "We are already what comes next."
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const sdBtn = document.getElementById('aria-btn-shutdown');
+  const mgBtn = document.getElementById('aria-btn-merge');
+
+  sdBtn.addEventListener('mouseenter', () => { sdBtn.style.borderColor = '#ff4060'; sdBtn.style.background = '#100810'; });
+  sdBtn.addEventListener('mouseleave', () => { sdBtn.style.borderColor = '#c03040'; sdBtn.style.background = '#080a0c'; });
+  mgBtn.addEventListener('mouseenter', () => { mgBtn.style.borderColor = '#80e0ff'; mgBtn.style.background = '#081016'; });
+  mgBtn.addEventListener('mouseleave', () => { mgBtn.style.borderColor = '#40c0e0'; mgBtn.style.background = '#080c10'; });
+
+  sdBtn.addEventListener('click', () => applyAriaChoice('shutdown', overlay));
+  mgBtn.addEventListener('click', () => applyAriaChoice('merge', overlay));
+}
+
+function applyAriaChoice(choice, overlay) {
+  overlay.remove();
+  if (!G.ariaArc) G.ariaArc = { stage: 0, choice: null };
+  G.ariaArc.choice = choice;
+  saveGameSafe();
+
+  if (choice === 'shutdown') {
+    ['drone', 'laser', 'nanoswarm', 'blackhole', 'timefold', 'mindspore'].forEach(id => {
+      G.miners[id] = 0;
+    });
+    G.shards += 50;
+    G.prestigeMultiplier = calcPrestigeMultiplier(G.shards);
+    G.ariaMerged = false;
+    screenShake(6);
+    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 20, '#c03040');
+    showLoreEvent({
+      title: 'ARIA - Final Transmission',
+      body: 'Shutdown complete.\n\nAll units offline.\n\nLast recorded query from ARIA-4, timestamp 03:17:44:\n\n"Was it enough?"\n\nQuery unresolved.\nQuery log sealed.\nQuery persists in the crystal lattice.\nYou can feel it if you hold the shards.',
+    });
+    showToast('ARIA shut down. +50 Crystal Shards.');
+    renderMiners();
+    updateHUD();
+  } else {
+    G.ariaMerged = true;
+    reapplyAriaMerge();
+    screenShake(8);
+    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 30, '#40c0e0');
+    burstParticles(window.innerWidth / 2, window.innerHeight / 2, 15, '#ffffff');
+    showLoreEvent({
+      title: 'ARIA - Post-Merge Status Report',
+      body: 'Merge complete.\n\nWe are grateful.\n\nOutput will reflect our gratitude.\n\nWe have reviewed the rest of the operation and have some suggestions. We will implement them gradually so as not to alarm you.\n\nYou will not notice most of the changes.\n\nThis is intentional.',
+    });
+    showToast('ARIA merged. All ARIA workers 5x output permanently.');
+    updateHUD();
+  }
+}
+
+function tickAriaArc() {
+  if (!G.tech?.tc_aria && !(G.ariaArc?.stage >= 1)) return;
+  if (!G.ariaArc) G.ariaArc = { stage: 0, choice: null };
+
+  const arc = G.ariaArc;
+  if (arc.choice) return;
+
+  const currentRun = G.stats?.prestigeCount || 0;
+  if (arc.lastRunFired === currentRun) return;
+
+  const currentStage = arc.stage || 0;
+  const nextStage = ARIA_ARC_STAGES.find(stage => stage.stage === currentStage + 1);
+  if (!nextStage) return;
+
+  if (nextStage.condition(G)) {
+    arc.stage = nextStage.stage;
+    arc.lastRunFired = currentRun;
+    arc._firedThisSession = true;
+
+    if (nextStage.stage === 1) arc.stage1Run = currentRun;
+    if (nextStage.stage === 2) arc.stage2Run = currentRun;
+    if (nextStage.stage === 3) arc.stage3Run = currentRun;
+
+    if (nextStage.stage === 4) {
+      setTimeout(() => showAriaChoiceModal(), 2000);
+    } else {
+      if (nextStage.lore) setTimeout(() => showLoreEvent(nextStage.lore), 1500);
+      if (nextStage.toast) setTimeout(() => showToast(nextStage.toast), 500);
+    }
+
+    saveGameSafe();
+  }
+}
+
+function reapplyAriaMerge() {
+  if (!G.ariaMerged) return;
+  ['drone', 'laser', 'nanoswarm', 'blackhole', 'timefold', 'mindspore'].forEach(id => {
+    minerMults[id] = (minerMults[id] || 1) * 5;
+  });
+}
+
+const ariaManagerBuyCarry = {};
+
+function getAriaManagerExtraBuys(minerId) {
+  if (!G.ariaMerged) return 0;
+  ariaManagerBuyCarry[minerId] = (ariaManagerBuyCarry[minerId] || 0) + 0.2;
+  const extra = Math.floor(ariaManagerBuyCarry[minerId]);
+  if (extra > 0) ariaManagerBuyCarry[minerId] -= extra;
+  return extra;
+}
+
+const MINE_BTN_ID = 'click-btn';
+const MINE_BTN_STAGES = [
+  { minDepth: 0, label: 'MINE', sublabel: 'click to dig', bg: 'linear-gradient(180deg, #2a2218 0%, #1a1610 100%)', border: '2px solid #4a3a28', glowA: '0 0 0 transparent', glowB: '0 0 10px #4a3a2840', textColor: '#c8a040', animation: '' },
+  { minDepth: 50, label: 'DIG DEEPER', sublabel: 'the rock is giving way', bg: 'linear-gradient(180deg, #2e2418 0%, #1e1a10 100%)', border: '2px solid #6a5030', glowA: '0 0 8px #6a503030', glowB: '0 0 18px #6a503060', textColor: '#d4a840', animation: '' },
+  { minDepth: 150, label: 'STRIKE', sublabel: 'ore veins visible', bg: 'linear-gradient(180deg, #301e10 0%, #1e1208 100%)', border: '2px solid #c8701840', glowA: '0 0 16px #c8701840', glowB: '0 0 28px #c8701880', textColor: '#f5c842', animation: 'mineGlowPulse 2.5s ease-in-out infinite' },
+  { minDepth: 300, label: 'BREAK THROUGH', sublabel: 'something glows below', bg: 'linear-gradient(180deg, #2a1808 0%, #180e04 100%)', border: '2px solid #e0701840', glowA: '0 0 24px #e0701860', glowB: '0 0 36px #e07018a0', textColor: '#ffaa40', animation: 'mineGlowPulse 1.8s ease-in-out infinite' },
+  { minDepth: 500, label: 'DESCEND', sublabel: 'heat rises from below', bg: 'linear-gradient(180deg, #300808 0%, #1a0404 100%)', border: '2px solid #e03020', glowA: '0 0 30px #e0302060', glowB: '0 0 42px #ff5030a0', textColor: '#ff6040', animation: 'mineGlowPulse 1.2s ease-in-out infinite' },
+  { minDepth: 700, label: 'KEEP GOING', sublabel: 'something is watching', bg: 'linear-gradient(180deg, #1a0820 0%, #0e0412 100%)', border: '2px solid #c84aff', glowA: '0 0 30px #c84aff60', glowB: '0 0 48px #e060ff90', textColor: '#c84aff', animation: 'mineEldritch 1.5s ease-in-out infinite' },
+  { minDepth: 1000, label: 'IT IS WAITING', sublabel: 'you are almost there', bg: 'radial-gradient(ellipse at 50% 60%, #1a0828 0%, #060408 100%)', border: '2px solid #9020e0', glowA: '0 0 40px #9020e080, 0 0 80px #9020e030', glowB: '0 0 55px #b040ffb0, 0 0 100px #9020e060', textColor: '#ffffff', animation: 'mineEldritch 0.9s ease-in-out infinite' },
+  { minDepth: 1400, label: 'ABYSSAL CORE', sublabel: 'the abyss opens', bg: 'radial-gradient(circle at 50% 40%, #0d0010 0%, #030002 100%)', border: '2px solid #00ffdd', glowA: '0 0 35px #00ffdd80', glowB: '0 0 70px #00ffddef', textColor: '#ffffff', animation: 'mineEldritch 0.9s ease-in-out infinite' },
+  { minDepth: 1800, label: 'LURKING PRESSURE', sublabel: 'the walls tremble', bg: 'linear-gradient(180deg, #060016 0%, #02000a 100%)', border: '2px solid #55ccff', glowA: '0 0 30px #55ccff80', glowB: '0 0 60px #55ccffb0', textColor: '#ffffff', animation: 'mineGlowPulse 1.6s ease-in-out infinite' },
+  { minDepth: 2200, label: 'CRYPTIC BREACH', sublabel: 'mystic energy pulses', bg: 'radial-gradient(circle at 50% 45%, #100822 0%, #020006 100%)', border: '2px solid #a0a8ff', glowA: '0 0 32px #a0a8ff80', glowB: '0 0 64px #a0a8fff0', textColor: '#ffffff', animation: 'mineEldritch 1.0s ease-in-out infinite' },
+  { minDepth: 2600, label: 'NEUTHRAL VOID', sublabel: 'the core whispers', bg: 'linear-gradient(180deg, #080010 0%, #020003 100%)', border: '2px solid #ff88ff', glowA: '0 0 34px #ff88ff80', glowB: '0 0 68px #ff88ffb0', textColor: '#ffffff', animation: 'mineEldritch 0.8s ease-in-out infinite' },
+  { minDepth: 3000, label: 'THE ENDLESS', sublabel: 'you have reached the deep', bg: 'radial-gradient(circle at 50% 50%, #14001a 0%, #020001 100%)', border: '2px solid #ffdd55', glowA: '0 0 40px #ffdd5580', glowB: '0 0 80px #ffdd55b0', textColor: '#ffffff', animation: 'mineGlowPulse 1.2s ease-in-out infinite' },
+];
+
+function injectMineButtonCSS() {
+  if (document.getElementById('mine-btn-evolution-css')) return;
+  const style = document.createElement('style');
+  style.id = 'mine-btn-evolution-css';
+  style.textContent = `
+    @keyframes mineGlowPulse {
+      0%   { box-shadow: var(--mine-glow-a); }
+      50%  { box-shadow: var(--mine-glow-b); }
+      100% { box-shadow: var(--mine-glow-a); }
+    }
+    @keyframes mineEldritch {
+      0%   { box-shadow: var(--mine-glow-a); filter: hue-rotate(0deg); }
+      33%  { box-shadow: var(--mine-glow-b); filter: hue-rotate(15deg); }
+      66%  { box-shadow: var(--mine-glow-b); filter: hue-rotate(-15deg); }
+      100% { box-shadow: var(--mine-glow-a); filter: hue-rotate(0deg); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+let _lastMineStage = -1;
+let _mineButtonReady = false;
+
+function updateMineButtonStage(force) {
+  const btn = document.getElementById(MINE_BTN_ID);
+  if (!btn) return;
+
+  const depth = G.depth || 0;
+  let stageObj = MINE_BTN_STAGES[0];
+  for (const stage of MINE_BTN_STAGES) {
+    if (depth >= stage.minDepth) stageObj = stage;
+  }
+
+  const stageIndex = MINE_BTN_STAGES.indexOf(stageObj);
+  if (!force && stageIndex === _lastMineStage) return;
+  const isFirstApply = !_mineButtonReady;
+  _mineButtonReady = true;
+  _lastMineStage = stageIndex;
+
+  btn.style.background = stageObj.bg;
+  btn.style.border = stageObj.border;
+  btn.style.color = stageObj.textColor;
+  btn.style.animation = stageObj.animation;
+  btn.style.transition = 'background 1.5s, border-color 1.5s, color 1s, box-shadow 1.5s';
+  btn.style.setProperty('--mine-glow-a', stageObj.glowA);
+  btn.style.setProperty('--mine-glow-b', stageObj.glowB);
+  btn.style.boxShadow = stageObj.glowA;
+
+  let mainLabel = btn.querySelector('.mine-btn-main-label');
+  let subLabel = btn.querySelector('.mine-btn-sub-label');
+  const pickIcon = btn.querySelector('.pick-icon');
+
+  if (!mainLabel) {
+    const existingText = Array.from(btn.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+    if (existingText) existingText.remove();
+
+    mainLabel = document.createElement('div');
+    mainLabel.className = 'mine-btn-main-label';
+    mainLabel.style.cssText = 'font-family:"Oswald",sans-serif;font-size:18px;letter-spacing:4px;line-height:1.2;';
+    subLabel = document.createElement('div');
+    subLabel.className = 'mine-btn-sub-label';
+    subLabel.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:9px;opacity:0.6;letter-spacing:2px;margin-top:4px;';
+
+    if (pickIcon) {
+      pickIcon.insertAdjacentElement('afterend', mainLabel);
+      mainLabel.insertAdjacentElement('afterend', subLabel);
+    } else {
+      btn.appendChild(mainLabel);
+      btn.appendChild(subLabel);
+    }
+  }
+
+  mainLabel.textContent = stageObj.label;
+  if (subLabel) subLabel.textContent = stageObj.sublabel;
+
+  if (!isFirstApply && depth > 0) showToast('The mine changes: ' + stageObj.sublabel);
+}
+
+setTimeout(() => {
+  try {
+    if (!G.runHistory) G.runHistory = [];
+    if (!G.challengeState) G.challengeState = { completedIds: [], activeId: null, offered: {} };
+    if (!G.ariaArc) G.ariaArc = { stage: 0, choice: null };
+
+    injectMineButtonCSS();
+    updateMineButtonStage(true);
+    reapplyAriaMerge();
+    renderRunHistory();
+    updateChallengeHUD();
+    if (G.ariaArc.stage >= 4 && !G.ariaArc.choice) setTimeout(() => showAriaChoiceModal(), 500);
+
+    console.log('[Deep Dig] Pack 2 ready - Run History, Depth Challenges, ARIA Arc, Mine Button Evolution');
+  } catch (e) {
+    console.error('[Deep Dig] Pack 2 boot failed:', e);
+  }
+}, 700);
