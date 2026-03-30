@@ -25,6 +25,7 @@ const P = {
 
 
 const ICONS = {
+  shaft_hand: makePx(`\n................\n.....ww.........\n....wWWw........\n....wWWw........\n.....dd.........\n....dDDd........\n....dDDd........\n.....dd.........\n....gggg........\n...gGGGGg.......\n....gGGg........\n.....gg.........\n................\n................\n................\n................`, P),
   pickaxe: makePx(`\n................\n..ww............\n.wWwd...........\n..wddd..........\n...ddd..........\n....Gs..........\n.....Gs.........\n......Gs........\n.......GG.......\n........GG......\n.........Gs.....\n..........sd....\n...........d....\n................\n................\n................`, P),
   drill: makePx(`\n................\n....ssss........\n...sGGGGs.......\n..sGGGGGGs......\n..sGGGGGGs......\n...sGGGGs.......\n....ssGss.......\n.......Gs.......\n......GGs.......\n.....GGGs.......\n....GGGGs.......\n...GGGGGs.......\n....ssss........\n................\n................\n................`, P),
   cart: makePx(`\n................\n................\n..dddddddd......\n.dGGGGGGGd......\ndGGGGGGGGGd.....\ndGGGGGGGGGd.....\n.dddddddddd.....\n...dD..dD.......\n..dsDd.dsDd.....\n..ddddd.dddd....\n................\n................\n................\n................\n................\n................`, P),
@@ -42,6 +43,7 @@ const ICONS = {
   oldgod: makePx(`\n................\n...pppp.pppp....\n..pPPPPpPPPPp...\n.pPPPPPpPPPPPp..\n.pPPpppppppPPp..\n.pPPpPPPPPpPPp..\n.pPPpPkkkPpPPp..\n.pPPpPkPkPpPPp..\n.pPPpPkkkPpPPp..\n.pPPpPPPPPpPPp..\n.pPPpppppppPPp..\n..ppppPPPPpppp..\n....ppppppp.....\n................\n................\n................`, P),
   deeptruth: makePx(`\n................\n.......g........\n......gGg.......\n.....gGGGg......\n....gGgGgGg.....\n...gGgggggGg....\n..gGggWWWggGg...\n..gGggWwWggGg...\n..gGggWWWggGg...\n...gGgggggGg....\n....gGgGgGg.....\n.....gGGGg......\n......gGg.......\n.......g........\n................\n................`, P),
   sharp_pick: makePx(`................\n....gggg........\n...gGGGGg.......\n..gGGGGGGg......\n...gGGGGg.......\n....gGGg........\n.....Gg.........\n......g.........\n.......g........\n........g.......\n.........g......\n..........g.....\n................\n................\n................\n................`, P),
+  gloves: makePx(`................\n................\n....wwww........\n...wWWWWw.......\n...wWWWWw.......\n....wWWw........\n....wWWw........\n...wWWWWw.......\n..wWWWWWWw......\n...wWWWWw.......\n....wwww........\n................\n................\n................\n................\n................`, P),
   helmet: makePx(`................\n...wwwwwwww.....\n..wWWWWWWWWw....\n.wWWWWWWWWWWw...\n.wWWWWWWWWWWw...\n.wWWWWWWWWWWw...\n..WWWWWWWWWW....\n...wwwwwwww.....\n....WWWWWW......\n....WWWWWW......\n................\n................\n................\n................\n................\n................`, P),
   lantern: makePx(`................\n.....yyyy.......\n....yYYYYy......\n...yYYYYYYy.....\n...yYwwwwYy.....\n...yYwyywyy.....\n...yYwyywyy.....\n...yYwwwwYy.....\n....yYYYYYy.....\n.....yyyyyyy....\n......yyyy......\n................\n................\n................\n................\n................`, P),
   stronger: makePx(`................\n..ssssssss......\n.sSSSSSSSSSs....\n.sSsssssssSs....\n.sSsssssssSs....\n.sSSSSSSSSSs....\n..ssssssss......\n.....ss.........\n....sSSs........\n...sSSSSs.......\n....sSSs........\n.....ss.........\n................\n................\n................\n................`, P),
@@ -59,6 +61,7 @@ const ICONS = {
   void2: makePx(`................\n....DDDDDD......\n...DkPPPPPkD....\n..DkPppppPkD....\n..DkPp..pPkD....\n..DkPp..pPkD....\n..DkPppppPkD....\n...DkPPPPPkD....\n....DDDDDDd......\n................\n................\n................\n................\n................\n................\n................`, P),
   clickeldritch: makePx(`................\n.....ppppp.......\n....pPPPPPp......\n...pPPpppPPp.....\n..pPPpPpPpPPp....\n..pPPpPkPpPPp....\n..pPPpPpPpPPp....\n...pPPpppPPp.....\n....pPPPPPp......\n.....ppppp.......\n................\n................\n................\n................\n................\n................`, P),
   mgr_pick: makePx(`................\n......www.......\n.....wWWWw......\n....wWWWWWw.....\n....wWWWWWw.....\n.....wwwww......\n....ssssssss....\n...sSSSSSSSSs...\n...sSWWWWWSSs...\n...sSWwwwWSSs...\n...sSWwwwWSSs...\n...sSSSSSSSss...\n....ssssssss....\n................\n................\n................`, P),
+  mgr_hand: makePx(`................\n.....wwwww......\n....wWWWWWw.....\n....wWWWWWw.....\n.....wwwww......\n......sss.......\n.....sSSs.......\n....sSWWSs......\n....sSWWSs......\n....sSSSSs......\n.....ssss.......\n................\n................\n................\n................\n................`, P),
   mgr_drill: makePx(`................\n.....wwwww......\n....wWWWWWw.....\n...wWWbbbWWw....\n...wWWbBbWWw....\n...wWWbbbWWw....\n....wWWWWWw.....\n.....wwwww......\n......sss.......\n.....sSSss......\n....sSSSSss.....\n...sSSSSSSSs....\n....sssssss.....\n................\n................\n................`, P),
   mgr_cart: makePx(`................\n....wwwwwwww....\n...wWWWWWWWWw...\n...wWssssssWw...\n...wWsGGGGsWw...\n...wWsGGGGsWw...\n...wWssssssWw...\n...wWWWWWWWWw...\n....wwwwwwww....\n................\n................\n................\n................\n................\n................\n................`, P),
   mgr_blast: makePx(`................\n....wwwwwwww....\n...wWWWWWWWWw...\n..wWWrrrrrWWWw..\n..wWWrRRRrWWWw..\n..wWWrRkRrWWWw..\n..wWWrRRRrWWWw..\n..wWWrrrrrWWWw..\n...wWWWWWWWWw...\n....wwwwwwww....\n................\n................\n................\n................\n................\n................`, P),
@@ -534,6 +537,7 @@ const SAVE_BACKUP_KEY = 'deepdig_v3_backup';
 const MAX_SAVE_NUMBER = 1e308;
 let suppressSaves = false;
 // Core data tables live in game-data.js.
+const HUMAN_MINER_IDS = ['shaft_hand', 'pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'];
 
 let G = {
   ore: 0, totalOre: 0, lifetimeOre: 0,
@@ -548,7 +552,7 @@ let G = {
   zoneChainBonuses: {},
   doctrineChoice: null,
   achievementRewards: {}, personalBests: {},
-  settings: { shake: true, fx: true, sound: true, nextUnlockTracker: true },
+  settings: { shake: true, fx: true, sound: true, nextUnlockTracker: true, autoAcceptChallenges: true },
 };
 
 // Gameplay data tables are loaded from game-data.js.
@@ -629,8 +633,8 @@ function getPrestigeCount() {
 // spending meaningful, so this is a bit more generous than +1% per level,
 // but the shape is intentionally much grindier than before.
 function getPrestigeShardRequirement() {
-  const BASE_REQUIREMENT = 5000000;
-  const SCALING_PER_ASCENSION = 2.25;
+  const BASE_REQUIREMENT = 10000000;
+  const SCALING_PER_ASCENSION = 2.75;
   return BASE_REQUIREMENT * Math.pow(SCALING_PER_ASCENSION, getPrestigeCount());
 }
 
@@ -639,13 +643,13 @@ function calcPrestigeGainMultiplier() {
   const challengeMult = G._challengeShardMult || 1;
   // Hard cap stacked shard-gain bonuses so special sources stay exciting
   // without letting one lucky run explode the whole prestige economy.
-  return Math.min(3, shardBonus * perkMult * challengeMult);
+  return Math.min(2.25, shardBonus * perkMult * challengeMult);
 }
 
 function calcPrestigeShards() {
   if (G.lifetimeOre < 20000000) return 0;
   const scaledOre = G.lifetimeOre / getPrestigeShardRequirement();
-  return Math.floor(Math.sqrt(scaledOre) * calcPrestigeGainMultiplier());
+  return Math.floor(Math.pow(Math.max(0, scaledOre), 0.45) * calcPrestigeGainMultiplier());
 }
 
 function calcPrestigeMultiplier(shards) {
@@ -654,6 +658,10 @@ function calcPrestigeMultiplier(shards) {
 
 function ensureMinerInfusions() {
   if (!G.minerInfusions || typeof G.minerInfusions !== 'object') G.minerInfusions = {};
+}
+
+function areCoreInfusionsVisible() {
+  return getPrestigeCount() > 0;
 }
 
 function getMinerInfusionLevel(minerId) {
@@ -803,7 +811,7 @@ const SHARD_SHOP = [
   { id: 'ss_offline1',  name: 'Haunted Shift',         cost: 4,   desc: 'Permanent 3x offline earnings.',           flavor: 'The mine runs itself when you leave. You have decided not to ask why.',          effect: () => { offlineMult *= 3; } },
   { id: 'ss_global2',   name: 'Resonant Core',         cost: 12,  desc: 'Permanent 2x all worker output.',          flavor: 'The shards hum in unison at depth. Everything digs faster. You feel watched.',   effect: () => { globalMult *= 2; } },
   { id: 'ss_click2',    name: 'Shard-Tipped Pick',     cost: 10,  desc: 'Permanent 5x click power.',               flavor: 'Cuts through bedrock like bedrock cut through your sleep schedule.',              effect: () => { clickMult *= 5; } },
-  { id: 'ss_shardbonus',name: 'Fractured Memory',      cost: 14,  desc: 'Permanent 1.5x shard gain on ascension.', flavor: 'You remember what you lost. The shards multiply.',                              effect: () => { shardBonus *= 1.5; } },
+  { id: 'ss_shardbonus',name: 'Fractured Memory',      cost: 14,  desc: 'Permanent 1.3x shard gain on ascension.', flavor: 'You remember what you lost. The shards multiply.',                              effect: () => { shardBonus *= 1.3; } },
   { id: 'ss_global3',   name: 'Deep Resonance',        cost: 24,  desc: 'Permanent 3x all worker output.',          flavor: 'Something below has noticed your shards. It approves.',                         effect: () => { globalMult *= 3; } },
   { id: 'ss_click3',    name: 'Void-Touched Fist',     cost: 20,  desc: 'Permanent 10x click power.',              flavor: 'You are not hitting rock anymore. You are hitting a concept.',                   effect: () => { clickMult *= 10; } },
   { id: 'ss_global4',   name: 'Shard Apotheosis',      cost: 45, desc: 'Permanent 5x all worker output.',           flavor: 'The crystals have accepted you. The mine has accepted you. Dig.',                effect: () => { globalMult *= 5; } },
@@ -895,8 +903,9 @@ function normalizeLoadedGame(saved) {
   normalized.challengeState = normalized.challengeState && typeof normalized.challengeState === 'object'
     ? normalized.challengeState
     : { completedIds: [], activeId: null, offered: {} };
-  normalized.settings = normalized.settings && typeof normalized.settings === 'object' ? normalized.settings : { shake: true, fx: true, sound: true, nextUnlockTracker: true };
-  if (typeof normalized.settings.nextUnlockTracker !== 'boolean') normalized.settings.nextUnlockTracker = true;
+normalized.settings = normalized.settings && typeof normalized.settings === 'object' ? normalized.settings : { shake: true, fx: true, sound: true, nextUnlockTracker: true, autoAcceptChallenges: true };
+if (typeof normalized.settings.nextUnlockTracker !== 'boolean') normalized.settings.nextUnlockTracker = true;
+if (typeof normalized.settings.autoAcceptChallenges !== 'boolean') normalized.settings.autoAcceptChallenges = true;
   normalized.stats = normalized.stats && typeof normalized.stats === 'object' ? normalized.stats : {};
   return normalized;
 }
@@ -1073,7 +1082,7 @@ const DOCTRINES = [
       // This doctrine makes early and mid-game manual/human play noticeably stronger.
       clickMult *= 3;
       globalMult *= 1.15;
-      ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'].forEach(id => {
+      HUMAN_MINER_IDS.forEach(id => {
         minerMults[id] = (minerMults[id] || 1) * 2;
       });
       ['worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth', 'chitinmaw', 'voidweaver', 'singularity_drill', 'causality_cracker', 'archive_lattice', 'entropy_engine', 'oracle_array', 'reality_forge'].forEach(id => {
@@ -1095,7 +1104,7 @@ const DOCTRINES = [
       abilityCooldownMult *= 0.8;
       globalMult *= 1.1;
       clickMult *= 0.7;
-      ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'].forEach(id => {
+      HUMAN_MINER_IDS.forEach(id => {
         minerMults[id] = (minerMults[id] || 1) * 0.85;
       });
     },
@@ -1237,6 +1246,7 @@ const MinerVisuals = (() => {
   let _stopAll = false;
 
   const CONFIGS = {
+    shaft_hand: { tier:0, color:'#8b6a2b', color2:'#d3a84f', sparkColor:'#ffe0a0' },
     pickaxe:   { tier:0, color:'#c8901a', color2:'#f5c842', sparkColor:'#ffdd88' },
     drill:     { tier:0, color:'#8a7040', color2:'#c8a040', sparkColor:'#ffe090' },
     cart:      { tier:0, color:'#6a5830', color2:'#a88040', sparkColor:'#ffd060' },
@@ -1633,6 +1643,7 @@ function buildMinerRow(m) {
   const qty = calcBuyQtyCount(m);
   const cost = calcBuyCost(m, qty);
   const canAfford = G.ore >= cost;
+  const showInfusions = areCoreInfusionsVisible();
   const infusionLevel = getMinerInfusionLevel(m.id);
   const infusionCost = getMinerInfusionCost(m);
   const infusionCanAfford = G.shards >= infusionCost;
@@ -1656,15 +1667,15 @@ function buildMinerRow(m) {
     <div class="miner-info">
       <div class="miner-name">${m.name}</div>
       <div class="miner-rate">${ops.toFixed(1)} ore/s each${count>0?` <span style="color:var(--ore)">${(ops*count).toFixed(1)}</span> total`:''}</div>
-      <div class="miner-flavor infusion-status" style="color:var(--prestige);font-size:9px;">${infusionStatus}</div>
+      ${showInfusions ? `<div class="miner-flavor infusion-status" style="color:var(--prestige);font-size:9px;">${infusionStatus}</div>` : ''}
       <div class="miner-flavor">${m.flavor}</div>
     </div>
     <div class="miner-count">${count}</div>
     ${mgrBought ? `<button class="auto-toggle ${mgrEnabled?'auto-on':'auto-off'}" onclick="event.stopPropagation(); toggleManager('${mgrId}')">${mgrEnabled?'AUTO':'PAUSED'}</button>` : ''}
-    <button class="infuse-btn ${infusionCanAfford?'can-afford':'cant-afford'}" onclick="event.stopPropagation(); infuseMiner('${m.id}')" title="${getMinerInfusionTitle(m, infusionLevel)}" style="width:72px;min-width:72px;max-width:72px;font-size:9px;border:1px solid #4a1060;background:#140820;color:${infusionCanAfford?'#d8a8ff':'#7b5d92'};border-radius:4px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+    ${showInfusions ? `<button class="infuse-btn ${infusionCanAfford?'can-afford':'cant-afford'}" onclick="event.stopPropagation(); infuseMiner('${m.id}')" title="${getMinerInfusionTitle(m, infusionLevel)}" style="width:72px;min-width:72px;max-width:72px;font-size:9px;border:1px solid #4a1060;background:#140820;color:${infusionCanAfford?'#d8a8ff':'#7b5d92'};border-radius:4px;padding:4px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
       <span>INFUSE</span>
       <span class="infuse-btn-cost">${infusionCost}◆</span>
-    </button>
+    </button>` : ''}
     <button class="buy-btn ${canAfford?'can-afford':'cant-afford'}" onclick="buyMiner('${m.id}')" style="width:64px;min-width:64px;max-width:64px;">
       ${qtyLabel ? `<span style="font-size:9px;color:inherit;opacity:0.7">${qtyLabel}</span>` : ''}
       <span class="buy-btn-cost">${fmt(cost)}</span>
@@ -1880,15 +1891,17 @@ function toggleManager(id) {
 function isManagerEnabled(id) { return G.managersEnabled[id] !== false; }
 
 function applySettingsUI() {
-  if (!G.settings) G.settings = { shake: true, fx: true, sound: true, nextUnlockTracker: true };
+  if (!G.settings) G.settings = { shake: true, fx: true, sound: true, nextUnlockTracker: true, autoAcceptChallenges: true };
   const s = document.getElementById('shake-toggle');
   const f = document.getElementById('fx-toggle');
   const snd = document.getElementById('sound-toggle');
   const nut = document.getElementById('next-unlock-toggle');
+  const cat = document.getElementById('challenge-auto-toggle');
   if (s) { s.textContent = G.settings.shake?'ON':'OFF'; s.style.borderColor = G.settings.shake?'#7ecfb0':'#554e44'; }
   if (f) { f.textContent = G.settings.fx?'ON':'OFF'; f.style.borderColor = G.settings.fx?'#7ecfb0':'#554e44'; }
   if (snd) { snd.textContent = G.settings.sound?'ON':'OFF'; snd.style.borderColor = G.settings.sound?'#7ecfb0':'#554e44'; }
   if (nut) { nut.textContent = G.settings.nextUnlockTracker?'ON':'OFF'; nut.style.borderColor = G.settings.nextUnlockTracker?'#7ecfb0':'#554e44'; }
+  if (cat) { cat.textContent = G.settings.autoAcceptChallenges?'ON':'OFF'; cat.style.borderColor = G.settings.autoAcceptChallenges?'#7ecfb0':'#554e44'; }
 }
 function openSettings() { document.getElementById('settings-modal').classList.add('show'); applySettingsUI(); }
 function closeSettings() { document.getElementById('settings-modal').classList.remove('show'); }
@@ -1902,6 +1915,13 @@ function toggleNextUnlockTracker() {
     window.NextUnlockTracker.refreshVisibility();
   }
   showToast('Upgrade Notification ' + (G.settings.nextUnlockTracker ? 'ENABLED' : 'DISABLED'));
+  saveGameSafe();
+}
+
+function toggleAutoAcceptChallenges() {
+  G.settings.autoAcceptChallenges = !G.settings.autoAcceptChallenges;
+  applySettingsUI();
+  showToast('Challenge Auto-Accept ' + (G.settings.autoAcceptChallenges ? 'ENABLED' : 'DISABLED'));
   saveGameSafe();
 }
 
@@ -1989,7 +2009,7 @@ function applyCurrentZoneEffects() {
 function ensureZoneBadge() {
   let badge = document.getElementById('zone-badge');
   if (badge) return badge;
-  const anchor = document.querySelector('.mine-header');
+  const anchor = document.getElementById('header-badge-slot-zone') || document.querySelector('.mine-header-meta-row-primary') || document.querySelector('.mine-header');
   if (!anchor) return null;
   badge = document.createElement('div');
   badge.id = 'zone-badge';
@@ -2000,7 +2020,7 @@ function ensureZoneBadge() {
 function ensureDoctrineBadge() {
   let badge = document.getElementById('doctrine-badge');
   if (badge) return badge;
-  const anchor = document.querySelector('.mine-header');
+  const anchor = document.getElementById('header-badge-slot-doctrine') || document.querySelector('.mine-header-meta-row-primary') || document.querySelector('.mine-header');
   if (!anchor) return null;
   badge = document.createElement('div');
   badge.id = 'doctrine-badge';
@@ -2143,6 +2163,7 @@ function buyManager(id) {
 }
 
 function infuseMiner(id) {
+  if (!areCoreInfusionsVisible()) return;
   const miner = MINERS_DATA.find(x => x.id === id);
   if (!miner) return;
 
@@ -2338,8 +2359,8 @@ const ACHIEVEMENTS = [
   { id:'ore_1m',        name:'Committed',           desc:'Mine 1,000,000 ore total.',                   flavor:'You have not seen daylight in some time.',            check:g=>g.lifetimeOre>=1e6 },
   { id:'ore_1b',        name:'You Cannot Stop',     desc:'Mine 1,000,000,000 ore total.',               flavor:'You are aware this is just numbers. You keep going.', check:g=>g.lifetimeOre>=1e9 },
   { id:'ore_1t',        name:'The Void Agrees',     desc:'Mine 1,000,000,000,000 ore.',                 flavor:'Something down there is proud of you.',              check:g=>g.lifetimeOre>=1e12 },
-  { id:'first_miner',   name:'Delegation',          desc:'Hire your first Rookie Miner.',               flavor:'They will regret this.',                             check:g=>(g.miners['pickaxe']||0)>=1 },
-  { id:'ten_miners',    name:'Small Operation',     desc:'Own 10 Rookie Miners.',                       flavor:'A hard hat for every head. Mostly.',                 check:g=>(g.miners['pickaxe']||0)>=10 },
+  { id:'first_miner',   name:'Delegation',          desc:'Hire your first Shaft Hand.',                 flavor:'They will regret this.',                             check:g=>(g.miners['shaft_hand']||0)>=1 },
+  { id:'ten_miners',    name:'Small Operation',     desc:'Own 10 Shaft Hands.',                         flavor:'A hard hat for every head. Mostly.',                 check:g=>(g.miners['shaft_hand']||0)>=10 },
   { id:'first_prestige',name:'Born Again Miner',    desc:'Ascend for the first time.',                  flavor:'You lost everything. The number went up.',           check:g=>g.shards>=1 },
   { id:'prestige_5',    name:'Ritual Descent',      desc:'Ascend 5 times.',                             flavor:'You have stopped counting the times.',               check:g=>g.shards>=5 },
   { id:'aria_unlock',   name:'Approved',            desc:'Research Project ARIA.',                      flavor:'ARIA sent a thank-you email. Nobody asked it to.',   check:g=>!!g.tech['tc_aria'] },
@@ -2348,13 +2369,13 @@ const ACHIEVEMENTS = [
   { id:'depth_500',     name:'No Signal',           desc:'Reach 500m depth.',                          flavor:'Your phone stopped working at 400m. You did not leave.',check:g=>g.depth>=500 },
   { id:'depth_700',     name:'Found Something',     desc:'Reach 700m depth.',                          flavor:'We are not saying what. We are saying do not stop.',  check:g=>g.depth>=700 },
   { id:'first_manager', name:'Redundancy Package',  desc:'Hire your first manager.',                   flavor:'You are now managing the people managing the mine.', check:g=>Object.keys(g.managers).length>=1 },
-  { id:'all_managers',  name:'Chain of Command',    desc:'Hire every human tier manager.',             flavor:'IT KNOWS is not included. It cannot be hired.',      check:g=>['mgr_pick','mgr_drill','mgr_cart','mgr_blast','mgr_tunnel','mgr_factory'].every(id=>g.managers[id]) },
+  { id:'all_managers',  name:'Chain of Command',    desc:'Hire every human tier manager.',             flavor:'IT KNOWS is not included. It cannot be hired.',      check:g=>['mgr_hand','mgr_pick','mgr_drill','mgr_cart','mgr_blast','mgr_tunnel','mgr_factory'].every(id=>g.managers[id]) },
   { id:'ore_rush_used', name:'In A Rush',           desc:'Activate Ore Rush.',                        flavor:'Faster. More. Now.',                                  check:g=>!!g.abilitiesUnlocked['ore_rush']&&(g.abilityCooldowns['ore_rush']||0)>0 },
   { id:'all_abilities', name:'Full Arsenal',        desc:'Unlock all abilities.',                      flavor:'The void has given you everything it has. For now.',  check:g=>ABILITIES_DATA.every(a=>isAbilityUnlocked(a)) },
   { id:'miner_25',      name:'Small Army',          desc:'Own 25 of any single workerS.',               flavor:'They have formed a union. You have ignored this.',    check:g=>Object.values(g.miners).some(c=>c>=25) },
   { id:'miner_100',     name:'Industrial Scale',    desc:'Own 100 of any single worker.',              flavor:'The accountant has asked you to stop. You have not.', check:g=>Object.values(g.miners).some(c=>c>=100) },
   { id:'miner_500',     name:'Geological Force',    desc:'Own 500 of any single worker.',              flavor:'At this point you are not mining. You are a weather event.', check:g=>Object.values(g.miners).some(c=>c>=500) },
-  { id:'all_human',     name:'Full Crew',           desc:'Own at least 1 of every human tier worker.', flavor:'Everyone is present. Nobody is happy about it.',      check:g=>['pickaxe','drill','cart','blaster','tunnel','factory'].every(id=>(g.miners[id]||0)>=1) },
+  { id:'all_human',     name:'Full Crew',           desc:'Own at least 1 of every human tier worker.', flavor:'Everyone is present. Nobody is happy about it.',      check:g=>['shaft_hand','pickaxe','drill','cart','blaster','tunnel','factory'].every(id=>(g.miners[id]||0)>=1) },
   { id:'all_aria',      name:'The Network',         desc:'Own at least 1 of every ARIA tier unit.',    flavor:'They are aware of each other. They are communicating.',check:g=>['drone','laser','nanoswarm','blackhole','timefold'].every(id=>(g.miners[id]||0)>=1) },
   { id:'all_eldritch',  name:'The Congregation',    desc:'Own at least 1 of every Eldritch worker.',   flavor:'Something beneath the mine exhaled.',                  check:g=>['worm','eyemass','voidmouth','oldgod','deeptruth'].every(id=>(g.miners[id]||0)>=1) },
   { id:'all_upgrades',  name:'Fully Equipped',      desc:'Buy every upgrade available in your current doctrine path.', flavor:'There is nothing left to sharpen. You sharpen anyway.', check:g=>UPGRADES_DATA.filter(u => isUpgradeAvailableForGame(u, g)).every(u=>g.upgrades[u.id]) },
@@ -3976,6 +3997,41 @@ const ShaftVis = (() => {
       ctx.globalAlpha = 1;
     }
 
+    // Starter crew gathers around the mine button so the early game feels alive.
+    const buttonCrew = Math.min(14, (G.miners['shaft_hand'] || 0) + Math.ceil((G.miners['pickaxe'] || 0) * 0.5));
+    if (buttonCrew > 0) {
+      const centerX = w / 2;
+      const centerY = h * 0.56;
+      const radiusX = Math.min(150, w * 0.32);
+      const radiusY = Math.min(92, h * 0.24);
+
+      for (let i = 0; i < buttonCrew; i++) {
+        const progress = buttonCrew === 1 ? 0.5 : i / (buttonCrew - 1);
+        const angle = Math.PI + progress * Math.PI;
+        const bob = Math.sin(t * 2.8 + i * 0.9) * 2.5;
+        const workerX = centerX + Math.cos(angle) * radiusX;
+        const workerY = centerY + Math.sin(angle) * radiusY + bob;
+        const isRookie = i >= Math.min(buttonCrew, G.miners['shaft_hand'] || 0);
+        const col = isRookie ? '#d3a84f' : '#8b6a2b';
+        const size = isRookie ? 5 : 4;
+
+        ctx.globalAlpha = 0.75;
+        ctx.fillStyle = col;
+        ctx.fillRect(workerX - size / 2, workerY, size, size * 1.6);
+        ctx.beginPath();
+        ctx.arc(workerX, workerY - size * 0.35, size * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(workerX + size * 0.4, workerY + size * 0.4);
+        ctx.lineTo(workerX + size * 1.4, workerY - size * 0.5 + Math.sin(t * 5 + i) * 1.5);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
     // Rope lines down the shaft
     const ropeCount = 2;
     for (let r = 0; r < ropeCount; r++) {
@@ -4014,7 +4070,7 @@ const ShaftVis = (() => {
 function init() {
   loadGame();
   if (!G.managersEnabled) G.managersEnabled = {};
-  if (!G.settings) G.settings = { shake:true, fx:true, sound:true };
+  if (!G.settings) G.settings = { shake:true, fx:true, sound:true, nextUnlockTracker: true, autoAcceptChallenges: true };
   ensurePersonalBests();
   if (G.eventCooldownEnd) eventCooldownEnd = G.eventCooldownEnd;
 
@@ -4402,6 +4458,7 @@ const GodThreatMeter = (() => {
 
   function buildUI() {
     const depthBadge = document.getElementById('depth-badge');
+    const header = document.querySelector('.mine-shaft');
     if (!depthBadge || document.getElementById('god-threat-wrap')) {
       barWrapEl = document.getElementById('god-threat-wrap');
       barFillEl = document.getElementById('god-threat-fill');
@@ -4409,13 +4466,12 @@ const GodThreatMeter = (() => {
       barPctEl = document.getElementById('god-threat-pct');
       return;
     }
+    if (!header) return;
 
     barWrapEl = document.createElement('div');
     barWrapEl.id = 'god-threat-wrap';
     barWrapEl.style.cssText = [
       'display:none',
-      'margin-top:6px',
-      'padding:0 2px',
     ].join(';');
 
     barWrapEl.innerHTML = `
@@ -4458,7 +4514,9 @@ const GodThreatMeter = (() => {
       "></div>
     `;
 
-    depthBadge.parentNode.insertBefore(barWrapEl, depthBadge.nextSibling);
+    const headerEl = document.querySelector('.mine-header');
+    if (headerEl && headerEl.parentNode === header) header.insertBefore(barWrapEl, headerEl.nextSibling);
+    else header.insertBefore(barWrapEl, header.firstChild);
     barFillEl = document.getElementById('god-threat-fill');
     barLabelEl = document.getElementById('god-threat-label');
     barPctEl = document.getElementById('god-threat-pct');
@@ -4782,7 +4840,7 @@ const DEPTH_CHALLENGES = [
     lockReason: 'Requires Project ARIA.',
     goalDesc: 'Reach 700m depth using only ARIA and higher workers (no human or eldritch units).',
     goal: (game) => {
-      const humanIds = ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'];
+      const humanIds = HUMAN_MINER_IDS;
       const eldritchIds = ['worm', 'eyemass', 'voidmouth', 'oldgod', 'deeptruth', 'chitinmaw', 'voidweaver'];
       const hasHuman = humanIds.some(id => (game.miners[id] || 0) > 0);
       const hasEldritch = eldritchIds.some(id => (game.miners[id] || 0) > 0);
@@ -4802,12 +4860,12 @@ const DEPTH_CHALLENGES = [
     color: '#d8a040',
     goalDesc: 'Own at least 10 of every human-tier worker before reaching 750m.',
     goal: (game) => {
-      const ids = ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'];
+      const ids = HUMAN_MINER_IDS;
       return ids.every(id => (game.miners[id] || 0) >= 10) && game.depth < 750;
     },
     rewardDesc: 'Permanent this run: all human workers 2x output.',
     rewardEffect: () => {
-      ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'].forEach(id => {
+      HUMAN_MINER_IDS.forEach(id => {
         minerMults[id] = (minerMults[id] || 1) * 2;
       });
     },
@@ -4821,13 +4879,13 @@ const DEPTH_CHALLENGES = [
     lockReason: 'Requires the Industrial Command doctrine.',
     goalDesc: 'Industrial Command only: own at least 25 of every human-tier worker before reaching 1150m.',
     goal: (game) => {
-      const ids = ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'];
+      const ids = HUMAN_MINER_IDS;
       return ids.every(id => (game.miners[id] || 0) >= 25) && game.depth < 1150;
     },
     rewardDesc: 'Permanent this run: click power 2x and all human workers 3x output.',
     rewardEffect: () => {
       clickMult *= 2;
-      ['pickaxe', 'drill', 'cart', 'blaster', 'tunnel', 'factory', 'conveyor', 'excavator'].forEach(id => {
+      HUMAN_MINER_IDS.forEach(id => {
         minerMults[id] = (minerMults[id] || 1) * 3;
       });
     },
@@ -4837,6 +4895,7 @@ const DEPTH_CHALLENGES = [
     triggerDepth: 1000,
     failDepth: 1200,
     color: '#c84aff',
+    manualAccept: true,
     goalDesc: 'Reach 1000m within 10 minutes of starting this challenge (requires fast early ramp).',
     goal: (game) => game.depth >= 1000 && (Date.now() - (game._dcStartTime || Date.now())) < 600000,
     onActivate: (game) => { game._dcStartTime = Date.now(); },
@@ -4951,6 +5010,7 @@ const DEPTH_CHALLENGES = [
     triggerDepth: 200,
     failDepth: 9999,
     color: '#ff8800',
+    manualAccept: true,
     goalDesc: 'Ascend within 5 minutes of accepting (must have 20M lifetime ore to start).',
     startCondition: (game) => (game.lifetimeOre || 0) >= 20000000,
     goal: () => false,
@@ -4963,6 +5023,23 @@ const DEPTH_CHALLENGES = [
 function getActiveChallenge() {
   if (!G.challengeState?.activeId) return null;
   return DEPTH_CHALLENGES.find(challenge => challenge.id === G.challengeState.activeId) || null;
+}
+
+function activateChallenge(challenge, { autoAccepted = false } = {}) {
+  if (!challenge) return;
+  if (!G.challengeState) G.challengeState = { completedIds: [], activeId: null, offered: {} };
+  G.challengeState.activeId = challenge.id;
+  if (typeof challenge.onActivate === 'function') challenge.onActivate(G);
+  showToast((autoAccepted ? 'Challenge auto-accepted: ' : 'Challenge accepted: ') + challenge.goalDesc.slice(0, 50) + '...');
+  updateChallengeHUD();
+  saveGameSafe();
+}
+
+function shouldAutoAcceptChallenge(challenge) {
+  if (!challenge) return false;
+  if (!G.settings) return !challenge.manualAccept;
+  if (!G.settings.autoAcceptChallenges) return false;
+  return !challenge.manualAccept;
 }
 
 function showChallengeOffer(challenge) {
@@ -5009,11 +5086,7 @@ function showChallengeOffer(challenge) {
 
   document.getElementById('dc-accept').onclick = () => {
     banner.remove();
-    G.challengeState.activeId = challenge.id;
-    if (typeof challenge.onActivate === 'function') challenge.onActivate(G);
-    showToast('Challenge accepted: ' + challenge.goalDesc.slice(0, 50) + '...');
-    updateChallengeHUD();
-    saveGameSafe();
+    activateChallenge(challenge);
   };
 
   document.getElementById('dc-skip').onclick = () => {
@@ -5103,7 +5176,8 @@ function tickDepthChallenges() {
       if (challenge.startCondition && !challenge.startCondition(G)) continue;
       if (G.depth >= challenge.triggerDepth) {
         state.offered[challenge.id] = true;
-        showChallengeOffer(challenge);
+        if (shouldAutoAcceptChallenge(challenge)) activateChallenge(challenge, { autoAccepted: true });
+        else showChallengeOffer(challenge);
         break;
       }
     }

@@ -148,13 +148,15 @@ const BonusSystems = (() => {
   function ensureDepthBadge() {
     if (depthBadgeEl && document.body.contains(depthBadgeEl)) return;
     const depthBadge = document.getElementById('depth-badge');
-    if (!depthBadge) return;
+    const slot = document.getElementById('header-badge-slot-record');
+    if (!depthBadge && !slot) return;
     depthBadgeEl = document.getElementById('depth-record-badge');
     if (depthBadgeEl) return;
     depthBadgeEl = document.createElement('span');
     depthBadgeEl.id = 'depth-record-badge';
     depthBadgeEl.title = 'Your all-time deepest depth across all runs';
-    depthBadge.insertAdjacentElement('afterend', depthBadgeEl);
+    if (slot) slot.appendChild(depthBadgeEl);
+    else depthBadge.insertAdjacentElement('afterend', depthBadgeEl);
   }
 
   function updateDepthRecord() {

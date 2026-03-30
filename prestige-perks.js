@@ -61,12 +61,12 @@ var ASCENSION_PERKS = [
   {
     id: 'perk_shard_boost',
     name: 'Crystal Memory',
-    desc: 'Gain 1.5x shards when you next ascend.',
+    desc: 'Gain 1.25x shards when you next ascend.',
     flavor: 'The crystals retained something from last time. Something useful.',
     color: '#c84aff',
     weight: 10,
     minPrestige: 1,
-    shardMultiplier: 1.5,
+    shardMultiplier: 1.25,
     onApply: null,
   },
   {
@@ -96,12 +96,12 @@ var ASCENSION_PERKS = [
   {
     id: 'perk_free_shards',
     name: 'Residual Crystallisation',
-    desc: 'Start this run with 5 bonus Crystal Shards.',
+    desc: 'Start this run with 2 bonus Crystal Shards.',
     flavor: 'Some things do not reset. The shards insist on this.',
     color: '#c84aff',
     weight: 10,
     minPrestige: 1,
-    onApply: (game) => { game.shards += 5; },
+    onApply: (game) => { game.shards += 2; },
   },
   {
     id: 'perk_fast_early',
@@ -155,13 +155,13 @@ var ASCENSION_PERKS = [
   {
     id: 'perk_shard_windfall',
     name: 'Crystallised Legacy',
-    desc: 'Start with 15 shards and gain 2x shards on next ascension.',
+    desc: 'Start with 6 shards and gain 1.5x shards on next ascension.',
     flavor: 'Some runs are just lucky. This is one of those runs.',
     color: '#ff2040',
     weight: 4,
     minPrestige: 3,
-    shardMultiplier: 2,
-    onApply: (game) => { game.shards += 15; },
+    shardMultiplier: 1.5,
+    onApply: (game) => { game.shards += 6; },
   },
 ];
 

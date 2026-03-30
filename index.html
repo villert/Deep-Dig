@@ -34,7 +34,14 @@
     <div class="mine-shaft">
       <div class="mine-header">
         <h2>⛏ SHAFT ALPHA</h2>
-        <div class="depth-badge" id="depth-badge">DEPTH: 0m</div>
+        <div class="mine-header-meta">
+          <div class="mine-header-meta-row mine-header-meta-row-primary" id="mine-header-meta-primary">
+            <div class="depth-badge" id="depth-badge">DEPTH: 0m</div>
+            <div id="header-badge-slot-record"></div>
+            <div id="header-badge-slot-zone"></div>
+            <div id="header-badge-slot-doctrine"></div>
+          </div>
+        </div>
       </div>
       <div class="click-zone" style="padding:0;position:relative;overflow:hidden;min-height:240px;">
         <canvas id="shaft-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;display:block;"></canvas>
@@ -202,6 +209,13 @@
           <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Show the "Up Next" unlock tracker panel.</div>
         </div>
         <button id="next-unlock-toggle" onclick="toggleNextUnlockTracker()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <div style="font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);">Auto-Accept Challenges</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Automatically start most depth challenges. Timed challenges still ask first.</div>
+        </div>
+        <button id="challenge-auto-toggle" onclick="toggleAutoAcceptChallenges()" style="font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:1px;padding:5px 14px;border-radius:3px;cursor:pointer;border:1px solid;min-width:52px;"></button>
       </div>
     </div>
     <div style="border-top:1px solid var(--panel-border);padding-top:16px;margin-bottom:16px;">
