@@ -61,12 +61,12 @@ var ASCENSION_PERKS = [
   {
     id: 'perk_shard_boost',
     name: 'Crystal Memory',
-    desc: 'Gain 2x shards when you next ascend.',
+    desc: 'Gain 1.5x shards when you next ascend.',
     flavor: 'The crystals retained something from last time. Something useful.',
     color: '#c84aff',
     weight: 10,
     minPrestige: 1,
-    shardMultiplier: 2,
+    shardMultiplier: 1.5,
     onApply: null,
   },
   {
@@ -155,12 +155,12 @@ var ASCENSION_PERKS = [
   {
     id: 'perk_shard_windfall',
     name: 'Crystallised Legacy',
-    desc: 'Start with 15 shards and gain 3x shards on next ascension.',
+    desc: 'Start with 15 shards and gain 2x shards on next ascension.',
     flavor: 'Some runs are just lucky. This is one of those runs.',
     color: '#ff2040',
     weight: 4,
     minPrestige: 3,
-    shardMultiplier: 3,
+    shardMultiplier: 2,
     onApply: (game) => { game.shards += 15; },
   },
 ];
@@ -411,6 +411,8 @@ doPrestige = function () {
     G.synergyBonuses = {};
     G.zoneChainState = { seen: {}, cooldownEnd: 0 };
     G.zoneChainBonuses = {};
+    // Doctrines are intentionally run-scoped so each ascension can branch differently.
+    G.doctrineChoice = null;
     G.eventData = null;
     if (!G.stats) G.stats = {};
     G.stats.prestigeCount = (G.stats.prestigeCount || 0) + 1;

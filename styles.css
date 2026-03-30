@@ -260,6 +260,41 @@
   .miner-row.row-has-workers { border-color: #3a3020; }
   .miner-row.tier-1-active { border-color: #1a3040; }
   .miner-row.tier-2-active { border-color: #2a1040; }
+  @keyframes infusionAura {
+    0%   { box-shadow: 0 0 0 var(--infusion-aura-faint), inset 0 0 0 rgba(255,255,255,0.00); }
+    50%  { box-shadow: 0 0 14px var(--infusion-aura-strong), inset 0 0 10px rgba(255,255,255,0.03); }
+    100% { box-shadow: 0 0 0 var(--infusion-aura-faint), inset 0 0 0 rgba(255,255,255,0.00); }
+  }
+  .miner-row.infused-aura-tier-0,
+  .miner-row.infused-aura-tier-1,
+  .miner-row.infused-aura-tier-2,
+  .miner-row.infused-aura-tier-3 {
+    animation: infusionAura 2.6s ease-in-out infinite;
+  }
+  .miner-row.infused-aura-tier-0 {
+    --infusion-aura-faint: rgba(245,200,66,0.10);
+    --infusion-aura-strong: rgba(245,200,66,0.24);
+    border-color: #8a6a18;
+    box-shadow: 0 0 12px rgba(245,200,66,0.18);
+  }
+  .miner-row.infused-aura-tier-1 {
+    --infusion-aura-faint: rgba(64,192,224,0.10);
+    --infusion-aura-strong: rgba(64,192,224,0.24);
+    border-color: #206c88;
+    box-shadow: 0 0 12px rgba(64,192,224,0.18);
+  }
+  .miner-row.infused-aura-tier-2 {
+    --infusion-aura-faint: rgba(200,74,255,0.10);
+    --infusion-aura-strong: rgba(200,74,255,0.24);
+    border-color: #6a2c88;
+    box-shadow: 0 0 12px rgba(200,74,255,0.18);
+  }
+  .miner-row.infused-aura-tier-3 {
+    --infusion-aura-faint: rgba(160,220,255,0.12);
+    --infusion-aura-strong: rgba(160,220,255,0.28);
+    border-color: #5da8c8;
+    box-shadow: 0 0 14px rgba(160,220,255,0.20);
+  }
   @keyframes rowPulse {
     0%   { box-shadow: inset 0 0 12px 2px rgba(245,200,66,0.35); }
     100% { box-shadow: inset 0 0 0px 0px rgba(245,200,66,0); }
@@ -771,47 +806,62 @@
 
 /* Next unlock tracker */
 #nut-panel {
-  background: #0e0c08;
-  border: 1px solid #2a2418;
+  background: linear-gradient(180deg, #0d0b08 0%, #0b0907 100%);
+  border: 1px solid #221d14;
   border-radius: 4px;
-  padding: 10px 12px;
-  margin: 0 0 14px 0;
+  padding: 8px 11px;
+  margin: 0 0 12px 0;
   font-family: 'IBM Plex Mono', monospace;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.4s;
-  min-height: 68px;
+  transition: border-color 0.4s, box-shadow 0.4s, opacity 0.35s, transform 0.35s;
+  min-height: 60px;
+  opacity: 0.68;
+  transform: translateY(0);
 }
-#nut-panel.nut-glow-gold { border-color: #6a5020; box-shadow: 0 0 12px #f5c84218; }
-#nut-panel.nut-glow-ore { border-color: #3a6040; box-shadow: 0 0 12px #7ecfb018; }
-#nut-panel.nut-glow-shard { border-color: #4a1060; box-shadow: 0 0 12px #c84aff18; }
-#nut-panel.nut-glow-depth { border-color: #204050; box-shadow: 0 0 12px #40c0e018; }
-#nut-panel.nut-glow-event { border-color: #602010; box-shadow: 0 0 12px #e0503018; }
+#nut-panel:hover,
+#nut-panel.nut-near-complete {
+  opacity: 0.95;
+}
+#nut-panel.nut-idle {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+#nut-panel.nut-glow-gold { border-color: #4a3a18; box-shadow: 0 0 6px #f5c84210; }
+#nut-panel.nut-glow-ore { border-color: #2d4733; box-shadow: 0 0 6px #7ecfb010; }
+#nut-panel.nut-glow-shard { border-color: #381048; box-shadow: 0 0 6px #c84aff10; }
+#nut-panel.nut-glow-depth { border-color: #183446; box-shadow: 0 0 6px #40c0e010; }
+#nut-panel.nut-glow-event { border-color: #4b2016; box-shadow: 0 0 6px #e0503010; }
+#nut-panel.nut-near-complete {
+  box-shadow: 0 0 10px rgba(255,255,255,0.08);
+}
 #nut-eyebrow {
   font-family: 'Oswald', sans-serif;
   font-size: 8px;
-  letter-spacing: 3px;
-  color: #4a4030;
-  margin-bottom: 5px;
+  letter-spacing: 2px;
+  color: #564b3a;
+  margin-bottom: 4px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  opacity: 0.78;
 }
 #nut-eyebrow-badge {
   font-size: 7px;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   padding: 1px 5px;
   border-radius: 2px;
-  background: #1a1610;
-  border: 1px solid #2a2418;
-  color: #6a5a40;
+  background: #14110d;
+  border: 1px solid #221d14;
+  color: #75644b;
   transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 #nut-label {
   font-family: 'Oswald', sans-serif;
-  font-size: 13px;
-  letter-spacing: 2px;
-  color: #c8b080;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #baaa84;
   margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
@@ -820,19 +870,20 @@
 }
 #nut-sublabel {
   font-size: 9px;
-  color: #5a5040;
-  margin-bottom: 7px;
+  color: #655948;
+  margin-bottom: 6px;
   line-height: 1.5;
   min-height: 13px;
   transition: color 0.4s;
+  opacity: 0.82;
 }
 #nut-track {
-  height: 4px;
-  background: #1a1610;
+  height: 3px;
+  background: #17130f;
   border-radius: 2px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 #nut-fill {
   height: 100%;
@@ -847,13 +898,17 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 24px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  animation: nutShimmer 1.4s ease-in-out infinite;
+  width: 14px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+  animation: none;
+}
+#nut-panel:hover #nut-fill::after,
+#nut-panel.nut-near-complete #nut-fill::after {
+  animation: nutShimmer 2.2s ease-in-out infinite;
 }
 @keyframes nutShimmer {
   0% { opacity: 0; transform: translateX(-20px); }
-  40% { opacity: 1; }
+  40% { opacity: 0.55; }
   100% { opacity: 0; transform: translateX(4px); }
 }
 #nut-amounts {
@@ -861,7 +916,8 @@
   justify-content: space-between;
   align-items: baseline;
   font-size: 9px;
-  color: #4a4030;
+  color: #5c503f;
+  opacity: 0.86;
 }
 #nut-have { transition: color 0.4s; }
 #nut-need {
@@ -887,11 +943,11 @@
   align-items: center;
   justify-content: center;
   font-family: 'Oswald', sans-serif;
-  font-size: 16px;
-  letter-spacing: 4px;
+  font-size: 11px;
+  letter-spacing: 2px;
   pointer-events: none;
   opacity: 0;
-  background: rgba(10,9,6,0.80);
+  background: rgba(10,9,6,0.55);
   border-radius: 4px;
 }
 #nut-panel::before {
@@ -902,11 +958,12 @@
     0deg,
     transparent,
     transparent 3px,
-    rgba(0,0,0,0.06) 3px,
-    rgba(0,0,0,0.06) 4px
+    rgba(0,0,0,0.04) 3px,
+    rgba(0,0,0,0.04) 4px
   );
   pointer-events: none;
   border-radius: 4px;
+  opacity: 0.55;
 }
 
 /* Depth record badge */

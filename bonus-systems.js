@@ -61,6 +61,27 @@ const BonusSystems = (() => {
 
   let depthBadgeEl = null;
   let lastRecord = 0;
+  let lastLorePopupAt = 0;
+
+  function canShowBonusLore() {
+    const now = Date.now();
+    const BONUS_LORE_COOLDOWN_MS = 90000;
+    if (now - lastLorePopupAt < BONUS_LORE_COOLDOWN_MS) return false;
+    lastLorePopupAt = now;
+    return true;
+  }
+
+  function shouldShowMilestoneLore(milestone) {
+    // Small milestones still grant rewards and toasts, but only the more
+    // meaningful thresholds interrupt play with a lore modal.
+    return milestone.count >= 50;
+  }
+
+  function shouldShowSynergyLore(synergy) {
+    // Simple two-part synergies are common, so save modals for the more
+    // substantial discoveries that combine bigger parts of the roster.
+    return (synergy.requires?.length || 0) >= 3;
+  }
 
   function getMilestoneKey(milestone) {
     return milestone.id + '_' + milestone.count;
@@ -94,9 +115,11 @@ const BonusSystems = (() => {
       G.milestoneBonuses[key] = true;
       milestone.effect();
       showToast('* ' + milestone.toastMsg);
-      setTimeout(() => {
-        showLoreEvent({ title: 'Worker Milestone - ' + milestone.name, body: milestone.loreMsg });
-      }, 800);
+      if (shouldShowMilestoneLore(milestone) && canShowBonusLore()) {
+        setTimeout(() => {
+          showLoreEvent({ title: 'Worker Milestone - ' + milestone.name, body: milestone.loreMsg });
+        }, 800);
+      }
       burstParticles(window.innerWidth / 2, window.innerHeight / 2, 20, '#f5c842');
       if (G.settings && G.settings.shake) screenShake(4);
       saveGameSafe();
@@ -111,9 +134,11 @@ const BonusSystems = (() => {
       G.synergyBonuses[synergy.id] = true;
       synergy.effect();
       showToast('SECRET SYNERGY: ' + synergy.name + ' - ' + synergy.desc);
-      setTimeout(() => {
-        showLoreEvent({ title: 'Synergy Discovered - ' + synergy.name, body: synergy.desc + '\n\n' + synergy.flavor });
-      }, 600);
+      if (shouldShowSynergyLore(synergy) && canShowBonusLore()) {
+        setTimeout(() => {
+          showLoreEvent({ title: 'Synergy Discovered - ' + synergy.name, body: synergy.desc + '\n\n' + synergy.flavor });
+        }, 600);
+      }
       burstParticles(window.innerWidth / 2, window.innerHeight / 2, 24, '#7ecfb0');
       if (G.settings && G.settings.shake) screenShake(5);
       saveGameSafe();

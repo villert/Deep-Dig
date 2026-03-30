@@ -36,7 +36,7 @@ const NextUnlockTracker = (() => {
         badgeColor: '#c8a040',
         fillColor: () => '#d4a840',
         isCompleted: () => !!G.upgrades[u.id],
-        shouldShow: () => !G.upgrades[u.id] && (!u.req || G.upgrades[u.req]) && G.ore < u.cost,
+        shouldShow: () => isUpgradeAvailableForGame(u, G) && !G.upgrades[u.id] && (!u.req || G.upgrades[u.req]) && G.ore < u.cost,
       });
     }
 
@@ -233,9 +233,14 @@ const NextUnlockTracker = (() => {
   let lastGoal = null;
   let pinnedGoalId = null;
   let flashTimer = null;
+  let idleTimer = null;
   let goals = null;
   let rebuildTimer = 0;
   let started = false;
+
+  function trackerEnabled() {
+    return !G.settings || G.settings.nextUnlockTracker !== false;
+  }
 
   function buildPanel() {
     if (document.getElementById('nut-panel')) return;
@@ -248,7 +253,7 @@ const NextUnlockTracker = (() => {
     panel.innerHTML = `
       <div id="nut-unlocked-flash"></div>
       <div id="nut-eyebrow">
-        <span>// NEXT UNLOCK</span>
+        <span>// UP NEXT</span>
         <span id="nut-eyebrow-badge"></span>
       </div>
       <div id="nut-label">Scanning the depths...</div>
@@ -273,6 +278,32 @@ const NextUnlockTracker = (() => {
     pctEl = document.getElementById('nut-pct');
     badgeEl = document.getElementById('nut-eyebrow-badge');
     flashEl = document.getElementById('nut-unlocked-flash');
+    panelEl.addEventListener('mouseenter', () => {
+      panelEl.classList.remove('nut-idle');
+      scheduleIdle();
+    });
+    panelEl.addEventListener('mouseleave', () => {
+      scheduleIdle();
+    });
+    refreshVisibility();
+  }
+
+  function refreshVisibility() {
+    if (!panelEl) return;
+    panelEl.style.display = trackerEnabled() ? '' : 'none';
+  }
+
+  function scheduleIdle() {
+    if (!panelEl) return;
+    clearTimeout(idleTimer);
+    panelEl.classList.remove('nut-idle');
+    const isHovered = panelEl.matches(':hover');
+    const isNearComplete = panelEl.classList.contains('nut-near-complete');
+    if (isHovered || isNearComplete || !trackerEnabled()) return;
+    idleTimer = setTimeout(() => {
+      if (!panelEl || panelEl.matches(':hover') || panelEl.classList.contains('nut-near-complete')) return;
+      panelEl.classList.add('nut-idle');
+    }, 12000);
   }
 
   function flashUnlocked(label, color) {
@@ -322,6 +353,11 @@ const NextUnlockTracker = (() => {
 
   function update() {
     if (!panelEl) return;
+    if (!trackerEnabled()) {
+      panelEl.style.display = 'none';
+      return;
+    }
+    panelEl.style.display = '';
 
     if (!goals || Date.now() - rebuildTimer > 4000) {
       goals = buildGoals();
@@ -342,6 +378,7 @@ const NextUnlockTracker = (() => {
       badgeEl.style.color = '#c84aff';
       badgeEl.style.borderColor = '#4a1060';
       panelEl.className = 'nut-glow-shard';
+      scheduleIdle();
       return;
     }
 
@@ -355,6 +392,7 @@ const NextUnlockTracker = (() => {
     if (lastGoal && lastGoal.id !== goal.id && typeof lastGoal.isCompleted === 'function' && lastGoal.isCompleted()) {
       flashUnlocked(lastGoal.label(), lastGoal.fillColor());
     }
+    const goalChanged = lastGoalId !== goal.id;
     lastGoalId = goal.id;
     lastGoal = goal;
 
@@ -377,6 +415,11 @@ const NextUnlockTracker = (() => {
     badgeEl.style.borderColor = goal.badgeColor + '55';
     badgeEl.style.background = goal.badgeColor + '11';
     panelEl.className = goal.glowClass;
+    panelEl.classList.toggle('nut-near-complete', pct >= 85);
+    if (goalChanged) {
+      panelEl.classList.remove('nut-idle');
+    }
+    scheduleIdle();
   }
 
   function init() {
@@ -388,5 +431,5 @@ const NextUnlockTracker = (() => {
     console.log('[Deep Dig] Next Unlock Tracker ready.');
   }
 
-  return { init, update };
+  return { init, update, refreshVisibility };
 })();
